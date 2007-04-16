@@ -4,134 +4,194 @@ Authored by Ciel
 */
 
 // Hacking javescript data types
-
-
-// Array.concat was implemented in IE & FF
-if( !Array.prototype.concat )
-Array.prototype.concat = function()
+if( typeof(_JSHACKING) == 'undefined' )
 {
-	for( var i = 0, length = arguments.length, a ; i<arguments.length; ++i )
+	_JSHACKING = true;
+	// Array.concat was implemented natively in IE & FF
+	if( false && !Array.prototype.concat )
+	Array.prototype.concat = function()
 	{
-		a = arguments[i];
-		if( a.constructor == Array )
+		for( var i = 0, length = arguments.length, a ; i<arguments.length; ++i )
 		{
-			for( var j = 0; j<a.length; ++j )
-				this.push( a[j] );
+			a = arguments[i];
+			if( a.constructor == Array )
+			{
+				for( var j = 0; j<a.length; ++j )
+					this.push( a[j] );
+			}
+			else
+			{
+				this.push( a );
+			}
 		}
+	}
+
+
+
+	if( !Object.absorb )
+	Object.absorb = function( oDst, oSrc, preserve )
+	{
+		if( oSrc.constructor != Array )
+			oSrc=[oSrc];
+
+		if( !preserve )
+			for( var i = 0, o ; i < oSrc.length; ++i )
+			{
+				o = oSrc[i];
+				for( var property in o )
+				{
+					oDst[property] = o[property];
+				}
+			}
 		else
+			for( var i = 0, o ; i < oSrc.length; ++i )
+			{
+				o = oSrc[i];
+				for( var property in o )
+				{
+					if( typeof( oDst[property] ) == 'undefined' )
+						oDst[property] = o[property];
+				}
+			}
+
+		return oDst;
+	};
+
+	if( !Object.prototype.absorb )
+	Object.prototype.absorb = function( oSrc, preserve )
+	{
+		return Object.absorb(this, oSrc, preserve);
+	};
+
+
+
+	if( !Array.expand ) // FIXME: performance issue?
+	Array.expand = function()
+	{
+		var input = [];
+		var arr = [];
+
+		for( var i = 0; i<arguments.length; ++i )
+			input = input.concat( arguments[i] );
+
+		for( var i = 0, a; i<input.length; ++i )
 		{
-			this.push( a );
+			a = input[i];
+			
+			if( a == null || a.constructor == String ) 
+				arr.push( a );
+			else if( a.constructor == Array )
+				arr = arr.concat( a );
+			else if( a.length != null )
+			{
+				// HTML Collection, not expand FORM and SELECT
+				if( a.tagName == 'FORM' || a.tagName == 'SELECT' )
+					arr.push( a );
+				else
+					for( var j = 0; j < a.length; ++j )
+						arr.push( a[j] );
+			}
+			else
+				arr.push( a );
+		}
+		return arr;
+	}
+
+	if( !Array.prototype.expand )
+	Array.prototype.expand = function()
+	{
+		var arr = [].concat( this );
+		for( var i = 0; i<arguments.length; ++i )
+			arr = arr.concat( arguments[i] );
+		return Array.expand( arr );
+	}
+
+
+	// compatible codes from Mozilla
+	// http://snippets.dzone.com/posts/show/718
+	// http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Objects:Array:filter
+
+
+	if (!Array.prototype.filter)
+	{
+		Array.prototype.filter = function(fun /*, thisp*/)
+		{
+			var len = this.length;
+			if (typeof fun != "function")
+				throw new TypeError();
+
+			var res = new Array();
+			var thisp = arguments[1];
+			for (var i = 0; i < len; i++)
+			{
+				if (i in this)
+				{
+					var val = this[i]; // in case fun mutates this
+					if (fun.call(thisp, val, i, this))
+						res.push(val);
+				}
+			}
+
+			return res;
+		};
+	}
+
+	// these methods are natively implemented in FF 1.5
+	if(!Array.prototype.forEach)
+	{
+		Array.prototype.forEach = function(callback,thisObject)
+		{
+			for(var i=0,len=this.length;i<len;i++)
+				callback.call(thisObject,this[i],i,this);
+		}
+		Array.prototype.map = function(callback,thisObject)
+		{
+			for(var i=0,res=[],len=this.length;i<len;i++)
+				res[i] = callback.call(thisObject,this[i],i,this);
+			return res;
+		}
+		Array.prototype.filter = function(callback,thisObject)
+		{
+			for(var i=0,res=[],len=this.length;i<len;i++)
+				callback.call(thisObject,this[i],i,this) && res.push(this[i]);
+			return res;
+		}
+		Array.prototype.indexOf = function(searchElement,fromIndex)
+		{
+			var i = (fromIndex < 0) ? this.length+fromIndex : fromIndex || 0;
+			for(;i<this.length;i++)
+				if(searchElement === this[i]) return i;
+			return -1;
+		}
+		Array.prototype.lastIndexOf = function(searchElement,fromIndex)
+		{
+			var max = this.length-1;
+			var i = (fromIndex < 0)   ? Math.max(max+1 + fromIndex,0) :
+					(fromIndex > max) ? max :
+					max-(fromIndex||0) || max;
+			for(;i>=0;i--)
+				if(searchElement === this[i]) return i;
+			return -1;
+		}
+		Array.prototype.every = function(callback,thisObject)
+		{
+			for(var i=0,len=this.length;i<len;i++)
+				if(!callback.call(thisObject,this[i],i,this)) return false;
+			return true;
+		}
+		Array.prototype.some = function(callback,thisObject)
+		{
+			for(var i=0,len=this.length;i<len;i++)
+				if(callback.call(thisObject,this[i],i,this)) return true;
+			return false;
 		}
 	}
-}
-
-
-if( !Array.prototype.expand )
-Array.prototype.expand = function()
-{
-	var arr = [];
-	for( var i = 0, a; i<this.length; ++i )
-	{
-		a = this[i];
-		if( a == null )
-			arr.push( a );
-		else if( a.constructor == Array )
-			arr = arr.concat( a );
-		else if( a.length != null )
-		{
-			for( var j = 0; j < a.length; ++j )
-			arr.push( a[j] );
-		}	
-		else
-			arr.push( a );
-	}
-	
-	for( var i = 0, a; i<arguments.length; ++i )
-	{
-		a = arguments[i];
-		if( a == null )
-			arr.push( a );
-		else if( a.constructor == Array )
-			arr = arr.concat( a );
-		else if( a.length != null )
-		{
-			for( var j = 0; j < a.length; ++j )
-			arr.push( a[j] );
-		}	
-		else
-			arr.push( a );
-	}
-	
-	return arr;
-}
-
-if( !Array.prototype.expandDeep )
-Array.prototype.expandDeep = function()
-{
-	var arr = [];
-	for( var i = 0, a; i<this.length; ++i )
-	{
-		a = this[i];
-		if( a == null )
-			arr.push( a );
-		else if( a.constructor == Array )
-			arr = arr.concat( a.expandDeep() );
-		else if( a.length != null )
-		{
-			for( var j = 0; j < a.length; ++j )
-			arr.push( a[j] );
-		}	
-		else
-			arr.push( a );
-	}
-	
-	for( var i = 0, a; i<arguments.length; ++i )
-	{
-		a = arguments[i];
-		if( a == null )
-			arr.push( a );
-		else if( a.constructor == Array )
-			arr = arr.concat( a.expandDeep() );
-		else if( a.length != null )
-		{
-			for( var j = 0; j < a.length; ++j )
-			arr.push( a[j] );
-		}	
-		else
-			arr.push( a );
-	}
-	
-	return arr;
-}
-
-if( !Array.expand )
-Array.expand = function()
-{
-	return [arguments].expand().expand().expand();
-}
-
-if(!Array.prototype.filter)
-Array.prototype.filter = function()
-{
-	var arr = [];
-	for( var i = this.length; i; )
-	{
-		if( this[--i] )
-			arr.unshift( this[i] );
-	}
-	return arr;
 }
 
 if( typeof(Compat) == 'undefined' )
 {
 	Compat={};
-	Compat.extend = function( destination, source )
-	{
-		for( var property in source ) {
-			destination[property] = source[property];
-		}
-		return destination;
-	};
+
 
 	function $_( obj, text )
 	{
@@ -158,7 +218,7 @@ if( typeof(Compat) == 'undefined' )
 				elements.unshift( $id( arguments[--i] ) );
 			return elements;
 		}
-		
+
 		if( typeof element == 'string' )
 			element = document.getElementById( element );
 		return element;
@@ -171,9 +231,10 @@ if( typeof(Compat) == 'undefined' )
 
 	function $elements( formid, name )
 	{
-		var form  = $form( formid );
+		var form  = $id( formid );
 		if( form )
 			return form.elements[name];
+		return null;
 	}
 
 	function $getValue( oForm, name )
@@ -189,6 +250,7 @@ if( typeof(Compat) == 'undefined' )
 			if( es[--i].checked )
 				return es[i].value;
 		}
+		return null;
 	}
 
 	function $tag_name( obj, tagname, name )
@@ -277,7 +339,7 @@ if( typeof(Compat) == 'undefined' )
 		}
 
 	}
-	
+
 	function setElement( oElement, val )
 	{
 		var e = oElement;
@@ -364,11 +426,11 @@ if( typeof(Compat) == 'undefined' )
 	function validateForm( oForm, oDescriptor, params )
 	{
 		if( !oForm || !oDescriptor )
-			return;
+			return false;
 		if( typeof( oForm ) == 'string' )
 			oForm = $form( oForm );
 		if( !oForm )
-			return;
+			return false;
 
 		oDescriptor.invalid = false;
 
@@ -409,7 +471,7 @@ if( typeof(Compat) == 'undefined' )
 	regexs=
 	{
 		// approved
-		strictEmail:/^((([a-z]|[0-9]|!|#|$|%|&|'|\*|\+|\-|\/|=|\?|\^|_|`|\{|\||\}|~)+(\.([a-z]|[0-9]|!|#|$|%|&|'|\*|\+|\-|\/|=|\?|\^|_|`|\{|\||\}|~)+)*)@((((([a-z]|[0-9])([a-z]|[0-9]|\-){0,61}([a-z]|[0-9])\.))*([a-z]|[0-9])([a-z]|[0-9]|\-){0,61}([a-z]|[0-9])\.(af|ax|al|dz|as|ad|ao|ai|aq|ag|ar|am|aw|au|at|az|bs|bh|bd|bb|by|be|bz|bj|bm|bt|bo|ba|bw|bv|br|io|bn|bg|bf|bi|kh|cm|ca|cv|ky|cf|td|cl|cn|cx|cc|co|km|cg|cd|ck|cr|ci|hr|cu|cy|cz|dk|dj|dm|do|ec|eg|sv|gq|er|ee|et|fk|fo|fj|fi|fr|gf|pf|tf|ga|gm|ge|de|gh|gi|gr|gl|gd|gp|gu|gt| gg|gn|gw|gy|ht|hm|va|hn|hk|hu|is|in|id|ir|iq|ie|im|il|it|jm|jp|je|jo|kz|ke|ki|kp|kr|kw|kg|la|lv|lb|ls|lr|ly|li|lt|lu|mo|mk|mg|mw|my|mv|ml|mt|mh|mq|mr|mu|yt|mx|fm|md|mc|mn|ms|ma|mz|mm|na|nr|np|nl|an|nc|nz|ni|ne|ng|nu|nf|mp|no|om|pk|pw|ps|pa|pg|py|pe|ph|pn|pl|pt|pr|qa|re|ro|ru|rw|sh|kn|lc|pm|vc|ws|sm|st|sa|sn|cs|sc|sl|sg|sk|si|sb|so|za|gs|es|lk|sd|sr|sj|sz|se|ch|sy|tw|tj|tz|th|tl|tg|tk|to|tt|tn|tr|tm|tc|tv|ug|ua|ae|gb|us|um|uy|uz|vu|ve|vn|vg|vi|wf|eh|ye|zm|zw|com|edu|gov|int|mil|net|org|biz|info|name|pro|aero|coop|museum|arpa))|(((([0-9]){1,3}\.){3}([0-9]){1,3}))|(\[((([0-9]){1,3}\.){3}([0-9]){1,3})\])))$/,
+		strictEmail: /^((([a-z]|[0-9]|!|#|$|%|&|'|\*|\+|\-|\/|=|\?|\^|_|`|\{|\||\}|~)+(\.([a-z]|[0-9]|!|#|$|%|&|'|\*|\+|\-|\/|=|\?|\^|_|`|\{|\||\}|~)+)*)@((((([a-z]|[0-9])([a-z]|[0-9]|\-){0,61}([a-z]|[0-9])\.))*([a-z]|[0-9])([a-z]|[0-9]|\-){0,61}([a-z]|[0-9])\.(af|ax|al|dz|as|ad|ao|ai|aq|ag|ar|am|aw|au|at|az|bs|bh|bd|bb|by|be|bz|bj|bm|bt|bo|ba|bw|bv|br|io|bn|bg|bf|bi|kh|cm|ca|cv|ky|cf|td|cl|cn|cx|cc|co|km|cg|cd|ck|cr|ci|hr|cu|cy|cz|dk|dj|dm|do|ec|eg|sv|gq|er|ee|et|fk|fo|fj|fi|fr|gf|pf|tf|ga|gm|ge|de|gh|gi|gr|gl|gd|gp|gu|gt| gg|gn|gw|gy|ht|hm|va|hn|hk|hu|is|in|id|ir|iq|ie|im|il|it|jm|jp|je|jo|kz|ke|ki|kp|kr|kw|kg|la|lv|lb|ls|lr|ly|li|lt|lu|mo|mk|mg|mw|my|mv|ml|mt|mh|mq|mr|mu|yt|mx|fm|md|mc|mn|ms|ma|mz|mm|na|nr|np|nl|an|nc|nz|ni|ne|ng|nu|nf|mp|no|om|pk|pw|ps|pa|pg|py|pe|ph|pn|pl|pt|pr|qa|re|ro|ru|rw|sh|kn|lc|pm|vc|ws|sm|st|sa|sn|cs|sc|sl|sg|sk|si|sb|so|za|gs|es|lk|sd|sr|sj|sz|se|ch|sy|tw|tj|tz|th|tl|tg|tk|to|tt|tn|tr|tm|tc|tv|ug|ua|ae|gb|us|um|uy|uz|vu|ve|vn|vg|vi|wf|eh|ye|zm|zw|com|edu|gov|int|mil|net|org|biz|info|name|pro|aero|coop|museum|arpa))|(((([0-9]){1,3}\.){3}([0-9]){1,3}))|(\[((([0-9]){1,3}\.){3}([0-9]){1,3})\])))$/,
 		QQ: /^[1-9]\d{4,8}$/,
 		idcard: /^\d{15}(\d{3})?$/
 	};
@@ -428,7 +490,7 @@ if( typeof(Compat) == 'undefined' )
 				evt.returnValue = false;
 				evt.cancelBubble = true;
 			}
-			
+
 		},
 
 		create: function( type )
@@ -446,7 +508,7 @@ if( typeof(Compat) == 'undefined' )
 
 			return e;
 		},
-		
+
 		init: function( evt, type, canBubble, cancelable )
 		{
 			if( this.eventTable[type] )
@@ -461,20 +523,20 @@ if( typeof(Compat) == 'undefined' )
 				canBubble = canBubble || false;
 				cancelable = cancelable || false;
 			}
-			
+
 			if( evt.initEvent )
 			{
 				evt.initEvent( type, canBubble, cancelable );
 			}
-			else 
+			else
 			{// for IE
 				evt.type = type;
 				evt.cancelBubble = !canBubble;
 				evt.returnValue = !cancelable;
-			}			
-			
+			}
+
 		},
-		
+
 		createEx: function( type )
 		{
 			var e = this.create( type );
@@ -487,7 +549,7 @@ if( typeof(Compat) == 'undefined' )
 		{
 			return this.fireEx( target, oEvent.type, oEvent );
 		},
-		
+
 		fireEx: function( target, type, oEvent )
 		{
 			target = $id( target );
@@ -504,7 +566,7 @@ if( typeof(Compat) == 'undefined' )
 
 			return null;
 		},
-		
+
 		// Experimental
 		enrich: function( evt )
 		{
@@ -516,7 +578,7 @@ if( typeof(Compat) == 'undefined' )
 				{
 					e.relatedTarget = e.toElement;
 				}
-				else if( e.type = 'mouseover' )
+				else if( e.type == 'mouseover' )
 				{
 					e.relatedTarget = e.fromElement;
 				}
@@ -529,7 +591,7 @@ if( typeof(Compat) == 'undefined' )
 					e.fromElement = e.target;
 					e.toElement = e.relatedTarget;
 				}
-				else if( e.type = 'mouseover' )
+				else if( e.type == 'mouseover' )
 				{
 					e.fromElement = e.relatedTarget;
 					e.toElement = e.target;
@@ -537,7 +599,7 @@ if( typeof(Compat) == 'undefined' )
 			}
 			return e;
 		},
-		
+
 		eventTable:
 		{
 			// W3C DOM Level 2 spec.
@@ -564,33 +626,32 @@ if( typeof(Compat) == 'undefined' )
 			keydown:	{ catagory: 'KeyEvents',	bubbles: true,	cancelable: true },
 			keyup:		{ catagory: 'KeyEvents',	bubbles: true,	cancelable: false } // follow IE
 		}
-		
+
 
 	};
 
 	// depends on prototype.js
-	Synchronizer = 
+	Synchronizer =
 	{
 		sync: function( master, slaves, events, condition )
 		{
 			master.sync={};
-			master.sync.slaves = slaves;
-			
+			master.sync.slaves = slaves.expand();
+
 			if( !events )
 				events = ['keyup', 'change'];
-			
+
 			master.sync.condition = condition;
-			
-			for( var i = events.length; i; Event.observe( master, events[--i], this.dosync ) );
-			
+
+			for( var i = events.length; i; Event.observe( master, events[--i], this.dosync.bindAsEventListener(master) ) );
+
 			Evt.fire( master, Evt.createEx( 'change' ) );
 		},
-		
+
 		dosync: function( evt )
 		{
-			var evt = evt || window.event;
 			var master = evt.target || evt.srcElement;
-			var sync = master.sync; 
+			var sync = master.sync;
 			if( sync )
 			{
 				if( sync.condition )
@@ -607,16 +668,32 @@ if( typeof(Compat) == 'undefined' )
 				{
 					for( var i = sync.slaves.length, slave; i; )
 					{
-						slave = sync.slaves[--i];	
+						slave = sync.slaves[--i];
 						if( !slave )
-							continue; 
+							continue;
 						setElement( slave, master.value );
 					}
 				}
 			}
 		}
+		
+		
+		
 	};
-	
+	// depends on prototype.js
+	Event.observeEx = function( elements, events, handler, capture )
+	{
+		elements = [elements].expand();
+		events = [events].expand();
+		
+		for( var j = elements.length, e; j; )
+		{
+			e = elements[--j];
+			for( var i = events.length; i; Event.observe( e, events[--i], handler, capture ) );
+		}
+		
+	}
 
-	
+
+
 }
