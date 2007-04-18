@@ -77,15 +77,15 @@ if( typeof(_JSHACKING) == 'undefined' )
 		for( var i = 0, a; i<input.length; ++i )
 		{
 			a = input[i];
-			
-			if( a == null || a.constructor == String ) 
+
+			if( a == null || a.constructor == String )
 				arr.push( a );
 			else if( a.constructor == Array )
 				arr = arr.concat( a );
 			else if( a.length != null )
 			{
-				// HTML Collection, not expand FORM and SELECT
-				if( a.tagName == 'FORM' || a.tagName == 'SELECT' )
+				// HTML Collection but not FORM/SELECT
+				if( a.tagName != null  )
 					arr.push( a );
 				else
 					for( var j = 0; j < a.length; ++j )
@@ -212,16 +212,25 @@ if( typeof(Compat) == 'undefined' )
 
 	function $id( element )
 	{
-		if( arguments.length > 1 )
-		{
-			for( var i = arguments.length, elements = [] ; i ; )
-				elements.unshift( $id( arguments[--i] ) );
-			return elements;
-		}
-
 		if( typeof element == 'string' )
 			element = document.getElementById( element );
 		return element;
+	}
+
+	function $ids()
+	{
+		var ids = [];
+		for( var i = 0; i<arguments.length; ++i )
+		{
+			ids = ids.concat( arguments[i] );
+		}
+		ids = ids.expand();
+		var objs = [];
+		for( var i = 0; i<ids.length; ++i )
+		{
+			objs.push( $id( ids[i] ) );
+		}
+		return objs;
 	}
 
 	function $form( id )
@@ -676,24 +685,23 @@ if( typeof(Compat) == 'undefined' )
 				}
 			}
 		}
-		
-		
-		
+
+
+
 	};
 	// depends on prototype.js
+	if( window.Event )
 	Event.observeEx = function( elements, events, handler, capture )
 	{
 		elements = [elements].expand();
 		events = [events].expand();
-		
+
 		for( var j = elements.length, e; j; )
 		{
 			e = elements[--j];
 			for( var i = events.length; i; Event.observe( e, events[--i], handler, capture ) );
 		}
-		
+
 	}
-
-
 
 }
