@@ -114,6 +114,16 @@ if( typeof(OptionEntry) == 'undefined' )
 
 		// IGNATE!
 		Evt.fire( arguments[1], Evt.createEx( 'change' ) ); 
-	};   
+	};
+	
+	
+	initSelect = function( oSelect, data )
+	{
+		oSelect.options.length = 0;
+		for( var i = 0; i<data.length; ++i )
+		{
+			oSelect.options.add( new Option( data[i].title, data[i].id ) );
+		} 
+	}   
 
 }
