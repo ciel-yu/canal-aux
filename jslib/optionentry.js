@@ -119,11 +119,16 @@ if( typeof(OptionEntry) == 'undefined' )
 	
 	initSelect = function( oSelect, data )
 	{
+		if( !oSelect )
+			return;
 		oSelect.options.length = 0;
 		for( var i = 0; i<data.length; ++i )
 		{
 			oSelect.options.add( new Option( data[i].title, data[i].id ) );
 		} 
-	}   
+	}
+	
+	Select = {};
+	Select.init = initSelect;   
 
 }
