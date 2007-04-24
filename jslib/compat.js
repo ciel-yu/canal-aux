@@ -57,14 +57,6 @@ if( typeof(_JSHACKING) == 'undefined' )
 		return oDst;
 	};
 
-	if( !Object.prototype.absorb )
-	Object.prototype.absorb = function( oSrc, preserve )
-	{
-		return Object.absorb(this, oSrc, preserve);
-	};
-
-
-
 	if( !Array.expand ) // FIXME: performance issue?
 	Array.expand = function()
 	{
@@ -229,9 +221,11 @@ if( typeof(Compat) == 'undefined' )
 		return objs;
 	}
 
-	function $form( id )
+	function $form( element )
 	{
-		return document.forms[id];
+		if( typeof element == 'string' )
+			return document.forms[element];
+		return element;
 	}
 
 	function $element( formid, name )
@@ -408,8 +402,18 @@ if( typeof(Compat) == 'undefined' )
 
 	function validateField( oForm, oDescriptor, fieldname, params )
 	{
+		if( !oDescriptor )
+			return false;  
+		
 		oDescriptor.invalid = null;
 		
+		var ele = oForm.elements[fieldname];
+
+		if( !ele )
+			return false;
+
+		oDescriptor.ignored = false;  
+
 		// check prerequisites
 		if( oDescriptor.prerequisites )
 		{
@@ -420,7 +424,10 @@ if( typeof(Compat) == 'undefined' )
 				if( typeof p.value != 'undefined' )
 				{
 					if( $getValue( oForm, p.element ) != p.value )
-						return false;
+					{
+						oDescriptor.ignored = true;
+						break;				
+					}
 				}
 				
 			}
@@ -428,15 +435,11 @@ if( typeof(Compat) == 'undefined' )
 		}
 
 		var rules = [].concat( oDescriptor.rules );
-		var ele = oForm.elements[fieldname];
-
-		if( !ele )
-			return false;
 
 		for( var i = 0; i<rules.length; ++i )
 		{
 			var rule = rules[i];
-			var result = { form:oForm, name:fieldname, element:ele, affectedRule:rule, ruleSet:oDescriptor };
+			var result = { form:oForm, name:fieldname, element:ele, affectedRule:rule, ruleSet:oDescriptor, ignored:oDescriptor.ignored };
 
 			result.valid = 	( rule.required ? trim( ele.value ) != '' 		: true )
 						 && ( rule.pattern	? rule.pattern.test( ele.value ): true )
@@ -444,11 +447,11 @@ if( typeof(Compat) == 'undefined' )
 						 ;
 
 			// the whole rule set fails when a rule in it fails.
-			oDescriptor.invalid |= !result.valid;
+			oDescriptor.invalid |= !( result.valid || oDescriptor.ignored );
 
 			// call callback 
 			// quit when the form decides not to go on
-			if( oForm.validated && !oForm.validated( result, params ) )
+			if( oForm.validated && !( oForm.validated( result, params ) || oDescriptor.ignored ) )
 				return result;
 		}
 
@@ -485,11 +488,14 @@ if( typeof(Compat) == 'undefined' )
 
 			// there is an invalid element and the form wants to stop validating
 			if( error )
-				return error;
+			{
+				oDescriptor.lastResult = error;
+				break;
+			}
 
 		}
 
-		return false;
+		return oDescriptor;
 
 	}
 
