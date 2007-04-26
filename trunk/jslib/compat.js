@@ -26,37 +26,6 @@ if( typeof(_JSHACKING) == 'undefined' )
 		}
 	}
 
-
-
-	if( !Object.absorb )
-	Object.absorb = function( oDst, oSrc, preserve )
-	{
-		if( oSrc.constructor != Array )
-			oSrc=[oSrc];
-
-		if( !preserve )
-			for( var i = 0, o ; i < oSrc.length; ++i )
-			{
-				o = oSrc[i];
-				for( var property in o )
-				{
-					oDst[property] = o[property];
-				}
-			}
-		else
-			for( var i = 0, o ; i < oSrc.length; ++i )
-			{
-				o = oSrc[i];
-				for( var property in o )
-				{
-					if( typeof( oDst[property] ) == 'undefined' )
-						oDst[property] = o[property];
-				}
-			}
-
-		return oDst;
-	};
-
 	if( !Array.expand ) // FIXME: performance issue?
 	Array.expand = function()
 	{
@@ -132,18 +101,21 @@ if( typeof(_JSHACKING) == 'undefined' )
 			for(var i=0,len=this.length;i<len;i++)
 				callback.call(thisObject,this[i],i,this);
 		}
+		
 		Array.prototype.map = function(callback,thisObject)
 		{
 			for(var i=0,res=[],len=this.length;i<len;i++)
 				res[i] = callback.call(thisObject,this[i],i,this);
 			return res;
 		}
+		
 		Array.prototype.filter = function(callback,thisObject)
 		{
 			for(var i=0,res=[],len=this.length;i<len;i++)
 				callback.call(thisObject,this[i],i,this) && res.push(this[i]);
 			return res;
 		}
+		
 		Array.prototype.indexOf = function(searchElement,fromIndex)
 		{
 			var i = (fromIndex < 0) ? this.length+fromIndex : fromIndex || 0;
@@ -151,6 +123,7 @@ if( typeof(_JSHACKING) == 'undefined' )
 				if(searchElement === this[i]) return i;
 			return -1;
 		}
+		
 		Array.prototype.lastIndexOf = function(searchElement,fromIndex)
 		{
 			var max = this.length-1;
@@ -161,12 +134,14 @@ if( typeof(_JSHACKING) == 'undefined' )
 				if(searchElement === this[i]) return i;
 			return -1;
 		}
+		
 		Array.prototype.every = function(callback,thisObject)
 		{
 			for(var i=0,len=this.length;i<len;i++)
 				if(!callback.call(thisObject,this[i],i,this)) return false;
 			return true;
 		}
+		
 		Array.prototype.some = function(callback,thisObject)
 		{
 			for(var i=0,len=this.length;i<len;i++)
@@ -174,6 +149,37 @@ if( typeof(_JSHACKING) == 'undefined' )
 			return false;
 		}
 	}
+
+
+	if( !Object.absorb )
+	Object.absorb = function( oDst, oSrc, preserve )
+	{
+		if( oSrc.constructor != Array )
+			oSrc=[oSrc];
+
+		if( !preserve )
+			for( var i = 0, o ; i < oSrc.length; ++i )
+			{
+				o = oSrc[i];
+				for( var property in o )
+				{
+					oDst[property] = o[property];
+				}
+			}
+		else
+			for( var i = 0, o ; i < oSrc.length; ++i )
+			{
+				o = oSrc[i];
+				for( var property in o )
+				{
+					if( typeof( oDst[property] ) == 'undefined' )
+						oDst[property] = o[property];
+				}
+			}
+
+		return oDst;
+	};
+
 }
 
 if( typeof(Compat) == 'undefined' )
@@ -786,7 +792,29 @@ if( typeof(Compat) == 'undefined' )
 		}
 		
 	}
-
-
-
+	
+	function showMsg( oMsgs, classname )
+	{
+		Array.expand( oMsgs ).filter( Pred.notnull ).map( $id ).forEach( function (element)
+			{
+				Element.toggleClassName( element, classname );
+			}
+		);
+		
+		
+	}
+	
+	Pred =
+	{
+		notnull: function( value )
+		{
+			return value != null;
+		},
+		
+		istrue: function( value )
+		{
+			return !!value;
+		}
+	}
+	
 }
