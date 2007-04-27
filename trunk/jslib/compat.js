@@ -273,40 +273,44 @@ if( typeof(Compat) == 'undefined' )
 		return obj.getElementsByTagName( tagname );
 	}
 
-	function collectData( oForm )
-	{
-		var data = {};
-
-		for( var i = oForm.elements.length; i; )
+	FormData = {
+		collect: function ( oForm )
 		{
-			var e = oForm.elements[--i];
-
-			if( ( e.type == 'checkbox' || e.type == 'radio' ) && !e.checked )
-				continue;
-
-			if( e.name != '' )
+			var data = {};
+	
+			for( var i = oForm.elements.length; i; )
 			{
-				if( e.type )
-				switch( typeof data[e.name] )
+				var e = oForm.elements[--i];
+				
+				if( e.disabled )
+					continue;
+	
+				if( ( e.type == 'checkbox' || e.type == 'radio' ) && !e.checked )
+					continue;
+	
+				if( e.name != '' )
 				{
-				case 'undefined':
-					data[e.name] = e.value;
-					break;
-				case 'string':
-					data[e.name] = [ e.value, data[e.name] ];
-					break;
-				default: // data[e.name] is already an array
-					data[e.name].unshift( e.value );
-					break;
-
+					if( e.type )
+					switch( typeof data[e.name] )
+					{
+					case 'undefined':
+						data[e.name] = e.value;
+						break;
+					case 'string':
+						data[e.name] = [ e.value, data[e.name] ];
+						break;
+					default: // data[e.name] is already an array
+						data[e.name].unshift( e.value );
+						break;
+	
+					}
 				}
+	
 			}
-
+			return data;
 		}
 
-		return data;
-
-	}
+	};
 
 	function setValue( oForm, name, val, setHidden )
 	{
@@ -389,16 +393,16 @@ if( typeof(Compat) == 'undefined' )
 
 	function populateForm( oForm, oValues, prefix, suffix )
 	{
-		if( !oForm || !oValues )
+		oForm = $form( oForm );
+		
+		if( !oForm || !oValues)
 			return;
-		if( typeof( oForm ) == 'string' )
-			oForm = $id( oForm );
-		if( !oForm )
-			return;
+		
 		if( !prefix )
 			prefix='';
 		if( !suffix )
 			suffix='';
+		
 		for( k in oValues )
 		{
 			if( oValues[k] != null )
@@ -468,11 +472,9 @@ if( typeof(Compat) == 'undefined' )
 
 	function validateForm( oForm, oDescriptors, params )
 	{
+		oForm = $form( oForm );
+
 		if( !oForm || !oDescriptors )
-			return false;
-		if( typeof( oForm ) == 'string' )
-			oForm = $form( oForm );
-		if( !oForm )
 			return false;
 
 		var oDescriptor = Object.absorb( {}, Array.expand( oDescriptors ) );
@@ -793,11 +795,11 @@ if( typeof(Compat) == 'undefined' )
 		
 	}
 	
-	function showMsg( oMsgs, classname )
+	function showHiddenMsgs( oMsgs )
 	{
 		Array.expand( oMsgs ).filter( Pred.notnull ).map( $id ).forEach( function (element)
 			{
-				Element.toggleClassName( element, classname );
+				displayElement( element );
 			}
 		);
 		
@@ -815,6 +817,68 @@ if( typeof(Compat) == 'undefined' )
 		{
 			return !!value;
 		}
+	}
+	
+	displayDefaults =
+	{
+		ADDRESS: 'block', 
+		BLOCKQUOTE: 'block', 
+		BODY: 'block', 
+		CENTER: 'block', 
+		COL: 'block', 
+		COLGROUP: 'block', 
+		DD: 'block', 
+		DIR: 'block', 
+		DIV: 'block', 
+		DL: 'block', 
+		DT: 'block', 
+		FIELDSET: 'block', 
+		FORM: 'block', 
+		FRAME: 'none', 
+		H1: 'block', 
+		H2: 'block', 
+		H3: 'block', 
+		H4: 'block', 
+		H5: 'block', 
+		H6: 'block', 
+		H7: 'block', 
+		H8: 'block', 
+		H9: 'block', 
+		HR: 'block', 
+		IFRAME: 'block', 
+		LEGEND: 'block', 
+		LI: 'list-item', 
+		LISTING: 'block', 
+		MARQUEE: 'block', 
+		MENU: 'block', 
+		OL: 'block', 
+		P: 'block', 
+		PLAINTEXT: 'block', 
+		PRE: 'block', 
+		TABLE: 'block', 
+		TBODY: 'none', 
+		TD: 'block', 
+		TFOOT: 'none', 
+		TH: 'block', 
+		THEAD: 'none', 
+		TR: 'block', 
+		UL: 'block', 
+		XMP: 'block'
+	}
+	
+	function displayElement( oElement, bShow )
+	{
+		oElement = $id( oElement );
+		
+		if( !oElement )
+			return;
+		
+		if( bShow )
+			oElement.style.display = 'none';
+		else
+			oElement.style.display = displayDefaults[oElement.tagName] || 'inline';
+			
+		return oElement;
 	}
 	
 }
