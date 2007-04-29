@@ -308,13 +308,49 @@ if( typeof(Compat) == 'undefined' )
 	
 			}
 			return data;
-		}
+		},
+		_setElement: function ( oElement, val )
+		{
+			var es = Array.expand( oElement );
 
+			for( var i = es.length, e; i; )
+			{
+				e = es[--i];
+				if( e.type == 'checkbox' || e.type == 'radio' )
+				{
+					if( e.value == val )
+					{
+						e.checked = true;
+						Evt.fire( e, Evt.createEx('click') ); // simulate user click action
+						break;
+					}
+		
+				}
+				else if( e.type == 'select-one' )
+				{
+					for( var j = e.options.length; j;  )
+					{
+						if( e.options[--j].value == val )
+						{
+							e.options[j].selected = true;
+							Evt.fire( e, Evt.createEx('change') );
+							break;
+						}
+					}
+				}
+				else if( e.type == 'text' || e.type == 'password' || e.type == 'hidden' )
+				{
+					e.value = val;
+					Evt.fire( e, Evt.createEx('change') );
+				}; // ignore 'submit', 'button', 'reset' and 'select-multi'
+			}
+	
+		}
 	};
 
 	function setValue( oForm, name, val, setHidden )
 	{
-		for( var i = oForm.elements.length; i;  )
+		for( var i = oForm.elements.length, e; i;  )
 		{
 			e = oForm.elements[--i];
 
@@ -353,6 +389,8 @@ if( typeof(Compat) == 'undefined' )
 		}
 
 	}
+	
+
 
 	function setElement( oElement, val )
 	{
@@ -531,50 +569,6 @@ if( typeof(Compat) == 'undefined' )
 		idcard: /^\d{15}(\d{3})?$/
 	};
 	
-	FormEx = 
-	{
-		set: function( oForm, name, val, setHidden )
-		{
-			for( var i = oForm.elements.length; i;  )
-			{
-				e = oForm.elements[--i];
-	
-				if( e.name == name )
-				{
-					if( e.type == 'checkbox' || e.type == 'radio' )
-					{
-						if( e.value == val )
-						{
-							e.checked = true;
-							Evt.fire( e, Evt.createEx('click') ); // simulate user click action
-							break;
-						}
-	
-					}
-					else if( e.type == 'select-one' )
-					{
-						for( var j = e.options.length; j;  )
-						{
-							if( e.options[--j].value == val )
-							{
-								e.options[j].selected = true;
-								Evt.fire( e, Evt.createEx('change') );
-								break;
-							}
-						}
-						break;
-					}
-					else if( e.type == 'text' || e.type == 'password' && false || e.type == 'hidden' && setHidden )
-					{
-						e.value = val;
-						Evt.fire( e, Evt.createEx('change') );
-						break;
-					}; // ignore 'submit', 'button', 'reset' and 'select-multi'
-				}
-			}
-	
-		}
-	};
 
 	Evt =
 	{
@@ -879,6 +873,71 @@ if( typeof(Compat) == 'undefined' )
 			oElement.style.display = displayDefaults[oElement.tagName] || 'inline';
 			
 		return oElement;
+	}
+	
+	
+	ElementEx = 
+	{
+		forceShow: function( element )
+		{
+			element.style.display = displayDefaults[oElement.tagName] || 'inline';
+			return element;
+		},
+		forceHide: function( element )
+		{
+			element.style.display = 'none';
+			return element;
+		}
+	}
+	
+	Sort = 
+	{
+		shellSortDelta:
+		[         1,          4,         13,         40,        121,        364,       1093,       3280,
+		       9841,      29524,      88573,     265720,     797161,    2391484,    7174453,   21523360,
+		   64570081,  193710244,  581130733, 1743392200
+		 ],
+		shellSort: function( data, comparator )
+		{
+			var temp;
+			if( comparator )
+			{
+				for( var i = this.shellSortDelta.length, delta; i; )
+				{
+					delta = this.shellSortDelta[--i];
+					for( var j = delta; j<data.length; ++j )
+					{
+						for( var k = j ; k - delta >= 0 && comparator( data[j - delta], data[j] ) > 0; )
+						{
+							temp = data[k - delta];
+							data[k - delta] = data[k];
+							data[k] = temp;
+							k -= delta;
+						}
+					}
+					
+				}
+			}
+			else
+			{
+				for( var i = this.shellSortDelta.length, delta; i; )
+				{
+					delta = this.shellSortDelta[--i];
+					for( var j = delta; j<data.length; ++j )
+					{
+						for( var k = j ; k - delta >= 0 && data[k - delta] > data[k]; )
+						{
+							temp = data[k - delta];
+							data[k - delta] = data[k];
+							data[k] = temp;
+							k -= delta;
+						}
+					}
+					
+				}
+			}
+			return data;
+		}
 	}
 	
 }
