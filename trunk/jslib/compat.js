@@ -54,6 +54,15 @@ if( typeof(_JSHACKING) == 'undefined' )
 		}
 		return arr;
 	}
+	
+	if( !Array.prototype.swap )
+	Array.prototype.swap = function ( i, j )
+	{
+		var temp = this[i];
+		this[i] = this[j];
+		this[j] = temp;
+		return this;
+	}
 
 	if( !Array.prototype.expand )
 	Array.prototype.expand = function()
@@ -179,6 +188,26 @@ if( typeof(_JSHACKING) == 'undefined' )
 
 		return oDst;
 	};
+	
+	if( !String.join )
+	String.join = function( pieces, delim )
+	{
+		if( !delim ) delim='';
+		if( !pieces || pieces.constructor != Array )
+			return pieces;
+		var r = pieces[0];
+		for( var i = 1; i<pieces.length; ++i )
+		{
+			r += delim + pieces[i];
+		}
+		return r;
+	}
+	
+	if( !String.prototype.join )
+	String.prototype.join = function()
+	{
+		return String.join(  Array.expand( arguments ).expand(), this );
+	}
 
 }
 
@@ -309,6 +338,7 @@ if( typeof(Compat) == 'undefined' )
 			}
 			return data;
 		},
+		
 		_setElement: function ( oElement, val )
 		{
 			var es = Array.expand( oElement );
@@ -345,6 +375,25 @@ if( typeof(Compat) == 'undefined' )
 				}; // ignore 'submit', 'button', 'reset' and 'select-multi'
 			}
 	
+		},
+		urlEncode: function( data )
+		{
+			var s =[];
+			for( prop in data )
+			{
+				if( data[prop].constructor == Array )
+				{
+					for( var a=data[prop], i=0; i<a.length; ++i )
+					{
+						s.push( prop+'='+encodeURIComponent( a[i] ) );
+					}
+				}
+				else
+				{
+					s.push( prop+'='+encodeURIComponent(data[prop]) );
+				}
+			}
+			return String.join(s,'&');
 		}
 	};
 
@@ -887,56 +936,6 @@ if( typeof(Compat) == 'undefined' )
 		{
 			element.style.display = 'none';
 			return element;
-		}
-	}
-	
-	Sort = 
-	{
-		shellSortDelta:
-		[         1,          4,         13,         40,        121,        364,       1093,       3280,
-		       9841,      29524,      88573,     265720,     797161,    2391484,    7174453,   21523360,
-		   64570081,  193710244,  581130733, 1743392200
-		 ],
-		shellSort: function( data, comparator )
-		{
-			var temp;
-			if( comparator )
-			{
-				for( var i = this.shellSortDelta.length, delta; i; )
-				{
-					delta = this.shellSortDelta[--i];
-					for( var j = delta; j<data.length; ++j )
-					{
-						for( var k = j ; k - delta >= 0 && comparator( data[j - delta], data[j] ) > 0; )
-						{
-							temp = data[k - delta];
-							data[k - delta] = data[k];
-							data[k] = temp;
-							k -= delta;
-						}
-					}
-					
-				}
-			}
-			else
-			{
-				for( var i = this.shellSortDelta.length, delta; i; )
-				{
-					delta = this.shellSortDelta[--i];
-					for( var j = delta; j<data.length; ++j )
-					{
-						for( var k = j ; k - delta >= 0 && data[k - delta] > data[k]; )
-						{
-							temp = data[k - delta];
-							data[k - delta] = data[k];
-							data[k] = temp;
-							k -= delta;
-						}
-					}
-					
-				}
-			}
-			return data;
 		}
 	}
 	
