@@ -74,7 +74,7 @@ if( typeof(_JSHACKING) == 'undefined' )
 	}
 
 
-	// compatible codes from Mozilla
+	// codes from Mozilla
 	// http://snippets.dzone.com/posts/show/718
 	// http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Objects:Array:filter
 
@@ -303,7 +303,7 @@ if( typeof(Compat) == 'undefined' )
 	}
 
 	FormData = {
-		collect: function ( oForm )
+		collect: function( oForm )
 		{
 			var data = {};
 	
@@ -339,43 +339,71 @@ if( typeof(Compat) == 'undefined' )
 			return data;
 		},
 		
-		_setElement: function ( oElement, val )
+		_setElement: function( oElement, val )
 		{
-			var es = Array.expand( oElement );
+			if( oElement.type == 'checkbox' || oElement.type == 'radio' )
+			{
+				if( oElement.value == val )
+				{
+					oElement.checked = true;
+					Evt.fire( oElement, Evt.createEx('click') ); // simulate user click action
+				}
+			}
+			else if( oElement.type == 'select-one' )
+			{
+				for( var j = oElement.options.length; j;  )
+				{
+					if( oElement.options[--j].value == val )
+					{
+						oElement.options[j].selected = true;
+						Evt.fire( oElement, Evt.createEx('change') );
+						break;
+					}
+				}
+			}
+			else if( oElement.type == 'text' || oElement.type == 'password' || oElement.type == 'hidden' )
+			{
+				oElement.value = val;
+				Evt.fire( oElement, Evt.createEx('change') );
+			}
+		},
 
+		setElements: function( oElement, val )
+		{
+			var es = Array.expand( oElement ).filter( Pred.notnull );
+	
 			for( var i = es.length, e; i; )
 			{
 				e = es[--i];
-				if( e.type == 'checkbox' || e.type == 'radio' )
-				{
-					if( e.value == val )
-					{
-						e.checked = true;
-						Evt.fire( e, Evt.createEx('click') ); // simulate user click action
-						break;
-					}
+				this._setElement( e, val );
+			}
+		},		
 		
-				}
-				else if( e.type == 'select-one' )
+		populate: function( oForm, oValues )
+		{
+			oForm = $form( oForm );
+			
+			if( !oForm || !oValues )
+				return;
+			
+			for( prop in oValues )
+			{
+				if( oValues[prop] != null )
 				{
-					for( var j = e.options.length; j;  )
+					for( var i = oForm.elements.length, e; i;  )
 					{
-						if( e.options[--j].value == val )
+						e = oForm.elements[--i];
+			
+						if( e.name == prop )
 						{
-							e.options[j].selected = true;
-							Evt.fire( e, Evt.createEx('change') );
-							break;
+							FormData._setElement( e, oValues[prop] );
 						}
 					}
 				}
-				else if( e.type == 'text' || e.type == 'password' || e.type == 'hidden' )
-				{
-					e.value = val;
-					Evt.fire( e, Evt.createEx('change') );
-				}; // ignore 'submit', 'button', 'reset' and 'select-multi'
 			}
-	
 		},
+		
+				
 		urlEncode: function( data )
 		{
 			var s =[];
@@ -397,7 +425,7 @@ if( typeof(Compat) == 'undefined' )
 		}
 	};
 
-	function setValue( oForm, name, val, setHidden )
+	function setValue( oForm, name, val )
 	{
 		for( var i = oForm.elements.length, e; i;  )
 		{
@@ -405,35 +433,7 @@ if( typeof(Compat) == 'undefined' )
 
 			if( e.name == name )
 			{
-				if( e.type == 'checkbox' || e.type == 'radio' )
-				{
-					if( e.value == val )
-					{
-						e.checked = true;
-						Evt.fire( e, Evt.createEx('click') ); // simulate user click action
-						break;
-					}
-
-				}
-				else if( e.type == 'select-one' )
-				{
-					for( var j = e.options.length; j;  )
-					{
-						if( e.options[--j].value == val )
-						{
-							e.options[j].selected = true;
-							Evt.fire( e, Evt.createEx('change') );
-							break;
-						}
-					}
-					break;
-				}
-				else if( e.type == 'text' || e.type == 'password' && false || e.type == 'hidden' && setHidden )
-				{
-					e.value = val;
-					Evt.fire( e, Evt.createEx('change') );
-					break;
-				}; // ignore 'submit', 'button', 'reset' and 'select-multi'
+				FormData._setElement( e, val );
 			}
 		}
 
@@ -443,58 +443,12 @@ if( typeof(Compat) == 'undefined' )
 
 	function setElement( oElement, val )
 	{
-		var es = [oElement].expand();
-
-		for( var i = es.length, e; i; )
-		{
-			e = es[--i];
-			if( e.type == 'checkbox' || e.type == 'radio' )
-			{
-				if( e.value == val )
-				{
-					e.checked = true;
-					Evt.fire( e, Evt.createEx('click') ); // simulate user click action
-					break;
-				}
-	
-			}
-			else if( e.type == 'select-one' )
-			{
-				for( var j = e.options.length; j;  )
-				{
-					if( e.options[--j].value == val )
-					{
-						e.options[j].selected = true;
-						Evt.fire( e, Evt.createEx('change') );
-						break;
-					}
-				}
-			}
-			else if( e.type == 'text' || e.type == 'password' || e.type == 'hidden' )
-			{
-				e.value = val;
-				Evt.fire( e, Evt.createEx('change') );
-			}; // ignore 'submit', 'button', 'reset' and 'select-multi'
-		}
+		FormData.setElements( oElement, val );
 	}
 
 	function populateForm( oForm, oValues, prefix, suffix )
 	{
-		oForm = $form( oForm );
-		
-		if( !oForm || !oValues)
-			return;
-		
-		if( !prefix )
-			prefix='';
-		if( !suffix )
-			suffix='';
-		
-		for( k in oValues )
-		{
-			if( oValues[k] != null )
-				setValue( oForm, prefix+k+suffix, oValues[k] );
-		}
+		FormData.populate( oForm, oValues );
 	}
 
 	function validateField( oForm, oDescriptor, fieldname, params )
@@ -536,7 +490,15 @@ if( typeof(Compat) == 'undefined' )
 		for( var i = 0; i<rules.length; ++i )
 		{
 			var rule = rules[i];
-			var result = { form:oForm, name:fieldname, element:ele, affectedRule:rule, ruleSet:oDescriptor, ignored:oDescriptor.ignored };
+			var result =
+				{
+					form: oForm,
+					name: fieldname,
+					element: ele,
+					affectedRule: rule,
+					ruleSet: oDescriptor,
+					ignored: oDescriptor.ignored
+				};
 
 			result.valid = 	( rule.required ? trim( ele.value ) != '' 		: true )
 						 && ( rule.pattern	? rule.pattern.test( ele.value ): true )
@@ -840,13 +802,7 @@ if( typeof(Compat) == 'undefined' )
 	
 	function showHiddenMsgs( oMsgs )
 	{
-		Array.expand( oMsgs ).filter( Pred.notnull ).map( $id ).forEach( function (element)
-			{
-				displayElement( element );
-			}
-		);
-		
-		
+		Array.expand( oMsgs ).filter( Pred.notnull ).map( $id ).forEach( ElementEx.forceShow );
 	}
 	
 	Pred =
@@ -909,27 +865,12 @@ if( typeof(Compat) == 'undefined' )
 		XMP: 'block'
 	}
 	
-	function displayElement( oElement, bShow )
-	{
-		oElement = $id( oElement );
-		
-		if( !oElement )
-			return;
-		
-		if( bShow )
-			oElement.style.display = 'none';
-		else
-			oElement.style.display = displayDefaults[oElement.tagName] || 'inline';
-			
-		return oElement;
-	}
-	
 	
 	ElementEx = 
 	{
 		forceShow: function( element )
 		{
-			element.style.display = displayDefaults[oElement.tagName] || 'inline';
+			element.style.display = displayDefaults[element.tagName] || 'inline';
 			return element;
 		},
 		forceHide: function( element )
@@ -938,5 +879,29 @@ if( typeof(Compat) == 'undefined' )
 			return element;
 		}
 	}
+	
+	Latch = function(){};
+	Object.absorb( Latch.prototype,
+		{
+			latches:{};
+			latch: function( key, data )
+			{
+				this.latches[key] = data;
+				this.trigger();
+			},
+			
+			trigger: function()
+			{
+				
+			}
+			
+			
+		
+		
+		}
+	);
+	
+	
+	
 	
 }
