@@ -7,25 +7,69 @@ Authored by Ciel
 if( typeof(_JSHACKING) == 'undefined' )
 {
 	_JSHACKING = true;
-	// Array.concat was implemented natively in IE & FF
-	if( false && !Array.prototype.concat )
-	Array.prototype.concat = function()
+	// Array.concat is considered it is implemented natively in IE/FF/Opera
+
+	// compatible codes make array enhancements of Javascript 1.6 available to other browsers.
+	// these include filter, forEach, map, indexOf, lastIndexOf, every, some 
+	// http://snippets.dzone.com/posts/show/718
+	// http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Objects:Array:filter
+
+	if(!Array.prototype.forEach)
 	{
-		for( var i = 0, length = arguments.length, a ; i<arguments.length; ++i )
+		Array.prototype.forEach = function(callback,thisObject)
 		{
-			a = arguments[i];
-			if( a.constructor == Array )
-			{
-				for( var j = 0; j<a.length; ++j )
-					this.push( a[j] );
-			}
-			else
-			{
-				this.push( a );
-			}
+			for(var i=0,len=this.length;i<len;++i)
+				callback.call(thisObject,this[i],i,this);
+		}
+		
+		Array.prototype.map = function(callback,thisObject)
+		{
+			for(var i=0,res=[],len=this.length;i<len;++i)
+				res[i] = callback.call(thisObject,this[i],i,this);
+			return res;
+		}
+		
+		Array.prototype.filter = function(callback,thisObject)
+		{
+			for(var i=0,res=[],len=this.length;i<len;++i)
+				callback.call(thisObject,this[i],i,this) && res.push(this[i]);
+			return res;
+		}
+		
+		Array.prototype.indexOf = function(searchElement,fromIndex)
+		{
+			var i = (fromIndex < 0) ? this.length+fromIndex : fromIndex || 0;
+			for(;i<this.length;++i)
+				if(searchElement === this[i]) return i;
+			return -1;
+		}
+		
+		Array.prototype.lastIndexOf = function(searchElement,fromIndex)
+		{
+			var max = this.length-1;
+			var i = (fromIndex < 0)   ? Math.max(max+1 + fromIndex,0) :
+					(fromIndex > max) ? max :
+					max-(fromIndex||0) || max;
+			for(;i>=0;--i)
+				if(searchElement === this[i]) return i;
+			return -1;
+		}
+		
+		Array.prototype.every = function(callback,thisObject)
+		{
+			for(var i=0,len=this.length;i<len;++i)
+				if(!callback.call(thisObject,this[i],i,this)) return false;
+			return true;
+		}
+		
+		Array.prototype.some = function(callback,thisObject)
+		{
+			for(var i=0,len=this.length;i<len;++i)
+				if(callback.call(thisObject,this[i],i,this)) return true;
+			return false;
 		}
 	}
-
+	
 	if( !Array.expand ) // FIXME: performance issue?
 	Array.expand = function()
 	{
@@ -55,6 +99,15 @@ if( typeof(_JSHACKING) == 'undefined' )
 		return arr;
 	}
 	
+	if( !Array.prototype.expand )
+	Array.prototype.expand = function()
+	{
+		var arr = [].concat( this );
+		for( var i = 0; i<arguments.length; ++i )
+			arr = arr.concat( arguments[i] );
+		return Array.expand( arr );
+	}	
+	
 	if( !Array.prototype.swap )
 	Array.prototype.swap = function ( i, j )
 	{
@@ -64,101 +117,16 @@ if( typeof(_JSHACKING) == 'undefined' )
 		return this;
 	}
 
-	if( !Array.prototype.expand )
-	Array.prototype.expand = function()
+	if( !Array.prototype.has )
 	{
-		var arr = [].concat( this );
-		for( var i = 0; i<arguments.length; ++i )
-			arr = arr.concat( arguments[i] );
-		return Array.expand( arr );
-	}
-
-
-	// codes from Mozilla
-	// http://snippets.dzone.com/posts/show/718
-	// http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Objects:Array:filter
-
-	if (!Array.prototype.filter)
-	{
-		Array.prototype.filter = function(fun /*, thisp*/)
+		Array.prototype.has = function( needle )
 		{
-			var len = this.length;
-			if (typeof fun != "function")
-				throw new TypeError();
-
-			var res = new Array();
-			var thisp = arguments[1];
-			for (var i = 0; i < len; i++)
-			{
-				if (i in this)
-				{
-					var val = this[i]; // in case fun mutates this
-					if (fun.call(thisp, val, i, this))
-						res.push(val);
-				}
-			}
-
-			return res;
-		};
-	}
-
-	// these methods are natively implemented in FF 1.5
-	if(!Array.prototype.forEach)
-	{
-		Array.prototype.forEach = function(callback,thisObject)
-		{
-			for(var i=0,len=this.length;i<len;i++)
-				callback.call(thisObject,this[i],i,this);
-		}
-		
-		Array.prototype.map = function(callback,thisObject)
-		{
-			for(var i=0,res=[],len=this.length;i<len;i++)
-				res[i] = callback.call(thisObject,this[i],i,this);
-			return res;
-		}
-		
-		Array.prototype.filter = function(callback,thisObject)
-		{
-			for(var i=0,res=[],len=this.length;i<len;i++)
-				callback.call(thisObject,this[i],i,this) && res.push(this[i]);
-			return res;
-		}
-		
-		Array.prototype.indexOf = function(searchElement,fromIndex)
-		{
-			var i = (fromIndex < 0) ? this.length+fromIndex : fromIndex || 0;
-			for(;i<this.length;i++)
-				if(searchElement === this[i]) return i;
-			return -1;
-		}
-		
-		Array.prototype.lastIndexOf = function(searchElement,fromIndex)
-		{
-			var max = this.length-1;
-			var i = (fromIndex < 0)   ? Math.max(max+1 + fromIndex,0) :
-					(fromIndex > max) ? max :
-					max-(fromIndex||0) || max;
-			for(;i>=0;i--)
-				if(searchElement === this[i]) return i;
-			return -1;
-		}
-		
-		Array.prototype.every = function(callback,thisObject)
-		{
-			for(var i=0,len=this.length;i<len;i++)
-				if(!callback.call(thisObject,this[i],i,this)) return false;
-			return true;
-		}
-		
-		Array.prototype.some = function(callback,thisObject)
-		{
-			for(var i=0,len=this.length;i<len;i++)
-				if(callback.call(thisObject,this[i],i,this)) return true;
+			for( var i = this.length; i; )
+				if( this[--i] == needle )
+					return true;
 			return false;
 		}
 	}
-
 
 	if( !Object.absorb )
 	Object.absorb = function( oDst, oSrc, preserve )
@@ -189,6 +157,12 @@ if( typeof(_JSHACKING) == 'undefined' )
 		return oDst;
 	};
 	
+	/**
+	 * String.join is similar with one in Python.
+	 * ",".join( 1, "2" ) => "1,2"
+	 * ",".join( [1,2] )  => "1,2"
+	 * "".join( [1,2],3,[4,5] )  => "12345"
+	 */
 	if( !String.join )
 	String.join = function( pieces, delim )
 	{
@@ -307,9 +281,9 @@ if( typeof(Compat) == 'undefined' )
 		{
 			var data = {};
 	
-			for( var i = oForm.elements.length; i; )
+			for( var i = oForm.elements.length, value, e; i; )
 			{
-				var e = oForm.elements[--i];
+				e = oForm.elements[--i];
 				
 				if( e.disabled )
 					continue;
@@ -319,20 +293,21 @@ if( typeof(Compat) == 'undefined' )
 	
 				if( e.name != '' )
 				{
-					if( e.type )
-					switch( typeof data[e.name] )
+					if( e.type == 'select-multiple' )
 					{
-					case 'undefined':
-						data[e.name] = e.value;
-						break;
-					case 'string':
-						data[e.name] = [ e.value, data[e.name] ];
-						break;
-					default: // data[e.name] is already an array
-						data[e.name].unshift( e.value );
-						break;
-	
+						value = Array
+							.expand( e.options )
+							.filter( function(e){ return e.selected; } )
+							.map( function(e){ return e.value; } )
+							;
 					}
+					else
+						value = [e.value];
+					
+					if( data[e.name] == null )
+						data[e.name] = [];
+					
+					data[e.name] = value.concat( data[e.name] ); 
 				}
 	
 			}
@@ -341,17 +316,16 @@ if( typeof(Compat) == 'undefined' )
 		
 		_setElement: function( oElement, val )
 		{
-			if( oElement.type == 'checkbox' || oElement.type == 'radio' )
+			switch( oElement.type )
 			{
-				if( oElement.value == val )
-				{
-					oElement.checked = true;
-					Evt.fire( oElement, Evt.createEx('click') ); // simulate user click action
-				}
-			}
-			else if( oElement.type == 'select-one' )
-			{
-				for( var j = oElement.options.length; j;  )
+
+			case 'checkbox':
+			case 'radio':
+				oElement.checked = [].concat(val).has( oElement.value );
+				break;
+			
+			case 'select-one':
+				for( var j = oElement.options.length; j; )
 				{
 					if( oElement.options[--j].value == val )
 					{
@@ -360,11 +334,26 @@ if( typeof(Compat) == 'undefined' )
 						break;
 					}
 				}
-			}
-			else if( oElement.type == 'text' || oElement.type == 'password' || oElement.type == 'hidden' )
-			{
+				break;
+			
+			case 'select-multiple':
+				var values = [].concat( val );
+				for( var j = oElement.options.length; j; )
+				{
+					--j;
+					oElement.options[j].selected = values.has( oElement.options[j].value );
+				}
+				Evt.fire( oElement, Evt.createEx('change') );
+				break;
+			
+			case 'text':
 				oElement.value = val;
 				Evt.fire( oElement, Evt.createEx('change') );
+				break;
+
+			case 'password':
+			case 'hidden':
+			default:
 			}
 		},
 
@@ -374,31 +363,26 @@ if( typeof(Compat) == 'undefined' )
 	
 			for( var i = es.length, e; i; )
 			{
-				e = es[--i];
-				this._setElement( e, val );
+				 
+				FormData._setElement( es[--i], val );
 			}
 		},		
 		
-		populate: function( oForm, oValues )
+		populate: function( oForm, values )
 		{
 			oForm = $form( oForm );
 			
-			if( !oForm || !oValues )
+			if( !oForm || !values )
 				return;
+			
+			var oValues = Object.absorb( {}, values );
 			
 			for( prop in oValues )
 			{
+				
 				if( oValues[prop] != null )
 				{
-					for( var i = oForm.elements.length, e; i;  )
-					{
-						e = oForm.elements[--i];
-			
-						if( e.name == prop )
-						{
-							FormData._setElement( e, oValues[prop] );
-						}
-					}
+					FormData.setElements( oForm.elements[prop], [].concat( oValues[prop] ) );
 				}
 			}
 		},
@@ -815,6 +799,11 @@ if( typeof(Compat) == 'undefined' )
 		istrue: function( value )
 		{
 			return !!value;
+		},
+		
+		iden: function( value )
+		{
+			return this;
 		}
 	}
 	
@@ -880,27 +869,19 @@ if( typeof(Compat) == 'undefined' )
 		}
 	}
 	
-	Latch = function(){};
-	Object.absorb( Latch.prototype,
+	function plantInnerHtml( oValues, prefix, suffix )
+	{
+		if( prefix == null ) prefix = '';
+		if( suffix == null ) suffix = '';
+		var e;
+		for( prop in oValues )
 		{
-			latches:{};
-			latch: function( key, data )
-			{
-				this.latches[key] = data;
-				this.trigger();
-			},
-			
-			trigger: function()
-			{
-				
-			}
-			
-			
-		
-		
+			e = $id( prefix + prop + suffix );
+			if( !e )
+				continue;
+			e.innerHTML = oValues[prop];
 		}
-	);
-	
+	}
 	
 	
 	
