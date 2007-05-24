@@ -23,7 +23,7 @@ Array.expand = function()
 			arr.push( a );
 	}
 	return arr;
-}
+};
 
 Array.prototype.expand = function()
 {
@@ -31,27 +31,27 @@ Array.prototype.expand = function()
 	for( var i = 0, len = arguments.length; i<len; ++i )
 		a = a.concat( arguments[i] );
 	return Array.expand( a );
-}
+};
 
 
 ArrayExt =
 {
 	forEach: function(callback,thisObject)
 	{
-		for(var i=0,len=this.length;i<len;i++)
+		for(var i=0,len=this.length;i<len;++i)
 			callback.call(thisObject,this[i],i,this);
 	},
 
 	map: function(callback,thisObject)
 	{
-		for(var i=0,res=[],len=this.length;i<len;i++)
+		for(var i=0,res=[],len=this.length;i<len;++i)
 			res[i] = callback.call(thisObject,this[i],i,this);
 		return res;
 	},
 
 	filter: function(callback,thisObject)
 	{
-		for(var i=0,res=[],len=this.length;i<len;i++)
+		for(var i=0,res=[],len=this.length;i<len;++i)
 			callback.call(thisObject,this[i],i,this) && res.push(this[i]);
 		return res;
 	},
@@ -59,7 +59,7 @@ ArrayExt =
 	indexOf: function(searchElement,fromIndex)
 	{
 		var i = (fromIndex < 0) ? this.length+fromIndex : fromIndex || 0;
-		for(;i<this.length;i++)
+		for(;i<this.length;++i)
 			if(searchElement === this[i]) return i;
 		return -1;
 	},
@@ -70,27 +70,70 @@ ArrayExt =
 		var i = (fromIndex < 0)   ? Math.max(max+1 + fromIndex,0) :
 				(fromIndex > max) ? max :
 				max-(fromIndex||0) || max;
-		for(;i>=0;i--)
+		for(;i>=0;--i)
 			if(searchElement === this[i]) return i;
 		return -1;
 	},
 
 	every: function(callback,thisObject)
 	{
-		for(var i=0,len=this.length;i<len;i++)
+		for(var i=0,len=this.length;i<len;++i)
 			if(!callback.call(thisObject,this[i],i,this)) return false;
 		return true;
 	},
 
 	some: function(callback,thisObject)
 	{
-		for(var i=0,len=this.length;i<len;i++)
+		for(var i=0,len=this.length;i<len;++i)
 			if(callback.call(thisObject,this[i],i,this)) return true;
 		return false;
+	},
+
+	tee: function(callback,thisObject)
+	{
+		for(var i=0,t=[],f=[],len=this.length;i<len;i++)
+			callback.call(thisObject,this[i],i,this) && t.push(this[i]) || f.push(this[i]);
+		return {t:t, f:f};
+	},
+
+	unbox: function()
+	{
+		if( this.length < 2 )
+			return this[0];
+		return this;
 	}
-}
+};
 
+Functor =
+{
+	notnull: function( value )
+	{
+		return value != null;
+	},
 
+	istrue: function( value )
+	{
+		return !!value;
+	},
+
+	equal: function( value )
+	{
+		return this == value;
+	},
+
+	iden: function( value )
+	{
+		return this === value;
+	},
+
+	tags: function( o )
+	{
+		return this.getElementsByTagName(o);
+	},
+
+	// do nothing
+	noop: function(){}
+};
 
 ObjectExt =
 {
@@ -140,7 +183,7 @@ ObjectExt =
 		}
 		return StringExt.join(s,'&');
 	}
-}
+};
 
 StringExt =
 {
@@ -162,36 +205,32 @@ StringExt =
 		if( str!=null )
 			return str.replace( /(^\s+)|(\s+$)/g, '' );
 	}
-}
+};
 
 
-
-
-Functor =
-{
-	notnull: function( value )
+// borrow from prototypejs
+ObjectExt.absorb( Function.prototype,
 	{
-		return value != null;
-	},
+		bind: function()
+		{
+			var __method = this, args = Array.expand(arguments), object = args.shift();
+			return function()
+			{
+				return __method.apply(object, args.concat(Array.expand(arguments)));
+			}
+		},
 
-	istrue: function( value )
-	{
-		return !!value;
+		bindAsEventListener: function(object)
+		{
+			var __method = this, args = Array.expand(arguments), object = args.shift();
+			return function(event) {
+				return __method.apply(object, [event || window.event].concat(args));
+			}
+		}
 	},
-	
-	equal: function( value )
-	{
-		return this == value;
-	},
+	true
+);
 
-	tags: function( o )
-	{
-		return this.getElementsByTagName(o);
-	},
-
-	// do nothing
-	noop: function(){}
-}
 
 ObjectExt.absorb( Object, ObjectExt, true );
 ObjectExt.absorb( Array.prototype, ArrayExt, true );
@@ -201,7 +240,32 @@ ObjectExt.absorb( String.prototype,
 	{
 		trim: function() { return String.trim( this ); }
 	},
-	true );
+	true
+);
+
+
+Properties =
+{
+	dissolve: function( obj )
+	{
+		var r =[];
+		for( prop in obj )
+		{
+			if( typeof obj[prop] == 'function' )
+				continue;
+			r.push({k:prop, v:obj[prop]});
+		}
+		return r;
+	},
+
+	compose: function( e )
+	{
+		if( e.k!=null )
+			this[e.k] = e.v;
+		return e;
+	}
+
+};
 
 DomExt =
 {
@@ -266,6 +330,42 @@ DomExt =
 			.filter( Functor.notnull )
 			.expand();
 	},
+	
+	$classname: function( className, parentNode )
+	{// see: http://lhorie.blogspot.com/2007/03/getelementsbyclassname-speed.html
+		var results = [];
+	
+		//if (document.getElementsByClassName) document.getElementsByClassName(className,parentNode);
+		//this is the code for FF3. Prototype 1.5 doesn't play nice with this code, though.
+		if( document.evaluate )
+		{
+			var query = document.evaluate(
+				".//*[contains(concat(' ', @class, ' '), ' " + className + " ')]",
+				parentNode || document,
+				null,
+				XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
+				null
+			);
+			for( var i = 0, length = query.snapshotLength; i < length; ++i )
+				results.push(query.snapshotItem(i));
+		}
+		else
+		{
+			var nodes =(parentNode || document).getElementsByTagName("*");
+			for( var i = 0, length = nodes.length; i < length; ++i )
+			{
+				var nodes_i=nodes[i];
+				if( (" "+nodes_i.className+" ").indexOf(" "+className+" ") > -1 ) // patched by Ciel
+					results.push(nodes_i);
+			}
+		}
+		return results;
+	},
+	
+	$childnodes:function( node )
+	{
+		return Array.expand( node.childNode );
+	},
 
 	$tag_name: function( obj, tagname, name )
 	{
@@ -276,77 +376,135 @@ DomExt =
 	{
 		return obj.getElementsByTagName( tagname );
 	}
-}
+};
 
 ObjectExt.absorb( window, DomExt );
 
 
-FormExt = {
-	
-	getter:
+FormExt =
+{
+	_get: function( e )
 	{
-		checkbox:	function( e ) { if( e.checked ) return e.value; },
-		radio:		function( e ) { if( e.checked ) return e.value; },
-		
-		text:		function( e ) { return e.value; },
-		textarea:	function( e ) { return e.value; },
-		password:	function( e ) { return e.value; },
-		hidden:		function( e ) { return e.value; },
-		file:		function( e ) { return e.value; },
-		
-		'select-one': function( e ) { return e.value; },
-		'select-multiple': function( e )
+		switch( e.type )
 		{
+
+		case 'text': case 'password': case 'hidden':
+		case 'file': case 'textarea':
+		case 'select-one':
+			return e.value;
+
+		case 'checkbox': case 'radio':
+			if( e.checked )
+				return e.value;
+			break;
+
+		case 'select-multiple':
 			return Array
 				.expand( e.options )
 				.filter( function( e ){ return e.selected; } )
 				.map( function( e ){ return e.value; } );
-		},
-		
-		submit: Functor.noop,
-		reset: Functor.noop,
-		button: Functor.noop,
-		image: Functor.noop
+
+		case 'submit': case 'reset': case 'button': case 'image':
+		default:;
+		};
 	},
-	setter:
-	{
-		checkbox:	function( e, vals ) { e.checked = vals.some( Functor.equal, e.value ); return e; },
-		radio:		function( e, vals ) { e.checked = vals.some( Functor.equal, e.value ); return e; },
-		
-		text:		function( e, vals ) { e.value = vals[0]; return e; },
-		password:	function( e, vals ) { e.value = vals[0]; return e; },
-		hidden:		function( e, vals ) { e.value = vals[0]; return e; },
-		
-		'select-one': function( e, vals )
+	_set: function( e )
+	{ // this function must be applied to an Array
+		switch( e.type )
 		{
+
+		case 'text': case 'password': case 'hidden':
+			e.value = this[0] || '';
+			break;
+
+		case 'checkbox': case 'radio':
+			e.checked = this.some( Functor.equal, e.value );
+			break;
+
+		case 'select-one': case 'select-multiple':
 			Array
 				.expand( e.options )
-				.forEach( function( e ){ e.selected = this.some( Functor.equal, e.value ); }, vals );
-				
-			return e;
-		},
-		'select-multiple': function( e, vals )
-		{
-			Array
-				.expand( e.options )
-				.forEach( function( e ){ e.selected = this.some( Functor.equal, e.value ); }, vals );
-				
-			return e;
-		},
-		// read only
-		file:		Functor.noop,
-		textarea:	Functor.noop,
-		submit: Functor.noop,
-		reset: Functor.noop,
-		button: Functor.noop,
-		image: Functor.noop
+				.forEach( function( e ){ e.selected = this.some( Functor.equal, e.value ); }, this );
+			break;
+
+		case 'textarea': case 'file': case 'submit': case 'reset':
+		case 'button': case 'image':
+		default:;
+		};
+		return e;
 	},
-	
-	_get: function( e )
+	_ie:
 	{
-		return FormExt.getter[e.type](e);
+		_gets:
+		{
+			'checkbox':	function( e ) { if( e.checked ) return e.value; },
+			'radio':	function( e ) { if( e.checked ) return e.value; },
+	
+			'text':		function( e ) { return e.value; },
+			'textarea':	function( e ) { return e.value; },
+			'password':	function( e ) { return e.value; },
+			'hidden':	function( e ) { return e.value; },
+			'file':		function( e ) { return e.value; },
+	
+			'select-one': function( e ) { return e.value; },
+			'select-multiple': function( e )
+			{
+				return Array
+					.expand( e.options )
+					.filter( function( e ){ return e.selected; } )
+					.map( function( e ){ return e.value; } );
+			},
+	
+			'submit': Functor.noop,
+			'reset': Functor.noop,
+			'button': Functor.noop,
+			'image': Functor.noop
+		},
+		_sets:
+		{
+			'checkbox':	function( e, vals ) { e.checked = vals.some( Functor.equal, e.value ); return e; },
+			'radio':	function( e, vals ) { e.checked = vals.some( Functor.equal, e.value ); return e; },
+	
+			'text':		function( e, vals ) { e.value = vals[0] || ''; return e; },
+			'password':	function( e, vals ) { e.value = vals[0] || ''; return e; },
+			'hidden':	function( e, vals ) { e.value = vals[0] || ''; return e; },
+	
+			'select-one': function( e, vals )
+			{
+				Array
+					.expand( e.options )
+					.forEach( function( e ){ e.selected = this.some( Functor.equal, e.value ); }, vals );
+	
+				return e;
+			},
+			'select-multiple': function( e, vals )
+			{
+				Array
+					.expand( e.options )
+					.forEach( function( e ){ e.selected = this.some( Functor.equal, e.value ); }, vals );
+	
+				return e;
+			},
+			// read only
+			'file':		Functor.noop,
+			'textarea':	Functor.noop,
+			'submit':	Functor.noop,
+			'reset':	Functor.noop,
+			'button': Functor.noop,
+			'image': Functor.noop
+		}
 	},
 	
+	getValue: function( e )
+	{
+		return this._get( e );
+	},
+	
+	setValue: function( e, value )
+	{
+		this._set.apply( value, e );
+	},
+
 	scan: function( oRoot )
 	{
 		return [ 'input', 'select', 'textarea' ]
@@ -354,7 +512,7 @@ FormExt = {
 			.expand();
 
 	},
-	
+
 	collect: function( oForm )
 	{
 		var data = {};
@@ -364,11 +522,11 @@ FormExt = {
 				{// XXX performace: can be optimized for SELECT?
 					if( !this[e.name] )
 						this[e.name]=[];
-					this[e.name] = this[e.name].concat( [].concat( FormExt.getter[e.type](e) ).filter( Functor.notnull ) );
+					this[e.name] = this[e.name].concat( [].concat( FormExt.getter[e.type](e) ) );
 				}, data );
 		return data;
 	},
-	
+
 	populate: function( oForm, values )
 	{
 		var oValues = ObjectExt.absorb( {}, values );
@@ -376,27 +534,27 @@ FormExt = {
 		{
 			if( typeof oValues[prop] == 'function' )
 				continue;
-				
+			// XXX performace: heavy loads on iterating?
 			DomExt.$elements( oForm, prop )
-				.forEach( function( e ){ FormExt.setter[e.type](e, this) }, [].concat( oValues[prop] ) );
+				.forEach( function( e ){ FormExt.setter[e.type](e, this) }, [].concat( oValues[prop] ).filter( Functor.notnull) );
 		}
 	}
-}
+};
 
 
 function validateField( oForm, oDescriptor, fieldname, params )
 {
 	if( !oDescriptor )
-		return false;  
-	
+		return false;
+
 	oDescriptor.invalid = null;
-	
+
 	var ele = oForm.elements[fieldname];
 
 	if( !ele )
 		return false;
 
-	oDescriptor.ignored = false;  
+	oDescriptor.ignored = false;
 
 	// check prerequisites
 	if( oDescriptor.prerequisites )
@@ -407,15 +565,15 @@ function validateField( oForm, oDescriptor, fieldname, params )
 			p = prerequisites[i];
 			if( typeof p.value != 'undefined' )
 			{
-				if( !$elements(oForm. p.element).some( Functor.equal, p.value ) )
+				if( !$elements( oForm. p.element ).some( Functor.equal, p.value ) )
 				{
 					oDescriptor.ignored = true;
-					break;				
+					break;
 				}
 			}
-			
+
 		}
-	
+
 	}
 
 	var rules = [].concat( oDescriptor.rules );
@@ -441,7 +599,7 @@ function validateField( oForm, oDescriptor, fieldname, params )
 		// the whole rule set fails when a rule in it fails.
 		oDescriptor.invalid |= !( result.valid || oDescriptor.ignored );
 
-		// call callback 
+		// call callback
 		// quit when the form decides not to go on
 		if( oForm.validated && !( oForm.validated( result, params ) || oDescriptor.ignored ) )
 			return result;
@@ -450,7 +608,7 @@ function validateField( oForm, oDescriptor, fieldname, params )
 	// no error, the element is valid;
 	return false;
 
-}
+};
 
 function validateForm( oForm, oDescriptors, params )
 {
@@ -468,7 +626,7 @@ function validateForm( oForm, oDescriptors, params )
 		var fieldDescriptor = oDescriptor[prop];
 		if( typeof( fieldDescriptor ) == 'function' )
 			continue;
-		
+
 		if( fieldDescriptor.constructor == Array )
 			continue;
 
@@ -487,7 +645,7 @@ function validateForm( oForm, oDescriptors, params )
 
 	return oDescriptor;
 
-}
+};
 
 regexs=
 {
@@ -498,23 +656,8 @@ regexs=
 };
 
 
-Evt =
+EventExt =
 {
-	stop: function( evt )
-	{
-		if( evt.preventDefault )
-		{
-			evt.preventDefault();
-			evt.stopPropagation();
-		}
-		else
-		{
-			evt.returnValue = false;
-			evt.cancelBubble = true;
-		}
-
-	},
-
 	create: function( type )
 	{
 		var e;
@@ -589,6 +732,11 @@ Evt =
 		return null;
 	},
 	
+	stimulate: function( target, event )
+	{
+		this.fire( target, this.createEx(event) );
+	},
+
 	eventTable:
 	{
 		// W3C DOM Level 2 spec.
@@ -614,10 +762,140 @@ Evt =
 		keypress:	{ catagory: 'KeyEvents',	bubbles: true,	cancelable: true },
 		keydown:	{ catagory: 'KeyEvents',	bubbles: true,	cancelable: true },
 		keyup:		{ catagory: 'KeyEvents',	bubbles: true,	cancelable: false } // follow IE
+	},
+
+	
+	KEY_BACKSPACE: 8,
+	KEY_TAB:       9,
+	KEY_RETURN:   13,
+	KEY_ESC:      27,
+	KEY_LEFT:     37,
+	KEY_UP:       38,
+	KEY_RIGHT:    39,
+	KEY_DOWN:     40,
+	KEY_DELETE:   46,
+	KEY_HOME:     36,
+	KEY_END:      35,
+	KEY_PAGEUP:   33,
+	KEY_PAGEDOWN: 34,
+	
+	element: function(event)
+	{
+		return event.target || event.srcElement;
+	},
+	
+	isLeftClick: function(event)
+	{
+		return (((event.which) && (event.which == 1)) || ((event.button) && (event.button == 1)));
+	},
+	pointerX: function(event)
+	{
+		return event.pageX || (event.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft));
+	},
+	pointerY: function(event)
+	{
+		return event.pageY || (event.clientY + (document.documentElement.scrollTop || document.body.scrollTop));
+	},
+	
+	stop: function(event)
+	{
+		if (event.preventDefault)
+		{
+			event.preventDefault();
+			event.stopPropagation();
+		}
+		else
+		{
+			event.returnValue = false;
+			event.cancelBubble = true;
+		}
+	},
+	
+	// find the first node with the given tagName, starting from the
+	// node the event was triggered on; traverses the DOM upwards
+	findElement: function(event, tagName)
+	{
+		var element = EventExt.element(event);
+		while (element.parentNode && (!element.tagName || (element.tagName.toUpperCase() != tagName.toUpperCase())))
+			element = element.parentNode;
+		return element;
+	},
+	
+	observers: false,
+	
+	_observeAndCache: function(element, name, observer, useCapture)
+	{
+		if(!this.observers)
+			this.observers = [];
+		
+		if(element.addEventListener)
+		{
+			this.observers.push([element, name, observer, useCapture]);
+			element.addEventListener(name, observer, useCapture);
+		}
+		else
+			if(element.attachEvent)
+			{
+				this.observers.push([element, name, observer, useCapture]);
+				element.attachEvent('on' + name, observer);
+			}
+	},
+
+	unloadCache: function()
+	{
+		if(!Event.observers)
+			return;
+		for (var i = 0, length = Event.observers.length; i < length; i++)
+		{
+			Event.stopObserving.apply(this, Event.observers[i]);
+			Event.observers[i][0] = null;
+		}
+	
+		Event.observers = false;
+	},
+	
+	observe: function(element, name, observer, useCapture)
+	{
+		element = $id(element);
+		useCapture = useCapture || false;
+		if (name == 'keypress' && element.attachEvent )
+			name = 'keydown';
+		EventExt._observeAndCache(element, name, observer, useCapture);
+	},
+	
+	stopObserving: function(element, name, observer, useCapture)
+	{
+ 		useCapture = useCapture || false;
+		if (name == 'keypress' && element.attachEvent )
+			name = 'keydown';
+		if (element.removeEventListener)
+		{
+			element.removeEventListener(name, observer, useCapture);
+		}
+		else
+			if (element.detachEvent)
+			{
+				try
+				{
+					element.detachEvent('on' + name, observer);
+				} catch (e) {}
+			}
+	},
+	observeEx: function( elements, events, handler, capture )
+	{
+		elements = Array.expand( elements ).filter( Functor.notnull );
+		events = Array.expand( events );
+
+		for( var j = elements.length, e; j; )
+		{
+			e = elements[--j];
+			for( var i = events.length; i;) EventExt.observe( e, events[--i], handler, capture ) ;
+		}
+
 	}
 
-
 };
+
 
 // depends on prototype.js
 Synchronizer =
@@ -665,33 +943,19 @@ Synchronizer =
 			}
 		}
 	}
-	
-	
-	
+
+
+
 };
-// depends on prototype.js
-if( window.Event )
-Event.observeEx = function( elements, events, handler, capture )
-{
-	elements = Array.expand( elements ).filter( Functor.notnull );
-	events = Array.expand( events );
-	
-	for( var j = elements.length, e; j; )
-	{
-		e = elements[--j];
-		for( var i = events.length; i; Event.observe( e, events[--i], handler, capture ) );
-	}
-	
-}
 
 function showHiddenMsgs( oMsgs )
 {
 	Array.expand( oMsgs ).filter( Functor.notnull ).map( $id ).forEach( ElementExt.forceShow );
-}
+};
 
 
 
-ElementExt = 
+ElementExt =
 {
 	displayDefaults:
 	{
@@ -708,7 +972,7 @@ ElementExt =
 		element.style.display = 'none';
 		return element;
 	}
-}
+};
 
 function plantInnerHtml( oValues, prefix, suffix )
 {
@@ -722,7 +986,7 @@ function plantInnerHtml( oValues, prefix, suffix )
 			continue;
 		e.innerHTML = oValues[prop];
 	}
-}
+};
 
 Select =
 {
@@ -730,12 +994,12 @@ Select =
 	{
 		if( !oSelect )
 			return false;
-		
+
 		if( !emptyEntry )
 			emptyEntry = { title:'--', value:-1 };
-		
+
 		oSelect.options.length = 0;
-			
+
 		var entries = oData &&　oData.children || [ emptyEntry ];
 
 		entries.forEach( function ( e )
@@ -747,17 +1011,17 @@ Select =
 			oSelect
 		);
 	},
-	
+
 	setOpts: function( oSelect, oData, emptyEntry )
 	{
 		if( !oSelect )
 			return false;
-		
+
 		if( !emptyEntry )
 			emptyEntry = { title:'--', value:-1 };
-		
+
 		oSelect.options.length = 0;
-			
+
 		var entries = oData || [ emptyEntry ];
 
 		entries.forEach( function ( e )
@@ -769,15 +1033,15 @@ Select =
 			oSelect
 		);
 	},
-	
+
 	initChain: function( root )
 	{
 		if( arguments.length < 3 )
 			return;
-			
+
 		this.init( arguments[1], root );
-		
-		// setup master/slave		
+
+		// setup master/slave
 		for( var i = 1; i < (arguments.length - 1); ++i )
 		{
 			arguments[i].slave = arguments[i+1];
@@ -790,13 +1054,13 @@ Select =
 		}
 
 		// IGNATE!
-		Evt.fire( arguments[1], Evt.createEx( 'change' ) ); 
+		Evt.fire( arguments[1], Evt.createEx( 'change' ) );
 	},
-	
+
 	selectHandler: function ( evt )
     {
     	evt = evt || window.event;
-    	
+
     	var oSelect = evt.target || evt.srcElement;
 
 		if( oSelect.slave )
@@ -808,4 +1072,5 @@ Select =
 		}
     }
 };
+
 
