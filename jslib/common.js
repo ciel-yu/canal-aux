@@ -106,30 +106,16 @@ ArrayExt =
 
 Functor =
 {
-	notnull: function( value )
-	{
-		return value != null;
-	},
+	notnull: function( val ) {return val != null;},
+	istrue:  function( val ) {return !!val;},
+	type:    function( val ) {return typeof val;},
+	hasprop: function( val ) {return this in val;},
 
-	istrue: function( value )
-	{
-		return !!value;
-	},
+	equal:   function( val ) {return this == val;},
+	iden:    function( val ) {return this === val;},
+	prop:    function( val ) {return val[this];},
 
-	equal: function( value )
-	{
-		return this == value;
-	},
-
-	iden: function( value )
-	{
-		return this === value;
-	},
-
-	tags: function( o )
-	{
-		return this.getElementsByTagName(o);
-	},
+	tags: function( val ) {return this.getElementsByTagName(val);},
 
 	// do nothing
 	noop: function(){}
@@ -137,8 +123,10 @@ Functor =
 
 ObjectExt =
 {
-	absorb: function( oDst, oSrc, preserve )
+	patch: function( oDst, oSrc, preserve )
 	{
+		if( !oSrc )
+			return oDst;
 		if( oSrc.constructor != Array )
 			oSrc=[oSrc];
 
@@ -157,8 +145,9 @@ ObjectExt =
 				o = oSrc[i];
 				for( var property in o )
 				{
-					if( typeof( oDst[property] ) == 'undefined' )
-						oDst[property] = o[property];
+					if( property in oDst )
+						continue;
+					oDst[property] = o[property];
 				}
 			}
 
@@ -204,12 +193,13 @@ StringExt =
 	{
 		if( str!=null )
 			return str.replace( /(^\s+)|(\s+$)/g, '' );
+		return null;
 	}
 };
 
 
 // borrow from prototypejs
-ObjectExt.absorb( Function.prototype,
+ObjectExt.patch( Function.prototype,
 	{
 		bind: function()
 		{
@@ -232,11 +222,11 @@ ObjectExt.absorb( Function.prototype,
 );
 
 
-ObjectExt.absorb( Object, ObjectExt, true );
-ObjectExt.absorb( Array.prototype, ArrayExt, true );
-ObjectExt.absorb( String, StringExt, true );
+ObjectExt.patch( Object, ObjectExt, true );
+ObjectExt.patch( Array.prototype, ArrayExt, true );
+ObjectExt.patch( String, StringExt, true );
 
-ObjectExt.absorb( String.prototype,
+ObjectExt.patch( String.prototype,
 	{
 		trim: function() { return String.trim( this ); }
 	},
@@ -253,15 +243,20 @@ Properties =
 		{
 			if( typeof obj[prop] == 'function' )
 				continue;
-			r.push({k:prop, v:obj[prop]});
+			r.push({_key:prop, _val:obj[prop]});
 		}
 		return r;
 	},
 
+	indexBy: function( e )
+	{
+		return {_key:e[this], _val:e};
+	},
+
 	compose: function( e )
 	{
-		if( e.k!=null )
-			this[e.k] = e.v;
+		if( e._key!=null )
+			this[e._key] = e._val;
 		return e;
 	}
 
@@ -269,72 +264,82 @@ Properties =
 
 DomExt =
 {
-	$_: function( obj, text )
+	_id: function( id )
 	{
-
-		if( window.navigator.appName.toLowerCase() == 'netscape' )
-		{ // for Netscape/Mozilla/Firefox
-			if( text != null )
-				obj.textContent = text;
-			return obj.textContent;
-		}
-		else
-		{ // for IE/Opera
-			if( text != null )
-				obj.innerText = text;
-			return obj.innerText;
-		}
+		return document.getElementById( id );
+	},
+	_name: function( name )
+	{
+		return document.getElementsByName( name );
+	},
+	_tags: function( tagname )
+	{
+		return this.getElementsByTagName( tagname );
 	},
 
-	$id: function( element )
+	text: function( obj, text )
+	{
+		if( 'innerText' in obj )
+		{// IE approach
+			if( text != null ) obj.innerText = text;
+			return obj.innerText;
+		}
+		else if( 'textContent' in obj )
+		{// W3C approach
+			if( text != null ) obj.textContent = text;
+			return obj.textContent;
+		}
+		return null;
+	},
+
+	id: function( element )
 	{
 		if( typeof element == 'string' )
 			element = document.getElementById( element );
 		return element;
 	},
 
-	$ids: function()
+	ids: function()
 	{
 		var ids = [];
-		for( var i = 0; i<arguments.length; ++i )
-		{
+		for( var i = 0, len=arguments.length; i<len; ++i )
 			ids = ids.concat( arguments[i] );
-		}
-
 		return ids.map( DomExt.$id );
 	},
 
-	$form: function( element )
+	names: function()
+	{
+		var names = [];
+		for( var i = 0, len=arguments.length; i<len; ++i )
+			names = names.concat( arguments[i] );
+
+		return names.map( function( n ){ return document.getElementsByName(n);} )
+					.expand();
+	},
+
+	tags: function( tagname, node )
+	{
+		return Array.expand( (node||document).getElementsByTagName( tagname ) );
+	},
+
+
+
+	tag_name: function( obj, tagname, name )
+	{
+		return obj.getElementsByTagName( tagname )[name];
+	},
+
+	form: function( element )
 	{
 		if( typeof element == 'string' )
 			return document.forms[element];
 		return element;
 	},
 
-	$element: function( formid, name )
-	{
-		return DomExt.$elements( formid, name )[0];
-	},
-
-	$elements: function( formid, name )
-	{
-		var form  = DomExt.$form( formid );
-		if( !form )
-			return [];
-
-		if( !name ) // return all elements
-			return Array.expand( form.elements );
-
-		return ( name.constructor == Array ? name : [name] )
-			.map( function( n ){ return this.elements[n] }, form )
-			.filter( Functor.notnull )
-			.expand();
-	},
-	
-	$classname: function( className, parentNode )
+	classnames: function( className, parentNode )
 	{// see: http://lhorie.blogspot.com/2007/03/getelementsbyclassname-speed.html
 		var results = [];
-	
+
 		//if (document.getElementsByClassName) document.getElementsByClassName(className,parentNode);
 		//this is the code for FF3. Prototype 1.5 doesn't play nice with this code, though.
 		if( document.evaluate )
@@ -361,25 +366,29 @@ DomExt =
 		}
 		return results;
 	},
-	
-	$childnodes:function( node )
-	{
-		return Array.expand( node.childNode );
-	},
 
-	$tag_name: function( obj, tagname, name )
+	childElements:function( node )
 	{
-		return obj.getElementsByTagName( tagname )[name];
-	},
-
-	$tags: function( obj, tagname )
-	{
-		return obj.getElementsByTagName( tagname );
+		return Array.expand( node.childNodes ).filter( function(e){return e.nodeType===1;} );
 	}
+
 };
 
-ObjectExt.absorb( window, DomExt );
-
+CSS =
+{
+	add: function( element, cssname )
+	{
+		if( !element || !cssname || (element.className && element.className.search( new RegExp("\\b" + cssname + "\\b") ) != -1) )
+			return;
+		element.className += (element.className ? " " : "") + cssname;
+	},
+	remove: function( element, cssname )
+	{
+		if( !element || !cssname || (element.className && element.className.search( new RegExp("\\b" + cssname + "\\b") ) == -1) )
+			return;
+		element.className = element.className.replace(new RegExp("\\s*\\b" + cssname + "\\b", "g"), "");
+	}
+};
 
 FormExt =
 {
@@ -407,7 +416,9 @@ FormExt =
 		case 'submit': case 'reset': case 'button': case 'image':
 		default:;
 		};
+		return null;
 	},
+
 	_set: function( e )
 	{ // this function must be applied to an Array
 		switch( e.type )
@@ -433,19 +444,20 @@ FormExt =
 		};
 		return e;
 	},
-	_ie:
+
+	_accessors: // faster for IE
 	{
 		_gets:
 		{
-			'checkbox':	function( e ) { if( e.checked ) return e.value; },
-			'radio':	function( e ) { if( e.checked ) return e.value; },
-	
+			'checkbox':	function( e ) { if( e.checked ) return e.value; return null; },
+			'radio':	function( e ) { if( e.checked ) return e.value; return null; },
+
 			'text':		function( e ) { return e.value; },
 			'textarea':	function( e ) { return e.value; },
 			'password':	function( e ) { return e.value; },
 			'hidden':	function( e ) { return e.value; },
 			'file':		function( e ) { return e.value; },
-	
+
 			'select-one': function( e ) { return e.value; },
 			'select-multiple': function( e )
 			{
@@ -454,7 +466,7 @@ FormExt =
 					.filter( function( e ){ return e.selected; } )
 					.map( function( e ){ return e.value; } );
 			},
-	
+
 			'submit': Functor.noop,
 			'reset': Functor.noop,
 			'button': Functor.noop,
@@ -464,17 +476,17 @@ FormExt =
 		{
 			'checkbox':	function( e, vals ) { e.checked = vals.some( Functor.equal, e.value ); return e; },
 			'radio':	function( e, vals ) { e.checked = vals.some( Functor.equal, e.value ); return e; },
-	
+
 			'text':		function( e, vals ) { e.value = vals[0] || ''; return e; },
 			'password':	function( e, vals ) { e.value = vals[0] || ''; return e; },
 			'hidden':	function( e, vals ) { e.value = vals[0] || ''; return e; },
-	
+
 			'select-one': function( e, vals )
 			{
 				Array
 					.expand( e.options )
 					.forEach( function( e ){ e.selected = this.some( Functor.equal, e.value ); }, vals );
-	
+
 				return e;
 			},
 			'select-multiple': function( e, vals )
@@ -482,7 +494,7 @@ FormExt =
 				Array
 					.expand( e.options )
 					.forEach( function( e ){ e.selected = this.some( Functor.equal, e.value ); }, vals );
-	
+
 				return e;
 			},
 			// read only
@@ -494,21 +506,41 @@ FormExt =
 			'image': Functor.noop
 		}
 	},
-	
+
+	elements: function( formid, name )
+	{
+		var form  = DomExt.form( formid );
+		if( !form )
+			return [];
+
+		if( !name ) // return all elements
+			return Array.expand( form.elements );
+
+		return ( name.constructor == Array ? name : [name] )
+			.map( function( n ){ return this.elements[n] }, form )
+			.filter( Functor.notnull )
+			.expand();
+	},
+
+	element: function( form, name )
+	{
+		return FormExt.elements( form, name )[0];
+	},
+
 	getValue: function( e )
 	{
 		return this._get( e );
 	},
-	
+
 	setValue: function( e, value )
 	{
-		this._set.apply( value, e );
+		this._set.call( [].concat(value), e );
 	},
 
 	scan: function( oRoot )
 	{
 		return [ 'input', 'select', 'textarea' ]
-			.map( Functor.tags, oRoot )
+			.map( DomExt._tags, oRoot )
 			.expand();
 
 	},
@@ -516,151 +548,53 @@ FormExt =
 	collect: function( oForm )
 	{
 		var data = {};
-		DomExt.$elements( oForm )
+		FormExt.elements( oForm )
 			.filter( function(e){ return !e.disabled && String.trim(e.name); } )
 			.forEach( function(e)
 				{// XXX performace: can be optimized for SELECT?
 					if( !this[e.name] )
 						this[e.name]=[];
-					this[e.name] = this[e.name].concat( [].concat( FormExt.getter[e.type](e) ) );
-				}, data );
+					this[e.name] = this[e.name].concat( [].concat( FormExt._get(e) ) );
+				},
+				data
+			);
 		return data;
 	},
 
 	populate: function( oForm, values )
 	{
-		var oValues = ObjectExt.absorb( {}, values );
+		var oValues = ObjectExt.patch( {}, values );
 		for( prop in oValues )
 		{
 			if( typeof oValues[prop] == 'function' )
 				continue;
 			// XXX performace: heavy loads on iterating?
-			DomExt.$elements( oForm, prop )
-				.forEach( function( e ){ FormExt.setter[e.type](e, this) }, [].concat( oValues[prop] ).filter( Functor.notnull) );
+			FormExt.elements( oForm, prop )
+				.forEach(  FormExt._set, [].concat( oValues[prop] ).filter( Functor.notnull ) );
 		}
 	}
 };
 
-
-function validateField( oForm, oDescriptor, fieldname, params )
-{
-	if( !oDescriptor )
-		return false;
-
-	oDescriptor.invalid = null;
-
-	var ele = oForm.elements[fieldname];
-
-	if( !ele )
-		return false;
-
-	oDescriptor.ignored = false;
-
-	// check prerequisites
-	if( oDescriptor.prerequisites )
+ObjectExt.patch( window,
 	{
-		var prerequisites = Array.expand( oDescriptor.prerequisites );
-		for( var i = 0, p; i < prerequisites.length; ++i )
-		{
-			p = prerequisites[i];
-			if( typeof p.value != 'undefined' )
-			{
-				if( !$elements( oForm. p.element ).some( Functor.equal, p.value ) )
-				{
-					oDescriptor.ignored = true;
-					break;
-				}
-			}
+		$id:		DomExt.id,
+		$ids:		DomExt.ids,
+		$names:		DomExt.names,
+		$tags:		DomExt.tags,
+		$form:		DomExt.form,
 
-		}
+		$_:         DomExt.text,
 
+		$elements:	FormExt.elements,
+		$element:	FormExt.element
 	}
-
-	var rules = [].concat( oDescriptor.rules );
-
-	for( var i = 0; i<rules.length; ++i )
-	{
-		var rule = rules[i];
-		var result =
-			{
-				form: oForm,
-				name: fieldname,
-				element: ele,
-				affectedRule: rule,
-				ruleSet: oDescriptor,
-				ignored: oDescriptor.ignored
-			};
-
-		result.valid = 	( rule.required ? String.trim( ele.value ) != '': true )
-					 && ( rule.pattern	? rule.pattern.test( ele.value ): true )
-					 && ( rule.validate	? rule.validate( ele )			: true )
-					 ;
-
-		// the whole rule set fails when a rule in it fails.
-		oDescriptor.invalid |= !( result.valid || oDescriptor.ignored );
-
-		// call callback
-		// quit when the form decides not to go on
-		if( oForm.validated && !( oForm.validated( result, params ) || oDescriptor.ignored ) )
-			return result;
-	}
-
-	// no error, the element is valid;
-	return false;
-
-};
-
-function validateForm( oForm, oDescriptors, params )
-{
-	oForm = $form( oForm );
-
-	if( !oForm || !oDescriptors )
-		return false;
-
-	var oDescriptor = Object.absorb( {}, Array.expand( oDescriptors ) );
-
-	oDescriptor.invalid = false;
-
-	for( var prop in oDescriptor )
-	{
-		var fieldDescriptor = oDescriptor[prop];
-		if( typeof( fieldDescriptor ) == 'function' )
-			continue;
-
-		if( fieldDescriptor.constructor == Array )
-			continue;
-
-		var error = validateField( oForm, fieldDescriptor, prop, params );
-
-		oDescriptor.invalid |= fieldDescriptor.invalid;
-
-		// there is an invalid element and the form wants to stop validating
-		if( error )
-		{
-			oDescriptor.lastResult = error;
-			break;
-		}
-
-	}
-
-	return oDescriptor;
-
-};
-
-regexs=
-{
-	// approved
-	strictEmail: /^((([a-z]|[0-9]|!|#|$|%|&|'|\*|\+|\-|\/|=|\?|\^|_|`|\{|\||\}|~)+(\.([a-z]|[0-9]|!|#|$|%|&|'|\*|\+|\-|\/|=|\?|\^|_|`|\{|\||\}|~)+)*)@((((([a-z]|[0-9])([a-z]|[0-9]|\-){0,61}([a-z]|[0-9])\.))*([a-z]|[0-9])([a-z]|[0-9]|\-){0,61}([a-z]|[0-9])\.(af|ax|al|dz|as|ad|ao|ai|aq|ag|ar|am|aw|au|at|az|bs|bh|bd|bb|by|be|bz|bj|bm|bt|bo|ba|bw|bv|br|io|bn|bg|bf|bi|kh|cm|ca|cv|ky|cf|td|cl|cn|cx|cc|co|km|cg|cd|ck|cr|ci|hr|cu|cy|cz|dk|dj|dm|do|ec|eg|sv|gq|er|ee|et|fk|fo|fj|fi|fr|gf|pf|tf|ga|gm|ge|de|gh|gi|gr|gl|gd|gp|gu|gt| gg|gn|gw|gy|ht|hm|va|hn|hk|hu|is|in|id|ir|iq|ie|im|il|it|jm|jp|je|jo|kz|ke|ki|kp|kr|kw|kg|la|lv|lb|ls|lr|ly|li|lt|lu|mo|mk|mg|mw|my|mv|ml|mt|mh|mq|mr|mu|yt|mx|fm|md|mc|mn|ms|ma|mz|mm|na|nr|np|nl|an|nc|nz|ni|ne|ng|nu|nf|mp|no|om|pk|pw|ps|pa|pg|py|pe|ph|pn|pl|pt|pr|qa|re|ro|ru|rw|sh|kn|lc|pm|vc|ws|sm|st|sa|sn|cs|sc|sl|sg|sk|si|sb|so|za|gs|es|lk|sd|sr|sj|sz|se|ch|sy|tw|tj|tz|th|tl|tg|tk|to|tt|tn|tr|tm|tc|tv|ug|ua|ae|gb|us|um|uy|uz|vu|ve|vn|vg|vi|wf|eh|ye|zm|zw|com|edu|gov|int|mil|net|org|biz|info|name|pro|aero|coop|museum|arpa))|(((([0-9]){1,3}\.){3}([0-9]){1,3}))|(\[((([0-9]){1,3}\.){3}([0-9]){1,3})\])))$/,
-	QQ: /^[1-9]\d{4,8}$/,
-	idcard: /^\d{15}(\d{3})?$/
-};
-
+);
 
 EventExt =
 {
 	create: function( type )
 	{
-		var e;
+		var e = null;
 		if( document.createEventObject )
 		{
 			e = document.createEventObject();
@@ -674,7 +608,7 @@ EventExt =
 		return e;
 	},
 
-	init: function( evt, type, canBubble, cancelable )
+	init: function( e, type, canBubble, cancelable )
 	{
 		if( this.eventTable[type] )
 		{
@@ -689,15 +623,15 @@ EventExt =
 			cancelable = cancelable || false;
 		}
 
-		if( evt.initEvent )
+		if( e.initEvent )
 		{
-			evt.initEvent( type, canBubble, cancelable );
+			e.initEvent( type, canBubble, cancelable );
 		}
 		else
 		{// for IE
-			evt.type = type;
-			evt.cancelBubble = !canBubble;
-			evt.returnValue = !cancelable;
+			e.type = type;
+			e.cancelBubble = !canBubble;
+			e.returnValue = !cancelable;
 		}
 
 	},
@@ -731,7 +665,7 @@ EventExt =
 
 		return null;
 	},
-	
+
 	stimulate: function( target, event )
 	{
 		this.fire( target, this.createEx(event) );
@@ -764,26 +698,29 @@ EventExt =
 		keyup:		{ catagory: 'KeyEvents',	bubbles: true,	cancelable: false } // follow IE
 	},
 
-	
-	KEY_BACKSPACE: 8,
-	KEY_TAB:       9,
-	KEY_RETURN:   13,
-	KEY_ESC:      27,
-	KEY_LEFT:     37,
-	KEY_UP:       38,
-	KEY_RIGHT:    39,
-	KEY_DOWN:     40,
-	KEY_DELETE:   46,
-	KEY_HOME:     36,
-	KEY_END:      35,
-	KEY_PAGEUP:   33,
-	KEY_PAGEDOWN: 34,
-	
+	KEYS:
+	{
+		BACKSPACE: 8,
+		TAB:       9,
+		RETURN:   13,
+		ESC:      27,
+		LEFT:     37,
+		UP:       38,
+		RIGHT:    39,
+		DOWN:     40,
+		DELETE:   46,
+		HOME:     36,
+		END:      35,
+		PAGEUP:   33,
+		PAGEDOWN: 34
+	},
+
+
 	element: function(event)
 	{
 		return event.target || event.srcElement;
 	},
-	
+
 	isLeftClick: function(event)
 	{
 		return (((event.which) && (event.which == 1)) || ((event.button) && (event.button == 1)));
@@ -796,7 +733,7 @@ EventExt =
 	{
 		return event.pageY || (event.clientY + (document.documentElement.scrollTop || document.body.scrollTop));
 	},
-	
+
 	stop: function(event)
 	{
 		if (event.preventDefault)
@@ -810,7 +747,7 @@ EventExt =
 			event.cancelBubble = true;
 		}
 	},
-	
+
 	// find the first node with the given tagName, starting from the
 	// node the event was triggered on; traverses the DOM upwards
 	findElement: function(event, tagName)
@@ -820,14 +757,14 @@ EventExt =
 			element = element.parentNode;
 		return element;
 	},
-	
+
 	observers: false,
-	
+
 	_observeAndCache: function(element, name, observer, useCapture)
 	{
 		if(!this.observers)
 			this.observers = [];
-		
+
 		if(element.addEventListener)
 		{
 			this.observers.push([element, name, observer, useCapture]);
@@ -850,10 +787,10 @@ EventExt =
 			Event.stopObserving.apply(this, Event.observers[i]);
 			Event.observers[i][0] = null;
 		}
-	
+
 		Event.observers = false;
 	},
-	
+
 	observe: function(element, name, observer, useCapture)
 	{
 		element = $id(element);
@@ -862,7 +799,7 @@ EventExt =
 			name = 'keydown';
 		EventExt._observeAndCache(element, name, observer, useCapture);
 	},
-	
+
 	stopObserving: function(element, name, observer, useCapture)
 	{
  		useCapture = useCapture || false;
@@ -897,6 +834,8 @@ EventExt =
 };
 
 
+
+
 // depends on prototype.js
 Synchronizer =
 {
@@ -912,12 +851,12 @@ Synchronizer =
 
 		for( var i = events.length; i; Event.observe( master, events[--i], this.dosync.bindAsEventListener(master) ) );
 
-		Evt.fire( master, Evt.createEx( 'change' ) );
+		EventExt.fire( master, EventExt.createEx( 'change' ) );
 	},
 
 	dosync: function( evt )
 	{
-		var master = evt.target || evt.srcElement;
+		var master = this;
 		var sync = master.sync;
 		if( sync )
 		{
@@ -928,7 +867,8 @@ Synchronizer =
 					slave = sync.slaves[--i];
 					if( !slave || !sync.condition( master, slave ) )
 						continue;
-					setElement( slave, master.value );
+
+					FormExt.setValue( slave, master.value );
 				}
 			}
 			else
@@ -938,7 +878,7 @@ Synchronizer =
 					slave = sync.slaves[--i];
 					if( !slave )
 						continue;
-					setElement( slave, master.value );
+					FormExt.setValue( slave, master.value );
 				}
 			}
 		}
@@ -993,14 +933,14 @@ Select =
 	init: function( oSelect, oData, emptyEntry )
 	{
 		if( !oSelect )
-			return false;
+			return;
 
 		if( !emptyEntry )
 			emptyEntry = { title:'--', value:-1 };
 
 		oSelect.options.length = 0;
 
-		var entries = oData &&　oData.children || [ emptyEntry ];
+		var entries = oData && oData.children || [ emptyEntry ];
 
 		entries.forEach( function ( e )
 			{
@@ -1015,7 +955,7 @@ Select =
 	setOpts: function( oSelect, oData, emptyEntry )
 	{
 		if( !oSelect )
-			return false;
+			return;
 
 		if( !emptyEntry )
 			emptyEntry = { title:'--', value:-1 };
@@ -1042,35 +982,30 @@ Select =
 		this.init( arguments[1], root );
 
 		// setup master/slave
-		for( var i = 1; i < (arguments.length - 1); ++i )
+		for( var i = 1, len = arguments.length - 1; i < len; ++i )
 		{
 			arguments[i].slave = arguments[i+1];
 		}
 
 		// install event handler
-		for( var i = 1; i < arguments.length ; ++i )
+		for( var i = 1, len = arguments.length; i < len; ++i )
 		{
-    		Event.observe( arguments[i], 'change', this.selectHandler );
+    		Event.observe( arguments[i], 'change', this.selectHandler.bindAsEventListener(arguments[i]) );
 		}
 
 		// IGNATE!
-		Evt.fire( arguments[1], Evt.createEx( 'change' ) );
+		EventExt.fire( arguments[1], EventExt.createEx( 'change' ) );
 	},
 
-	selectHandler: function ( evt )
-    {
-    	evt = evt || window.event;
-
-    	var oSelect = evt.target || evt.srcElement;
-
+	selectHandler: function ( event )
+    {// 'this' was bound to the SELECT element
+    	var oSelect = this;
 		if( oSelect.slave )
 		{
 			opt = oSelect.options[oSelect.selectedIndex];
 			entry = opt.entry;
 			Select.init( oSelect.slave, entry, { title:'--', value:-1 } );
-			Evt.fire( oSelect.slave, Evt.createEx( 'change' ) );
+			EventExt.stimulate( oSelect.slave, 'change' );
 		}
     }
 };
-
-
