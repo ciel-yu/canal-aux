@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2008 rel. 2 (http://www.altova.com) by Administrator (EMBRACE) -->
+<!DOCTYPE catalog PUBLIC "-//OASIS//DTD XML Catalogs V1.1//EN" "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
+<catalog xml:base="file:/C:/dev/XMLCATALOG/">
+	<group id="main">
+		<public publicId="-//OASIS//DTD XML Catalogs V1.0//EN" uri="./catalog.dtd"/>
+		<public publicId="-//OASIS//DTD XML Catalogs V1.1//EN" uri="./catalog.1.1.dtd"/>
+		<system systemId="http://www.oasis-open.org/committees/entity/release/1.0/catalog.xsd" uri="./catalog.1.1.xsd"/>
+		<system systemId="http://www.oasis-open.org/committees/entity/release/1.1/catalog.xsd" uri="./catalog.1.1.xsd"/>
+	</group>
+	<group id="spring" xml:base="./spring/">
+		<public publicId="-//SPRING//DTD BEAN//EN" uri="./spring-beans.dtd"/>
+		<public publicId="-//SPRING//DTD BEAN 2.0//EN" uri="./spring-beans-2.0.dtd"/>
+		<rewriteSystem systemIdStartString="http://www.springframework.org/schema/" rewritePrefix="."/>
+	</group>
+	<group id="hibernate">
+		<public publicId="-//Hibernate/Hibernate Mapping DTD 3.0//EN" uri="./hibernate/hibernate-mapping-3.0.dtd"/>
+		<public publicId="-//Hibernate/Hibernate Configuration DTD 3.0//EN" uri="./hibernate/hibernate-configuration-3.0.dtd"/>
+		<public publicId="-//Hibernate/Hibernate Configuration DTD 2.0//EN" uri="./hibernate/hibernate-configuration-2.0.dtd"/>
+		<public publicId="-//Hibernate/Hibernate Mapping DTD 2.0//EN" uri="file:/./hibernate/hibernate-mapping-2.0.dtd"/>
+	</group>
+	<group id="ibatis">
+		<public publicId="-//ibatis.apache.org//DTD SQL Map 2.0//EN" uri="./ibatis/sql-map-2.dtd"/>
+		<public publicId="-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" uri="./ibatis/sql-map-config-2.dtd"/>
+		<public publicId="-//Apache Software Foundation//DTD Abator for iBATIS Configuration 1.0//EN" uri="C:/dev/XMLCATALOG/ibatis/abator-config_1_0.dtd"/>
+	</group>
+	<group id="struts">
+		<rewriteSystem systemIdStartString="http://jakarta.apache.org/struts/dtds/" rewritePrefix="./struts/"/>
+		<rewriteSystem systemIdStartString="http://struts.apache.org/dtds/" rewritePrefix="./struts/"/>
+		<public publicId="-//Apache Software Foundation//DTD Struts Configuration 1.0//EN" uri="./struts/struts-config_1_0.dtd"/>
+		<public publicId="-//Apache Software Foundation//DTD Struts Configuration 1.1//EN" uri="./struts/struts-config_1_1.dtd"/>
+		<public publicId="-//Apache Software Foundation//DTD Struts Configuration 1.2//EN" uri="./struts/struts-config_1_2.dtd"/>
+		<public publicId="-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN" uri="./struts/tiles-config_1_1.dtd"/>
+		<public publicId="-//Apache Software Foundation//DTD Struts Configuration 2.0//EN" uri="./struts/struts-2.0.dtd"/>
+	</group>
+	<group id="misc">
+		<system uri="./misc/ehcache.xsd" systemId="ehcache.xsd"/>
+		<system uri="./misc/terracotta-4.xsd" systemId="http://www.terracotta.org/schema/terracotta-4.xsd"/>
+		<public publicId="-//Jakarta Apache //DTD digester-rules XML V1.0//EN" uri="./misc/digester-rules.dtd"/>
+		<rewriteSystem systemIdStartString="http://maven.apache.org/xsd/" rewritePrefix="./mvn/"/>
+		<systemSuffix systemIdSuffix="ivy.xsd" uri="./apache/ivy.xsd"/>
+	</group>
+	<group>
+		<system systemId="http://www.ibm.com/webservices/xsd/j2ee_web_services_client_1_1.xsd" uri="./misc/j2ee_web_services_client_1_1.xsd"/>
+		<system systemId="http://www.w3.org/2001/xml.xsd" uri="./misc/xml.xsd"/>
+	</group>
+	<group id="sun">
+		<rewriteSystem systemIdStartString="http://java.sun.com/xml/ns/persistence/" rewritePrefix="./persistence/"/>
+		<rewriteSystem systemIdStartString="http://java.sun.com/dtd/" rewritePrefix="./sundtd/"/>
+		<rewriteSystem systemIdStartString="http://java.sun.com/xml/ns/j2ee/" rewritePrefix="./j2ee/"/>
+		<rewriteSystem systemIdStartString="http://java.sun.com/xml/ns/javaee/" rewritePrefix="./jee/"/>
+	</group>
+	<group id="wap">
+		<public publicId="-//WAPFORUM//DTD WML 1.1//EN" uri="./WAP/wml_1_1.dtd"/>
+	</group>
+</catalog>
