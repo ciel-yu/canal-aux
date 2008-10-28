@@ -53,4 +53,10 @@
 	<group id="wap">
 		<public publicId="-//WAPFORUM//DTD WML 1.1//EN" uri="./WAP/wml_1_1.dtd"/>
 	</group>
+	<group id="dwr">
+		<public publicId="-//GetAhead Limited//DTD Direct Web Remoting 1.0//EN" uri="./dwr/dwr10.dtd"/>
+		<public publicId="-//GetAhead Limited//DTD Direct Web Remoting 2.0//EN" uri="./dwr/dwr20.dtd"/>
+		<systemSuffix systemIdSuffix="dwr20.xsd" uri="./dwr/dwr20.xsd"/>
+		<systemSuffix systemIdSuffix="spring-dwr-2.0.xsd" uri="./dwr/spring-dwr-2.0.xsd"/>
+	</group>
 </catalog>
