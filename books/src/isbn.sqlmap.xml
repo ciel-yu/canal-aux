@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="isbn">
+	<sql id="commonQuery">
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="id"> id = #id# </isNotNull>
+			<isNotNull prepend="OR" property="id_list">
+				id
+				<iterate prepend="IN" open="(" close=")" conjunction="," property="id_list"> #id_list[]# </iterate>
+			</isNotNull>
+
+			<isNotNull prepend="AND" property="isbn"> isbn = #isbn# </isNotNull>
+			<isNotNull prepend="OR" property="isbn_list">
+				isbn
+				<iterate prepend="IN" open="(" close=")" conjunction="," property="isbn_list"> #isbn_list[]# </iterate>
+			</isNotNull>
+
+			<isNotNull prepend="AND" property="state"> state = #state# </isNotNull>
+			<isNotNull prepend="AND" property="state_list">
+				state
+				<iterate prepend="IN" open="(" close=")" conjunction="," property="state_list"> #state_list[]# </iterate>
+			</isNotNull>
+
+		</dynamic>
+	</sql>
+
+
+	<select id="queryRecordList" parameterClass="java.util.Map" resultClass="maya.components.repository.IsbnRecord">
+		SELECT
+			id,
+			isbn,
+			state,
+			data,
+			content
+		FROM
+			isbndata
+		<include refid="commonQuery"/>
+		<isNotNull prepend="LIMIT" property="limit">
+			#limit#
+			<isNotNull prepend="OFFSET" property="offset">
+				#offset#
+			</isNotNull>
+		</isNotNull>
+		;
+	</select>
+
+	<insert id="insertRecordList" parameterClass="java.util.List">
+		INSERT INTO
+			isbndata
+			( isbn, state, data, content )
+		VALUES
+		<iterate conjunction=",">
+			( #[].isbn#, #[].state#, #[].data#, #[].content# )
+		</iterate>
+		ON DUPLICATE KEY UPDATE
+			id=LAST_INSERT_ID(id),
+			state = VALUES( state ),
+			data = VALUES( data ),
+			content = VALUES( content )
+		;
+		<selectKey resultClass="int">
+			SELECT LAST_INSERT_ID() AS id;
+		</selectKey>
+	</insert>
+
+	<insert id="insertIsbnList" parameterClass="java.util.List">
+		INSERT INTO
+			isbndata
+			( isbn, state )
+		VALUES
+		<iterate conjunction=",">
+			( #[]#, 0 )
+		</iterate>
+		ON DUPLICATE KEY UPDATE
+			id=LAST_INSERT_ID(id)
+		;
+		<selectKey resultClass="int">
+			SELECT LAST_INSERT_ID() AS id;
+		</selectKey>
+	</insert>
+
+	<update id="updateRecord" parameterClass="java.util.Map">
+		UPDATE
+			isbndata
+		<dynamic prepend="SET">
+			<isPropertyAvailable property="state" prepend=","> state = #state# </isPropertyAvailable>
+			<isPropertyAvailable property="isbn" prepend=","> isbn = #isbn# </isPropertyAvailable>
+		</dynamic>
+		<include refid="commonQuery"/>
+		;
+	</update>
+	<delete id="deleteRecord" parameterClass="java.util.Map">
+		DELETE FROM
+			isbndata
+		<include refid="commonQuery"/>
+		;
+	</delete>
+
+</sqlMap>

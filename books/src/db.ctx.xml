@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+
+
+	<bean id="_ds_local" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="com.mysql.jdbc.Driver"/>
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/resbase?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull"/>
+		<property name="user" value="root"/>
+		<property name="password" value=""/>
+	</bean>
+
+	<bean id="_ds_hsql" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="org.hsqldb.jdbcDriver"/>
+		<property name="jdbcUrl" value="jdbc:hsqldb:hsql://localhost"/>
+		<property name="user" value="sa"/>
+		<property name="password" value=""/>
+	</bean>
+
+	<alias name="_ds_hsql" alias="dataSource"/>
+
+	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation" value="classpath:sql-map-config.xml"/>
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+
+		<property name="lobHandler">
+			<bean class="org.springframework.jdbc.support.lob.OracleLobHandler">
+				<property name="nativeJdbcExtractor">
+					<bean class="org.springframework.jdbc.support.nativejdbc.C3P0NativeJdbcExtractor"/>
+				</property>
+			</bean>
+		</property>
+
+		<property name="configLocation" value="classpath:hibernate.xml"/>
+		<property name="configurationClass" value="org.hibernate.cfg.AnnotationConfiguration"/>
+
+		<property name="hibernateProperties">
+			<util:properties location="classpath:hibernate.properties"/>
+		</property>
+	</bean>
+
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory">
+			<ref local="sessionFactory"/>
+		</property>
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+
+</beans>
