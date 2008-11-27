@@ -1,0 +1,16 @@
+<!DOCTYPE digester-rules PUBLIC "-//Jakarta Apache //DTD digester-rules XML V1.0//EN" "digester-rules.dtd">
+<digester-rules>
+
+	<pattern value="*/ItemAttributes">
+		<object-create-rule classname="maya.components.amazon.model.AmazonBookRecord"/>
+		<call-method-rule pattern="Author" methodname="setAuthor" paramcount="0"/>
+		<call-method-rule pattern="Binding" methodname="setBinding" paramcount="0"/>
+		<call-method-rule pattern="EAN" methodname="setEan" paramcount="0"/>
+		<call-method-rule pattern="ISBN" methodname="setIsbn" paramcount="0"/>
+		<call-method-rule pattern="PublicationDate" methodname="setPublicationDate" paramcount="0"/>
+		<call-method-rule pattern="Publisher" methodname="setPublisher" paramcount="0"/>
+		<call-method-rule pattern="Title" methodname="setTitle" paramcount="0"/>
+		<set-next-rule methodname="add"/>
+	</pattern>
+
+</digester-rules>
