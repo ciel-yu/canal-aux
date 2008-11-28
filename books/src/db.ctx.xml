@@ -11,7 +11,7 @@
 
 	<bean id="_ds_local" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
 		<property name="driverClass" value="com.mysql.jdbc.Driver"/>
-		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/resbase?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull"/>
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/test?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull"/>
 		<property name="user" value="root"/>
 		<property name="password" value=""/>
 	</bean>
@@ -30,7 +30,7 @@
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
 
-	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 		<property name="dataSource" ref="dataSource"/>
 
 		<property name="lobHandler">
@@ -41,12 +41,13 @@
 			</bean>
 		</property>
 
-		<property name="configLocation" value="classpath:hibernate.xml"/>
-		<property name="configurationClass" value="org.hibernate.cfg.AnnotationConfiguration"/>
+		<property name="packagesToScan" value="maya.components.amazon.model"/>
+
 
 		<property name="hibernateProperties">
 			<util:properties location="classpath:hibernate.properties"/>
 		</property>
+
 	</bean>
 
 	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
@@ -56,5 +57,10 @@
 	</bean>
 
 	<tx:annotation-driven transaction-manager="transactionManager"/>
+
+	<context:annotation-config/>
+
+	<bean id="isbnDao" class="maya.components.amazon.dao.ABRDaoImpl" autowire="byName"></bean>
+
 
 </beans>
