@@ -1,14 +1,21 @@
 package maya.components.amazon.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.*;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 
 @Entity
 @Table( name = "isbn" )
-public class AmazonBookRecord {
+public class AmazonBookRecord
+    implements Serializable {
+
+	private static final long serialVersionUID = -5037401964884855453L;
 
 	private String creator;
 
@@ -18,6 +25,7 @@ public class AmazonBookRecord {
 
 	private String ean;
 
+	@Id
 	private String isbn;
 
 	private String publicationDate;
@@ -25,6 +33,21 @@ public class AmazonBookRecord {
 	private String publisher;
 
 	private String title;
+
+	@Temporal( TemporalType.TIMESTAMP )
+	@Generated( GenerationTime.INSERT )
+	@Column( name = "UPDATE_TIME", insertable = false )
+	private Date updateTime;
+
+	public Date getUpdateTime() {
+
+		return updateTime;
+	}
+
+	public void setUpdateTime( Date updateTime ) {
+
+		this.updateTime = updateTime;
+	}
 
 	public String getAuthor() {
 

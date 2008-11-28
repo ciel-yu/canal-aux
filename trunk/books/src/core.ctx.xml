@@ -11,7 +11,16 @@
 
 	<aop:aspectj-autoproxy/>
 	<context:annotation-config/>
-	<context:component-scan base-package="maya.components"/>
-	<context:component-scan base-package="sillia.aop"/>
+	<!-- http client -->
+	<bean id="httpClient" class="maya.components.http.HttpClientFactoryBean">
+		<property name="httpConnectionManager" ref="httpConnectionManager"/>
+	</bean>
+
+	<bean id="httpConnectionManager" class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager">
+		<property name="params.defaultMaxConnectionsPerHost" value="10"/>
+		<property name="params.maxTotalConnections" value="30"/>
+		<property name="params.connectionTimeout" value="30000"/>
+		<property name="params.soTimeout" value="30000"/>
+	</bean>
 
 </beans>
