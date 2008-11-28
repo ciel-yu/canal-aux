@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import maya.components.amazon.infra.SimpleBooksSearchRequest;
 import maya.components.amazon.model.AmazonBookRecord;
 import maya.components.http.HttpClientUtil;
@@ -16,13 +18,16 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.springframework.context.support.ApplicationObjectSupport;
+import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
+@Component
 public class BookSearchTask
     extends ApplicationObjectSupport {
 
 	private String serviceHost = "http://ecs.amazonaws.jp/onca/xml";
 
+	@Resource
 	private HttpClient httpClient;
 
 	public List<AmazonBookRecord> search( SimpleBooksSearchRequest request )
@@ -60,25 +65,6 @@ public class BookSearchTask
 		digester.parse( is );
 
 		return list;
-	}
-
-	public static void main( String[] args )
-	    throws HttpException, IOException, SAXException {
-
-		BookSearchTask bst = new BookSearchTask();
-		bst.httpClient = new HttpClient();
-
-		SimpleBooksSearchRequest sbsq = new SimpleBooksSearchRequest();
-
-		sbsq.getKeywords().add( "制服文庫" );
-		// sbsq.setAuthor( "Bell's" );
-
-		List<AmazonBookRecord> list = bst.search( sbsq );
-
-		for( AmazonBookRecord amazonBookRecord : list ) {
-			System.out.println( amazonBookRecord );
-		}
-
 	}
 
 }
