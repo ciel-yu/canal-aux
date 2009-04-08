@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://maven.apache.org/POM/4.0.0" xmlns="http://maven.apache.org/POM/4.0.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://maven.apache.org/TOOLCHAINS/1.0.0" xmlns="http://maven.apache.org/TOOLCHAINS/1.0.0">
   <xs:element name="pluginMetadata" type="PluginMetadata">
     <xs:annotation>
       <xs:documentation source="version">1.0.0</xs:documentation>
