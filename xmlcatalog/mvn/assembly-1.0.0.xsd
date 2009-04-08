@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://maven.apache.org/POM/4.0.0" xmlns="http://maven.apache.org/POM/4.0.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" xmlns="http://maven.apache.org/POM/4.0.0" targetNamespace="http://maven.apache.org/POM/4.0.0">
   <xs:element name="assembly" type="Assembly">
     <xs:annotation>
       <xs:documentation source="version">1.0.0</xs:documentation>
@@ -12,7 +12,7 @@
       <xs:documentation source="description">Describes the assembly layout and packaging.</xs:documentation>
     </xs:annotation>
     <xs:all>
-      <xs:element name="id" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="id" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -21,7 +21,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="formats" minOccurs="0">
+      <xs:element minOccurs="0" name="formats">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -44,7 +44,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="includeBaseDirectory" minOccurs="0" type="xs:boolean" default="true">
+      <xs:element minOccurs="0" name="includeBaseDirectory" type="xs:boolean" default="true">
         <xs:annotation>
           <xs:documentation source="version">0.0.0+</xs:documentation>
           <xs:documentation source="description">
@@ -57,12 +57,12 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="includeSiteDirectory" minOccurs="0" type="xs:boolean" default="false">
+      <xs:element minOccurs="0" name="includeSiteDirectory" type="xs:boolean" default="false">
         <xs:annotation>
           <xs:documentation source="version">0.0.0+</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="moduleSets" minOccurs="0">
+      <xs:element minOccurs="0" name="moduleSets">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -75,7 +75,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="fileSets" minOccurs="0">
+      <xs:element minOccurs="0" name="fileSets">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -88,7 +88,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="files" minOccurs="0">
+      <xs:element minOccurs="0" name="files">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -101,7 +101,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="dependencySets" minOccurs="0">
+      <xs:element minOccurs="0" name="dependencySets">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -114,7 +114,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="repositories" minOccurs="0">
+      <xs:element minOccurs="0" name="repositories">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -127,7 +127,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="componentDescriptors" minOccurs="0">
+      <xs:element minOccurs="0" name="componentDescriptors">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -148,7 +148,7 @@
       <xs:documentation source="description">Defines a Maven repository to be included in the assembly.</xs:documentation>
     </xs:annotation>
     <xs:all>
-      <xs:element name="includeMetadata" minOccurs="0" type="xs:boolean" default="false">
+      <xs:element minOccurs="0" name="includeMetadata" type="xs:boolean" default="false">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -158,7 +158,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="groupVersionAlignments" minOccurs="0">
+      <xs:element minOccurs="0" name="groupVersionAlignments">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">Align a group to a version or an individual artifact.</xs:documentation>
@@ -169,7 +169,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="outputDirectory" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="outputDirectory" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -179,7 +179,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="includes" minOccurs="0">
+      <xs:element minOccurs="0" name="includes">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -195,7 +195,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="excludes" minOccurs="0">
+      <xs:element minOccurs="0" name="excludes">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -211,7 +211,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="fileMode" minOccurs="0" type="xs:string" default="0644">
+      <xs:element minOccurs="0" name="fileMode" type="xs:string" default="0644">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -225,7 +225,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="directoryMode" minOccurs="0" type="xs:string" default="0755">
+      <xs:element minOccurs="0" name="directoryMode" type="xs:string" default="0755">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -247,19 +247,19 @@
       <xs:documentation source="description">Defines a Maven repository to be included in the assembly.</xs:documentation>
     </xs:annotation>
     <xs:all>
-      <xs:element name="id" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="id" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">The groupId for which you want to align the versions.</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="version" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="version" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">The version you want to align this group to.</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="excludes" minOccurs="0">
+      <xs:element minOccurs="0" name="excludes">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">Artifact Ids of the artifacts you want excluded from version alignment.</xs:documentation>
@@ -278,7 +278,7 @@
       <xs:documentation source="description">Defines a dependency set</xs:documentation>
     </xs:annotation>
     <xs:all>
-      <xs:element name="outputFileNameMapping" minOccurs="0" type="xs:string" default="${artifactId}-${version}.${extension}">
+      <xs:element minOccurs="0" name="outputFileNameMapping" type="xs:string" default="${artifactId}-${version}.${extension}">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -288,7 +288,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="unpack" minOccurs="0" type="xs:boolean" default="false">
+      <xs:element minOccurs="0" name="unpack" type="xs:boolean" default="false">
         <xs:annotation>
           <xs:documentation source="version">0.0.0+</xs:documentation>
           <xs:documentation source="description">
@@ -299,7 +299,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="scope" minOccurs="0" type="xs:string" default="runtime">
+      <xs:element minOccurs="0" name="scope" type="xs:string" default="runtime">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -308,7 +308,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="outputDirectory" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="outputDirectory" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -318,7 +318,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="includes" minOccurs="0">
+      <xs:element minOccurs="0" name="includes">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -334,7 +334,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="excludes" minOccurs="0">
+      <xs:element minOccurs="0" name="excludes">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -350,7 +350,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="fileMode" minOccurs="0" type="xs:string" default="0644">
+      <xs:element minOccurs="0" name="fileMode" type="xs:string" default="0644">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -364,7 +364,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="directoryMode" minOccurs="0" type="xs:string" default="0755">
+      <xs:element minOccurs="0" name="directoryMode" type="xs:string" default="0755">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -385,12 +385,14 @@
       <xs:documentation source="version">1.0.0</xs:documentation>
     </xs:annotation>
     <xs:all>
-      <xs:element name="includes" minOccurs="0">
+      <xs:element minOccurs="0" name="includes">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
-            This is a list of &lt;include&gt; elements, each containing a module reference of the type groupId:artifactId.
+          
+            This is a list of &amp;lt;include&amp;gt; elements, each containing a module reference of the type groupId:artifactId.
             Modules matching these elements will be included in this set.
+            
           </xs:documentation>
         </xs:annotation>
         <xs:complexType>
@@ -399,12 +401,14 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="excludes" minOccurs="0">
+      <xs:element minOccurs="0" name="excludes">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
-            This is a list of &lt;exclude&gt; elements, each containing a module reference of the type groupId:artifactId.
+          
+            This is a list of &amp;lt;exclude&amp;gt; elements, each containing a module reference of the type groupId:artifactId.
             Modules matching these elements will be excluded from this set.
+            
           </xs:documentation>
         </xs:annotation>
         <xs:complexType>
@@ -413,7 +417,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="sources" minOccurs="0" type="ModuleSources">
+      <xs:element minOccurs="0" name="sources" type="ModuleSources">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -422,7 +426,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="binaries" minOccurs="0" type="ModuleBinaries">
+      <xs:element minOccurs="0" name="binaries" type="ModuleBinaries">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -439,7 +443,7 @@
       <xs:documentation source="description">Configuration for including the source files for a Module in an assembly.</xs:documentation>
     </xs:annotation>
     <xs:all>
-      <xs:element name="outputDirectory" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="outputDirectory" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -449,7 +453,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="includes" minOccurs="0">
+      <xs:element minOccurs="0" name="includes">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -465,7 +469,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="excludes" minOccurs="0">
+      <xs:element minOccurs="0" name="excludes">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -481,7 +485,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="fileMode" minOccurs="0" type="xs:string" default="0644">
+      <xs:element minOccurs="0" name="fileMode" type="xs:string" default="0644">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -495,7 +499,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="directoryMode" minOccurs="0" type="xs:string" default="0755">
+      <xs:element minOccurs="0" name="directoryMode" type="xs:string" default="0755">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -517,7 +521,7 @@
       <xs:documentation source="description">Configuration for including the binary files for a Module in an assembly.</xs:documentation>
     </xs:annotation>
     <xs:all>
-      <xs:element name="includeDependencies" minOccurs="0" type="xs:boolean" default="false">
+      <xs:element minOccurs="0" name="includeDependencies" type="xs:boolean" default="false">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -527,7 +531,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="unpack" minOccurs="0" type="xs:boolean" default="true">
+      <xs:element minOccurs="0" name="unpack" type="xs:boolean" default="true">
         <xs:annotation>
           <xs:documentation source="version">0.0.0+</xs:documentation>
           <xs:documentation source="description">
@@ -538,7 +542,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="outputFileNameMapping" minOccurs="0" type="xs:string" default="${artifactId}-${version}.${extension}">
+      <xs:element minOccurs="0" name="outputFileNameMapping" type="xs:string" default="${artifactId}-${version}.${extension}">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -548,7 +552,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="outputDirectory" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="outputDirectory" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -558,7 +562,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="includes" minOccurs="0">
+      <xs:element minOccurs="0" name="includes">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -574,7 +578,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="excludes" minOccurs="0">
+      <xs:element minOccurs="0" name="excludes">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -590,7 +594,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="fileMode" minOccurs="0" type="xs:string" default="0644">
+      <xs:element minOccurs="0" name="fileMode" type="xs:string" default="0644">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -604,7 +608,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="directoryMode" minOccurs="0" type="xs:string" default="0755">
+      <xs:element minOccurs="0" name="directoryMode" type="xs:string" default="0755">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -629,7 +633,7 @@
       </xs:documentation>
     </xs:annotation>
     <xs:all>
-      <xs:element name="source" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="source" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -637,7 +641,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="outputDirectory" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="outputDirectory" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -647,7 +651,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="destName" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="destName" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -656,7 +660,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="fileMode" minOccurs="0" type="xs:string" default="0644">
+      <xs:element minOccurs="0" name="fileMode" type="xs:string" default="0644">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -670,7 +674,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="lineEnding" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="lineEnding" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -688,7 +692,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="filtered" minOccurs="0" type="xs:boolean" default="false">
+      <xs:element minOccurs="0" name="filtered" type="xs:boolean" default="false">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -703,7 +707,7 @@
       <xs:documentation source="version">1.0.0</xs:documentation>
     </xs:annotation>
     <xs:all>
-      <xs:element name="directory" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="directory" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -713,7 +717,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="lineEnding" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="lineEnding" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -731,7 +735,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="outputDirectory" minOccurs="0" type="xs:string">
+      <xs:element minOccurs="0" name="outputDirectory" type="xs:string">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -741,7 +745,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="includes" minOccurs="0">
+      <xs:element minOccurs="0" name="includes">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -757,7 +761,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="excludes" minOccurs="0">
+      <xs:element minOccurs="0" name="excludes">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -773,7 +777,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="fileMode" minOccurs="0" type="xs:string" default="0644">
+      <xs:element minOccurs="0" name="fileMode" type="xs:string" default="0644">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
@@ -787,7 +791,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="directoryMode" minOccurs="0" type="xs:string" default="0755">
+      <xs:element minOccurs="0" name="directoryMode" type="xs:string" default="0755">
         <xs:annotation>
           <xs:documentation source="version">1.0.0</xs:documentation>
           <xs:documentation source="description">
