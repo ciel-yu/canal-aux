@@ -1,14 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="1.6">
     <xs:element name="ehcache" >
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs="0" maxOccurs="1" ref="diskStore"/>
                 <xs:element minOccurs="0" maxOccurs="1"
                             ref="cacheManagerEventListenerFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1"
+                <xs:element minOccurs="0" maxOccurs="unbounded"
                             ref="cacheManagerPeerProviderFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1"
+                <xs:element minOccurs="0" maxOccurs="unbounded"
                             ref="cacheManagerPeerListenerFactory"/>
                 <xs:element ref="defaultCache"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cache"/>
@@ -47,15 +46,16 @@
             <xs:sequence>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheExtensionFactory"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="cacheLoaderFactory"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
             <xs:attribute name="diskPersistent" use="optional" type="xs:boolean"/>
             <xs:attribute name="eternal" use="required" type="xs:boolean"/>
             <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
+            <xs:attribute name="clearOnFlush" use="optional" type="xs:boolean"/>
             <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
             <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
             <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
@@ -65,12 +65,12 @@
     </xs:element>
     <xs:element name="cache">
         <xs:complexType>
-            <xs:sequence>
+            <xs:sequence >
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheEventListenerFactory"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheExtensionFactory"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="cacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="bootstrapCacheLoaderFactory"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheExceptionHandlerFactory"/>
-                <xs:element minOccurs="0" maxOccurs="1" ref="cacheLoaderFactory"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="diskSpoolBufferSizeMB" use="optional" type="xs:integer"/>
@@ -78,6 +78,7 @@
             <xs:attribute name="eternal" use="required" type="xs:boolean"/>
             <xs:attribute name="maxElementsInMemory" use="required" type="xs:integer"/>
             <xs:attribute name="memoryStoreEvictionPolicy" use="optional" type="xs:string"/>
+            <xs:attribute name="clearOnFlush" use="optional" type="xs:boolean"/>
             <xs:attribute name="name" use="required" type="xs:string"/>
             <xs:attribute name="overflowToDisk" use="required" type="xs:boolean"/>
             <xs:attribute name="timeToIdleSeconds" use="optional" type="xs:integer"/>
