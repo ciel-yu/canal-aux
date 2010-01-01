@@ -133,6 +133,17 @@
 							]]></xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
+					<xsd:attribute name="cache-session-bean" type="xsd:boolean" default="false">
+						<xsd:annotation>
+							<xsd:documentation><![CDATA[
+	Controls whether to cache the actual session bean object.
+
+	Off by default for standard EJB compliance. Turn this flag
+	on to optimize session bean access for servers that are
+	known to allow for caching the actual session bean object.
+							]]></xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>
@@ -155,26 +166,36 @@
 						</xsd:simpleType>
 					</xsd:element>
 				</xsd:sequence>
-				<xsd:attribute name="jndi-name" type="xsd:string" use="required">
+				<xsd:attribute name="environment-ref" type="environmentRefType">
 					<xsd:annotation>
 						<xsd:documentation><![CDATA[
-	The JNDI name to look up.
+	A reference to JNDI environment properties, indicating the name of a
+	shared bean of type [java.util.Properties}.
 						]]></xsd:documentation>
 					</xsd:annotation>
 				</xsd:attribute>
-				<xsd:attribute name="resource-ref" type="xsd:boolean" default="false">
+				<xsd:attribute name="jndi-name" type="xsd:string" use="required">
+					<xsd:annotation>
+						<xsd:documentation><![CDATA[
+	The JNDI name to look up. This may be a fully-qualified JNDI path
+	or a local J2EE environment naming context path in which case the
+	prefix "java:comp/env/" will be prepended if applicable.
+						]]></xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="resource-ref" type="xsd:boolean" default="true">
 					<xsd:annotation>
 						<xsd:documentation><![CDATA[
 	Controls whether the lookup occurs in a J2EE container, i.e. if the
 	prefix "java:comp/env/" needs to be added if the JNDI name doesn't
-	already contain it.
+	already contain it. Default is "true" (since Spring 2.5).
 						]]></xsd:documentation>
 					</xsd:annotation>
 				</xsd:attribute>
-				<xsd:attribute name="environment-ref" type="environmentRefType">
+				<xsd:attribute name="expose-access-context" type="xsd:boolean" default="false">
 					<xsd:annotation>
 						<xsd:documentation><![CDATA[
-	A reference to JNDI environment properties.
+	TODO
 						]]></xsd:documentation>
 					</xsd:annotation>
 				</xsd:attribute>
@@ -185,29 +206,30 @@
 	<xsd:complexType name="ejbType">
 		<xsd:complexContent>
 			<xsd:extension base="jndiLocatingType">
-				<xsd:attribute name="lookup-home-on-startup" type="xsd:boolean">
-						<xsd:annotation>
-							<xsd:documentation><![CDATA[
+				<xsd:attribute name="lookup-home-on-startup" type="xsd:boolean" default="true">
+					<xsd:annotation>
+						<xsd:documentation><![CDATA[
 	Controls whether the lookup of the EJB home object is performed
 	immediately on startup (if true, the default), or on first access
 	(if false).
-							]]></xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
-				<xsd:attribute name="cache-home" type="xsd:boolean">
-						<xsd:annotation>
-							<xsd:documentation><![CDATA[
+						]]></xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="cache-home" type="xsd:boolean" default="true">
+					<xsd:annotation>
+						<xsd:documentation><![CDATA[
 	Controls whether the EJB home object is cached once it has been located.
-							]]></xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
+	On by default; turn this flag off to always reobtain fresh home objects.
+						]]></xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
 				<xsd:attribute name="business-interface" type="xsd:string" use="required">
-						<xsd:annotation>
-							<xsd:documentation source="java:java.lang.Class"><![CDATA[
+					<xsd:annotation>
+						<xsd:documentation source="java:java.lang.Class"><![CDATA[
 	The business interface of the EJB being proxied.
-							]]></xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
+						]]></xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
 			</xsd:extension>
 		</xsd:complexContent>
 	</xsd:complexType>
