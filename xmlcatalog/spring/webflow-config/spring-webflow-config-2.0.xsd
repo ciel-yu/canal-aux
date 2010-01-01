@@ -11,7 +11,7 @@
 		<xsd:documentation>
 			<![CDATA[
 Spring Web Flow Configuration Schema
-Authors: Keith Donald, Ben Hale, Jeremy Grelle
+Authors: Keith Donald, Jeremy Grelle, Scott Andrews
 <br>
 A XML-based DSL for configuring the Spring Web Flow 2.0 system.
 ]]>
@@ -92,6 +92,19 @@ Optional.  For use when one or more custom builder services are required.
 								<![CDATA[
 A reference to this registry's parent.  Registries can be organized in a hierarchy.  If a child registry does not contain a flow,
 its parent registry will be queried.
+]]>
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="base-path" type="xsd:string">
+						<xsd:annotation>
+							<xsd:documentation>
+								<![CDATA[
+The base path where flow definitions are found.  When specified, all flow locations are relative to this path.
+Also when specified, by default flows are assigned ids equal to the the path segment between their base path and file name.
+For example, if a flow definition is located at '/WEB-INF/hotels/booking/booking-flow.xml' and the base path is '/WEB-INF', 
+the remaining path to this flow is 'hotels/booking' which then becomes the flow id.
+If a flow definition is found directly on the base path, the file name minus its extension is used as the flow id. 
 ]]>
 							</xsd:documentation>
 						</xsd:annotation>
@@ -206,6 +219,16 @@ The custom ExpressionParser implementation to use to compile expression strings 
 							<xsd:documentation>
 								<![CDATA[
 The custom ViewFactoryCreator implementation to use produce ViewFactories capable of rendering Views.
+]]>
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="development" type="xsd:boolean">
+						<xsd:annotation>
+							<xsd:documentation>
+								<![CDATA[
+Puts all flows in development mode.
+When set to true, changes to a flow definition will be auto-detected and will result in a flow refresh.
 ]]>
 							</xsd:documentation>
 						</xsd:annotation>
