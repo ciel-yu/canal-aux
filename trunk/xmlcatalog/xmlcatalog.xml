@@ -54,6 +54,11 @@
 	<group id="wap">
 		<public publicId="-//WAPFORUM//DTD WML 1.1//EN" uri="./WAP/wml_1_1.dtd"/>
 	</group>
+	<group id="ofx">
+		<uriSuffix uriSuffix="OFX2_Protocol.xsd" uri="./ofx/OFX2_Protocol.xsd"/>
+		<uriSuffix uriSuffix="OFX3_Protocol.xsd" uri="./ofx/OFX3_Protocol.xsd"/>
+		<uriSuffix uriSuffix="OFX_Profile.xsd" uri="./ofx/OFX_Profile.xsd"/>
+	</group>
 	<group id="dwr">
 		<public publicId="-//GetAhead Limited//DTD Direct Web Remoting 1.0//EN" uri="./dwr/dwr10.dtd"/>
 		<public publicId="-//GetAhead Limited//DTD Direct Web Remoting 2.0//EN" uri="./dwr/dwr20.dtd"/>
