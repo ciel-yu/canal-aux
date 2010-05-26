@@ -24,6 +24,7 @@
 		<public publicId="-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" uri="./ibatis/sql-map-config-2.dtd"/>
 		<public publicId="-//Apache Software Foundation//DTD Abator for iBATIS Configuration 1.0//EN" uri="C:/dev/XMLCATALOG/ibatis/abator-config_1_0.dtd"/>
 		<rewriteSystem systemIdStartString="http://ibatis.apache.org/dtds/" rewritePrefix="./ibatis/"/>
+		<rewriteSystem systemIdStartString="http://mybatis.org/dtd/" rewritePrefix="./ibatis/"/>
 	</group>
 	<group id="struts">
 		<rewriteSystem systemIdStartString="http://jakarta.apache.org/struts/dtds/" rewritePrefix="./struts/"/>
