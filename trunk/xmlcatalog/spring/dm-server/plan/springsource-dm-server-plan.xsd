@@ -6,7 +6,39 @@
 		elementFormDefault="qualified">
 
 <!-- Types -->
+	<complexType name="nameValueType">
+		<attribute name="name" type="string" use="required" >
+			<annotation>
+				<documentation><![CDATA[The name of the attribute/property.]]></documentation>
+			</annotation>
+		</attribute>
+		<attribute name="value" type="string" use="required" >
+			<annotation>
+				<documentation><![CDATA[The value of the attribute/property.]]></documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+	
+	<complexType name="attributesType">
+		<sequence minOccurs="1" maxOccurs="unbounded">
+			<element name="attribute" type="plan:nameValueType">
+				<annotation>
+					<documentation><![CDATA[An attribute for replacement in the plan.]]></documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	
 	<complexType name="artifactType">
+		<sequence minOccurs="0" maxOccurs="unbounded">
+			<element name="property" type="plan:nameValueType">
+				<annotation>
+					<documentation>
+						<![CDATA[Defines a property for the enclosing artifact. Properties are interpreted in an artifact-specific manner.]]>
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
         <attribute name="type" type="string" use="required" >
 			<annotation>
 				<documentation><![CDATA[The type of the artifact.]]></documentation>
@@ -17,39 +49,45 @@
 				<documentation><![CDATA[The name of the artifact.]]></documentation>
 			</annotation>
 		</attribute>
-		<attribute name="version" use="optional" default="0">
+		<attribute name="version" type="string" use="optional" default="0">
             <annotation>
             	<documentation><![CDATA[The version or version range for this artifact.
 This version or version number must meet the OSGi version specification. This attribute is optional and when not specified will result in a default value of "0" meaning 0 to infinity in OSGi.]]></documentation>
             </annotation>
-            <simpleType>
-				<restriction base="string">
-					<pattern value="[\[\(]{1}( )*(\d(.\d(.\d(.([\w_-])+)?)?)?)( )*,( )*(\d(.\d(.\d(.([\w_-])+)?)?)?)( )*[\]\)]{1}|\d(.\d(.\d(.([\w_-])+)?)?)?"/>
-				</restriction>
-			</simpleType>
 		</attribute>
 	</complexType>
 
 	<complexType name="plan">
-        <sequence minOccurs="1" maxOccurs="unbounded">
-			<element name="artifact" type="plan:artifactType">
-				<annotation>
-					<documentation><![CDATA[An artifact to include as part of this plan.]]></documentation>
-				</annotation>
-			</element>
+		<sequence minOccurs="1" maxOccurs="1">
+			<sequence minOccurs="0" maxOccurs="1">
+				<element name="attributes" type="plan:attributesType">
+					<annotation>
+						<documentation><![CDATA[The attributes for this plan]]></documentation>
+					</annotation>
+				</element>
+			</sequence>
+	        <sequence minOccurs="1" maxOccurs="unbounded">
+				<element name="artifact" type="plan:artifactType">
+					<annotation>
+						<documentation><![CDATA[An artifact to include as part of this plan.]]></documentation>
+					</annotation>
+				</element>
+			</sequence>
 		</sequence>
 		<attribute name="name" type="string" use="required">
 			<annotation>
-				<documentation><![CDATA[The name of this plan.This is one component of the unique identifier for this plan along with a type of 'plan' and a specified version.]]></documentation>
+				<documentation><![CDATA[The name of this plan.
+This is one component of the unique identifier for this plan along with a type of 'plan' and a specified version.]]></documentation>
 			</annotation>
 		</attribute>
 		<attribute name="version" use="required">
             <annotation>
-            	<documentation><![CDATA[The version of this plan.This version must meet the OSGi version specification. This is one component of the unique identifier for this plan along with a type of 'plan' and a specified name.]]></documentation>
+            	<documentation><![CDATA[The version of this plan.
+This version must meet the OSGi version specification. This is one component of the unique identifier for this plan along with a type of 'plan' and a specified name.]]></documentation>
             </annotation>
             <simpleType>
 				<restriction base="string">
-					<pattern value="\d(.\d(.\d(.([\w_-])+)?)?)?"/>
+					<pattern value="\d+(\.\d+(\.\d+(\.([\w_-])+)?)?)?"/>
 				</restriction>
 			</simpleType>
 		</attribute>

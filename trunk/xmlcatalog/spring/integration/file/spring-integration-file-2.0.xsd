@@ -21,8 +21,8 @@
     <xsd:element name="inbound-channel-adapter">
         <xsd:annotation>
             <xsd:documentation>
-                Configures an inbound Channel Adapter that polls a directory and sends
-                Messages whose payloads are instances of java.io.File.
+                Configures an inbound Channel Adapter that polls a directory and sends Messages whose payloads are
+                instances of java.io.File.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexType>
@@ -48,7 +48,7 @@
                 <xsd:annotation>
                     <xsd:documentation><![CDATA[
 	Specify a Comparator to be used when ordering Files. If none is provided, the
-	order will be determined by the java.io.File implementation of Comparable.
+	order will be determined by the java.io.File implementation of Comparable.  MUTUALLY EXCLUSIVE with queue-size.
 					]]></xsd:documentation>
                 </xsd:annotation>
             </xsd:attribute>
@@ -56,7 +56,7 @@
                 <xsd:annotation>
                     <xsd:appinfo>
                         <tool:annotation kind="ref">
-                            <tool:expected-type type="org.springframework.integration.file.FileListFilter"/>
+                            <tool:expected-type type="org.springframework.integration.file.entries.EntryListFilter"/>
                         </tool:annotation>
                     </xsd:appinfo>
                 </xsd:annotation>
@@ -98,6 +98,17 @@
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:attribute>
+            <xsd:attribute name="queue-size" type="xsd:integer">
+                <xsd:annotation>
+                  <xsd:documentation>
+                    Specify the maximum number of files stored in memory by the underlying FileReadingMessageSource.
+                    This is useful to limit the memory footprint of this endpoint. Using a stateful filter would counter
+                    this benefit, so AcceptOnceFileListFilter is not used when this attribute is specified.
+                    MUTUALLY EXCLUSIVE with comparator, if comparator is set this attribute will be ignored.
+                    MUTUALLY EXCLUSIVE with stateful filtering.
+                  </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
         </xsd:complexType>
     </xsd:element>
 
@@ -128,8 +139,8 @@
         <xsd:complexType>
             <xsd:annotation>
                 <xsd:documentation>
-                    Configures an outbound Gateway that writes request Message payloads to a File and
-                    then generates a reply Message containing the newly written File as its payload.
+                    Configures an outbound Gateway that writes request Message payloads to a File and then generates a
+                    reply Message containing the newly written File as its payload.
                 </xsd:documentation>
             </xsd:annotation>
             <xsd:complexContent>
@@ -193,13 +204,14 @@
         <xsd:attribute name="auto-create-directory" type="xsd:string" default="true">
             <xsd:annotation>
                 <xsd:documentation>
-                    Specify whether to automatically create the destination directory if it does not yet exist
-                    when this adapter is being initialized. The default value is 'true'. If set to 'false' and
-                    the directory does not exist upon initialization, an Exception will be thrown.
+                    Specify whether to automatically create the destination directory if it does not yet exist when this
+                    adapter is being initialized. The default value is 'true'. If set to 'false' and the directory does
+                    not exist upon initialization, an Exception will be thrown.
                 </xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
         <xsd:attribute name="auto-startup" type="xsd:string"/>
+        <xsd:attribute name="charset" type="xsd:string"/>
     </xsd:complexType>
 
     <xsd:element name="file-to-string-transformer">
