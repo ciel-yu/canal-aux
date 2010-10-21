@@ -162,6 +162,9 @@
 			</xsd:attribute>
 			<xsd:attribute name="message-sender" type="xsd:string">
 				<xsd:annotation>
+					<xsd:documentation>
+						Reference to the bean definition of a WebServiceMessageSender.
+					</xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
 							<tool:expected-type type="org.springframework.ws.transport.WebServiceMessageSender"/>
@@ -169,7 +172,32 @@
 					</xsd:appinfo>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="message-senders" type="xsd:string"/>
+			<xsd:attribute name="message-senders" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						Reference to the bean definition for a list or array of WebServiceMessageSenders.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="interceptor" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						Reference to the bean definition of a ClientInterceptor.
+					</xsd:documentation>
+					<xsd:appinfo>
+						<tool:annotation kind="ref">
+							<tool:expected-type type="org.springframework.ws.client.support.interceptor.ClientInterceptor"/>
+						</tool:annotation>
+					</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="interceptors" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						Reference to the bean definition for a list or array of ClientInterceptors.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
 			<xsd:attribute name="order" type="xsd:string"/>
 			<xsd:attribute name="auto-startup" type="xsd:string" default="true"/>
 		</xsd:complexType>
@@ -235,6 +263,18 @@
 					<xsd:choice minOccurs="1" maxOccurs="1">
 						<xsd:element name="soap-action" type="headerType"/>
 					</xsd:choice>
+					<xsd:attribute name="default-overwrite">
+						<xsd:annotation>
+							<xsd:documentation>
+	Specify the default boolean value for whether to overwrite existing header values. This will only take effect for
+	sub-elements that do not provide their own 'overwrite' attribute. If the 'default-overwrite' attribute is not
+	provided, then the specified header values will NOT overwrite any existing ones with the same header names. 
+							</xsd:documentation>
+						</xsd:annotation>
+						<xsd:simpleType>
+							<xsd:union memberTypes="xsd:boolean xsd:string"/>
+						</xsd:simpleType> 
+					</xsd:attribute>
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>
@@ -244,6 +284,16 @@
 		<xsd:attribute name="value" type="xsd:string" />
 		<xsd:attribute name="ref" type="xsd:string" />
 		<xsd:attribute name="expression" type="xsd:string" />
+		<xsd:attribute name="overwrite">
+			<xsd:annotation>
+				<xsd:documentation>
+	Boolean value to indicate whether this header value should overwrite an existing header value for the same name.
+				</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:union memberTypes="xsd:boolean xsd:string"/>
+			</xsd:simpleType>
+		</xsd:attribute>
 	</xsd:complexType>
 
 	<xsd:complexType name="transformerType">

@@ -8,7 +8,7 @@
 		elementFormDefault="qualified"
 		attributeFormDefault="unqualified">
 
-	<xsd:import namespace="http://www.springframework.org/schema/tool"/>
+	<xsd:import namespace="http://www.springframework.org/schema/tool" schemaLocation="http://www.springframework.org/schema/tool/spring-tool-3.0.xsd"/>
 
 	<xsd:annotation>
 		<xsd:documentation><![CDATA[
@@ -39,17 +39,34 @@
 					<xsd:documentation><![CDATA[
 	The type of this listener container: "default" or "simple", choosing
 	between DefaultMessageListenerContainer and SimpleMessageListenerContainer.
-	The "102" suffix adapts to a JMS provider that implements JMS 1.0.2 only.
 					]]></xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
 					<xsd:restriction base="xsd:NMTOKEN">
 						<xsd:enumeration value="default"/>
-						<xsd:enumeration value="default102"/>
 						<xsd:enumeration value="simple"/>
-						<xsd:enumeration value="simple102"/>
 					</xsd:restriction>
 				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="container-class" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	A custom listener container implementation class as fully qualified class name.
+	Default is Spring's standard DefaultMessageListenerContainer or
+	SimpleMessageListenerContainer, according to the "container-type" attribute.
+	Note that a custom container class will typically be a subclass of either of
+	those two Spring-provided standard container classes: Nake sure that the
+	"container-type" attribute matches the actual base type that the custom class
+	derives from ("default" will usually be fine anyway, since most custom classes
+	will derive from DefaultMessageListenerContainer).
+					]]></xsd:documentation>
+					<xsd:appinfo>
+						<tool:annotation>
+							<tool:expected-type type="java.lang.Class"/>
+							<tool:assignable-to type="org.springframework.jms.listener.AbstractMessageListenerContainer"/>
+						</tool:annotation>
+					</xsd:appinfo>
+				</xsd:annotation>
 			</xsd:attribute>
 			<xsd:attribute name="connection-factory" type="xsd:string" default="connectionFactory">
 				<xsd:annotation>
@@ -67,12 +84,15 @@
 			<xsd:attribute name="task-executor" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
-	A reference to the Spring TaskExecutor for the JMS listener invokers.
-	Default is a SimpleAsyncTaskExecutor, using internally managed threads.
+	A reference to a Spring TaskExecutor (or standard JDK 1.5 Executor) for executing
+	JMS listener invokers. Default is a SimpleAsyncTaskExecutor in case of a
+	DefaultMessageListenerContainer, using internally managed threads. For a
+	SimpleMessageListenerContainer, listeners will always get invoked within the
+	JMS provider's receive thread by default.
 					]]></xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.core.task.TaskExecutor"/>
+							<tool:expected-type type="java.util.concurrent.Executor"/>
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
@@ -105,11 +125,24 @@
 					</xsd:appinfo>
 				</xsd:annotation>
 			</xsd:attribute>
+			<xsd:attribute name="error-handler" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	A reference to an ErrorHandler strategy for handling any uncaught Exceptions
+	that may occur during the execution of the MessageListener.
+					]]></xsd:documentation>
+					<xsd:appinfo>
+						<tool:annotation kind="ref">
+							<tool:expected-type type="org.springframework.util.ErrorHandler"/>
+						</tool:annotation>
+					</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:attribute>
 			<xsd:attribute name="destination-type" default="queue">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The JMS destination type for this listener: "queue", "topic" or "durableTopic".
-	Default is "queue".
+	The default is "queue".
 					]]></xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
@@ -124,16 +157,37 @@
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The JMS client id for this listener container.
+	Needs to be specified when using durable subscriptions.
 					]]></xsd:documentation>
 				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="cache" default="auto">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	The cache level for JMS resources: "none", "connection", "session", "consumer"
+	or "auto". By default ("auto"), the cache level will effectively be "consumer",
+	unless an external transaction manager has been specified - in which case the
+	effective default will be "none" (assuming J2EE-style transaction management
+	where the given ConnectionFactory is an XA-aware pool).
+					]]></xsd:documentation>
+				</xsd:annotation>
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="none"/>
+						<xsd:enumeration value="connection"/>
+						<xsd:enumeration value="session"/>
+						<xsd:enumeration value="consumer"/>
+						<xsd:enumeration value="auto"/>
+					</xsd:restriction>
+				</xsd:simpleType>
 			</xsd:attribute>
 			<xsd:attribute name="acknowledge" default="auto">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The native JMS acknowledge mode: "auto", "client", "dups-ok" or "transacted".
-	The latter effectively activates a locally transacted Session; as alternative,
-	specify an external "transaction-manager" via the corresponding attribute.
-	Default is "auto".
+	A value of "transacted" effectively activates a locally transacted Session;
+	as alternative, specify an external "transaction-manager" via the corresponding
+	attribute. Default is "auto".
 					]]></xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
@@ -159,11 +213,15 @@
 					</xsd:appinfo>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="concurrency" type="xsd:int">
+			<xsd:attribute name="concurrency" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
-	The maximum number of concurrent sessions/consumers to start for each listener.
-	Default is 1.
+	The number of concurrent sessions/consumers to start for each listener.
+	Can either be a simple number indicating the maximum number (e.g. "5")
+	or a range indicating the lower as well as the upper limit (e.g. "3-5").
+	Note that a specified minimum is just a hint and might be ignored at runtime.
+	Default is 1; keep concurrency limited to 1 in case of a topic listener
+	or if message ordering is important; consider raising it for general queues.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -172,6 +230,16 @@
 					<xsd:documentation><![CDATA[
 	The maximum number of messages to load into a single session.
 	Note that raising this number might lead to starvation of concurrent consumers!
+					]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="phase" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	The lifecycle phase within which this container should start and stop. The lower
+	the value the earlier this container will start and the later it will stop. The
+	default is Integer.MAX_VALUE meaning the container will start as late as possible
+	and stop as soon as possible.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -223,21 +291,21 @@
 					</xsd:appinfo>
 				</xsd:annotation>
 			</xsd:attribute>
-      <xsd:attribute name="destination-resolver" type="xsd:string">
-        <xsd:annotation>
-          <xsd:documentation><![CDATA[
-  A reference to the DestinationResolver strategy for resolving destination names.
-  Default is to pass in the destination name Strings into the JCA ActivationSpec as-is.
-  Alternatively, specify a reference to a JndiDestinationResolver (typically in a J2EE
-  environment, in particular if the server insists on receiving Destination objects).
-          ]]></xsd:documentation>
+			<xsd:attribute name="destination-resolver" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	A reference to the DestinationResolver strategy for resolving destination names.
+	Default is to pass in the destination name Strings into the JCA ActivationSpec as-is.
+	Alternatively, specify a reference to a JndiDestinationResolver (typically in a J2EE
+	environment, in particular if the server insists on receiving Destination objects).
+					]]></xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
 							<tool:expected-type type="org.springframework.jms.support.destination.DestinationResolver"/>
 						</tool:annotation>
 					</xsd:appinfo>
-        </xsd:annotation>
-      </xsd:attribute>
+				</xsd:annotation>
+			</xsd:attribute>
 			<xsd:attribute name="message-converter" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
@@ -270,6 +338,7 @@
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The JMS client id for this listener container.
+	Needs to be specified when using durable subscriptions.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -277,9 +346,9 @@
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The native JMS acknowledge mode: "auto", "client", "dups-ok" or "transacted".
-	The latter effectively activates a locally transacted Session; as alternative,
-	specify an external "transaction-manager" via the corresponding attribute.
-	Default is "auto".
+	A value of "transacted" effectively activates a locally transacted Session;
+	as alternative, specify an external "transaction-manager" via the corresponding
+	attribute. Default is "auto".
 					]]></xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
@@ -303,11 +372,14 @@
 					</xsd:appinfo>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="concurrency" type="xsd:int">
+			<xsd:attribute name="concurrency" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
-	The maximum number of concurrent sessions to activate for each listener.
-	Default is 1.
+	The number of concurrent sessions/consumers to start for each listener.
+	Can either be a simple number indicating the maximum number (e.g. "5")
+	or a range indicating the lower as well as the upper limit (e.g. "3-5").
+	Note that a specified minimum is just a hint and will typically be ignored
+	at runtime when using a JCA listener container. Default is 1.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -319,17 +391,27 @@
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
+			<xsd:attribute name="phase" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	The lifecycle phase within which this container should start and stop. The lower
+	the value the earlier this container will start and the later it will stop. The
+	default is Integer.MAX_VALUE meaning the container will start as late as possible
+	and stop as soon as possible.
+					]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
 		</xsd:complexType>
 	</xsd:element>
 
 	<xsd:complexType name="listenerType">
-			<xsd:attribute name="id" type="xsd:ID">
-				<xsd:annotation>
-					<xsd:documentation><![CDATA[
+		<xsd:attribute name="id" type="xsd:ID">
+			<xsd:annotation>
+				<xsd:documentation><![CDATA[
 	The unique identifier for a listener.
-					]]></xsd:documentation>
-				</xsd:annotation>
-			</xsd:attribute>
+				]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
 		<xsd:attribute name="destination" type="xsd:string" use="required">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
