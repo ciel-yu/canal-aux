@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSpy v2008 rel. 2 (http://www.altova.com) by Administrator (EMBRACE) -->
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE catalog PUBLIC "-//OASIS//DTD XML Catalogs V1.1//EN" "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
 <catalog xml:base="file:/D:/dev/xmlcatalog/">
 	<group id="main">
@@ -17,12 +16,12 @@
 		<public publicId="-//Hibernate/Hibernate Mapping DTD 3.0//EN" uri="./hibernate/hibernate-mapping-3.0.dtd"/>
 		<public publicId="-//Hibernate/Hibernate Configuration DTD 3.0//EN" uri="./hibernate/hibernate-configuration-3.0.dtd"/>
 		<public publicId="-//Hibernate/Hibernate Configuration DTD 2.0//EN" uri="./hibernate/hibernate-configuration-2.0.dtd"/>
-		<public publicId="-//Hibernate/Hibernate Mapping DTD 2.0//EN" uri="file:/./hibernate/hibernate-mapping-2.0.dtd"/>
+		<public publicId="-//Hibernate/Hibernate Mapping DTD 2.0//EN" uri="./hibernate/hibernate-mapping-2.0.dtd"/>
 	</group>
 	<group id="ibatis">
 		<public publicId="-//ibatis.apache.org//DTD SQL Map 2.0//EN" uri="./ibatis/sql-map-2.dtd"/>
 		<public publicId="-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" uri="./ibatis/sql-map-config-2.dtd"/>
-		<public publicId="-//Apache Software Foundation//DTD Abator for iBATIS Configuration 1.0//EN" uri="C:/dev/XMLCATALOG/ibatis/abator-config_1_0.dtd"/>
+		<public publicId="-//Apache Software Foundation//DTD Abator for iBATIS Configuration 1.0//EN" uri="./ibatis/abator-config_1_0.dtd"/>
 		<rewriteSystem systemIdStartString="http://ibatis.apache.org/dtds/" rewritePrefix="./ibatis/"/>
 		<rewriteSystem systemIdStartString="http://mybatis.org/dtd/" rewritePrefix="./ibatis/"/>
 	</group>
