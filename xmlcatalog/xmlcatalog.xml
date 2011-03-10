@@ -35,6 +35,7 @@
 		<public publicId="-//Apache Software Foundation//DTD Struts Configuration 2.0//EN" uri="./struts/struts-2.0.dtd"/>
 	</group>
 	<group id="misc">
+		<public publicId="-//Mort Bay Consulting//DTD Configure//EN" uri="./misc/jetty-configure.dtd"/>
 		<system uri="./misc/ehcache.xsd" systemId="ehcache.xsd"/>
 		<system uri="./misc/terracotta-4.xsd" systemId="http://www.terracotta.org/schema/terracotta-4.xsd"/>
 		<public publicId="-//Jakarta Apache //DTD digester-rules XML V1.0//EN" uri="./misc/digester-rules.dtd"/>
