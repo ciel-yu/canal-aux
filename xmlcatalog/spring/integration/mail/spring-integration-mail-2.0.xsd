@@ -59,6 +59,14 @@
 				</xsd:annotation>
 			</xsd:attribute>
 			<xsd:attribute name="auto-startup" type="xsd:string" default="true"/>
+			<xsd:attribute name="order">
+				<xsd:annotation>
+					<xsd:documentation>
+						Specifies the order for invocation when this endpoint is connected as a
+						subscriber to a SubscribableChannel.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
 		</xsd:complexType>
 	</xsd:element>
 
@@ -108,6 +116,21 @@
 							</xsd:appinfo>
 						</xsd:annotation>
 					</xsd:attribute>
+					<xsd:attribute name="error-channel" type="xsd:string">
+						<xsd:annotation>
+							<xsd:appinfo>
+								<tool:annotation kind="ref">
+									<tool:expected-type
+										type="org.springframework.integration.core.MessageChannel" />
+								</tool:annotation>
+							</xsd:appinfo>
+							<xsd:documentation>
+								If a (synchronous) downstream exception is thrown and an error-channel is specified,
+								the MessagingException will be sent to this channel. Otherwise, any such exception
+								will simply be logged as a warning by the channel adapter.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>
@@ -139,6 +162,13 @@
 	The URI for the Mail Store. Typically of the form: [pop3|imap]://user:password@host:port/INBOX
 	If this is not provided, then the store will be retrieved via the no-arg Session.getStore()
 	instead of the Session.getStore(url) method.
+				]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="mail-filter-expression" type="xsd:string">
+			<xsd:annotation>
+				<xsd:documentation><![CDATA[
+	Allows you to provide a SpEL expression which defines a fine grained filtering criteria for the mail messages to be processed by this adapter.
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -188,7 +218,7 @@
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="should-delete-messages" type="xsd:string" use="optional" default="false">
+		<xsd:attribute name="should-delete-messages" type="xsd:string" use="required">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
 	Specify whether mail messages should be deleted after retrieval.
@@ -242,6 +272,7 @@
 						<xsd:element name="bcc" type="headerType"/>
 						<xsd:element name="from" type="headerType"/>
 						<xsd:element name="reply-to" type="headerType"/>
+						<xsd:element name="content-type" type="headerType"/>
 					</xsd:choice>
 					<xsd:attribute name="default-overwrite">
 						<xsd:annotation>

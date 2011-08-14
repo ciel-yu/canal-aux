@@ -352,8 +352,35 @@
 			<xsd:sequence>
 				<xsd:element ref="xpath-expression" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="integration:poller" minOccurs="0" maxOccurs="1"/>
+				<xsd:element name="mapping" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:attribute name="value" type="xsd:string" />
+						<xsd:attribute name="channel" type="xsd:string">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<tool:annotation kind="ref">
+										<tool:expected-type
+											type="org.springframework.integration.core.MessageChannel" />
+									</tool:annotation>
+								</xsd:appinfo>
+							</xsd:annotation>
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
 			</xsd:sequence>
-			<xsd:attribute name="id" type="xsd:string" use="required"/>
+			<xsd:attribute name="id" type="xsd:ID"/>
+			<xsd:attribute name="evaluate-as-string" type="xsd:boolean" default="false">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+					By default XPath expressions are evaluated as NODESET type and then converted 
+					to a List of channel names, thus handling single channel scenarios as well as multiple.
+					However certain XPath expressions may evaluate as String type from the very 
+					beginning (e.g., 'name(./node())' - which will return the name of the root node) thus resulting in 
+					the exception if default evaluation type (NODESET) is used. This flag will allow you to manage the 
+					evaluation type. It is TRUE by default, however if set to FALSE, the String evaluation type will be used.
+						]]></xsd:documentation>
+				</xsd:annotation>	
+			</xsd:attribute>
 			<xsd:attribute name="input-channel" type="xsd:string">
 				<xsd:annotation>
 					<xsd:appinfo>
@@ -372,7 +399,6 @@
 					</xsd:appinfo>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="multi-channel" type="xsd:string" default="false"/>
 			<xsd:attribute name="channel-resolver" type="xsd:string" use="optional">
 				<xsd:annotation>
 					<xsd:appinfo>
@@ -419,7 +445,7 @@
 			<xsd:sequence>
 				<xsd:element ref="xpath-expression" minOccurs="0" maxOccurs="1"/>
 			</xsd:sequence>
-			<xsd:attribute name="id" type="xsd:string" use="required"/>
+			<xsd:attribute name="id" type="xsd:ID"/>
 			<xsd:attribute name="xpath-expression-ref" type="xsd:string" use="optional">
 				<xsd:annotation>
 					<xsd:appinfo>
@@ -451,7 +477,7 @@
 			<xsd:sequence>
 				<xsd:element ref="beans:map" minOccurs="0" maxOccurs="1"/>
 			</xsd:sequence>
-			<xsd:attribute name="id" type="xsd:string" use="optional"/>
+			<xsd:attribute name="id" type="xsd:ID" use="optional"/>
 			<xsd:attribute name="expression" type="xsd:string" use="optional"/>
 			<xsd:attribute name="ns-prefix" type="xsd:string" use="optional"/>
 			<xsd:attribute name="ns-uri" type="xsd:string" use="optional"/>
@@ -495,17 +521,17 @@
 		</xsd:complexType>
 	</xsd:element>
 	
-	<xsd:element name="validating-router">
+	<xsd:element name="validating-filter">
 		<xsd:complexType>
 			<xsd:annotation>
 				<xsd:documentation>
-	Defines a validating router.
+	Defines an XML validating filter.
 				</xsd:documentation>
 			</xsd:annotation>
 			<xsd:sequence>
 				<xsd:element ref="integration:poller" minOccurs="0" maxOccurs="1"/>
 			</xsd:sequence>
-			<xsd:attribute name="id" type="xsd:string" use="required"/>
+			<xsd:attribute name="id" type="xsd:ID"/>
 			<xsd:attribute name="input-channel" type="xsd:string">
 				<xsd:annotation>
 					<xsd:appinfo>
@@ -515,18 +541,32 @@
 					</xsd:appinfo>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="channel-resolver" type="xsd:string" use="optional">
+			<xsd:attribute name="xml-validator" type="xsd:string">
 				<xsd:annotation>
+					<xsd:documentation>
+						Allows you to plug-in custom 'org.springframework.xml.validation.XmlValidator' strategy
+					</xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.core.ChannelResolver"/>
+							<tool:expected-type type="org.springframework.xml.validation.XmlValidator" />
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="valid-channel" type="xsd:string" use="required" />
-			<xsd:attribute name="invalid-channel" type="xsd:string" use="required" />
-			<xsd:attribute name="schema-location" use="required" />
+			<xsd:attribute name="output-channel" type="xsd:string" use="required" />
+			<xsd:attribute name="discard-channel" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						Allows you to point to a Message Channel where you want discarded messages to be sent.
+					</xsd:documentation>
+					<xsd:appinfo>
+						<tool:annotation kind="ref">
+							<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+						</tool:annotation>
+					</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="schema-location"/>
 			<xsd:attribute name="schema-type" default="xml-schema">
 				<xsd:simpleType>
 					<xsd:restriction base="xsd:string">
@@ -535,6 +575,7 @@
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:attribute>
+			<xsd:attribute name="throw-exception-on-rejection" type="xsd:boolean" default="false"/>	
 		</xsd:complexType>
 	</xsd:element>
 
@@ -542,7 +583,7 @@
 		<xsd:sequence>
 			<xsd:element ref="integration:poller" minOccurs="0" maxOccurs="1"/>
 		</xsd:sequence>
-		<xsd:attribute name="id" type="xsd:string" use="optional"/>
+		<xsd:attribute name="id" type="xsd:ID"/>
 		<xsd:attribute name="input-channel" type="xsd:string">
 			<xsd:annotation>
 				<xsd:appinfo>

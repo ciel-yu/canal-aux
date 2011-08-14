@@ -85,6 +85,25 @@
 					</xsd:appinfo>
 				</xsd:annotation>
 			</xsd:attribute>
+			<xsd:attribute name="mapped-request-headers" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+Comma-separated list of names of HttpHeaders to be mapped from the HTTP request into the MessageHeaders..
+This can only be provided if the 'header-mapper' reference is not being set directly. The values in
+this list can also be simple patterns to be matched against the header names (e.g. "foo*" or "*foo").
+The String "HTTP_REQUEST_HEADERS" will match against any of the standard HTTP Request headers.
+						]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>	
+			<xsd:attribute name="error-channel" type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<tool:annotation kind="ref">
+							<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+						</tool:annotation>
+					</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:attribute>	
 		</xsd:complexType>
 	</xsd:element>
 
@@ -159,6 +178,35 @@
 							</xsd:appinfo>
 						</xsd:annotation>
 					</xsd:attribute>
+					<xsd:attribute name="error-channel" type="xsd:string">
+						<xsd:annotation>
+							<xsd:appinfo>
+								<tool:annotation kind="ref">
+									<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+								</tool:annotation>
+							</xsd:appinfo>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="mapped-request-headers" type="xsd:string">
+						<xsd:annotation>
+							<xsd:documentation><![CDATA[
+	Comma-separated list of names of HttpHeaders to be mapped from the HTTP request into the MessageHeaders.
+	This can only be provided if the 'header-mapper' reference is not being set directly. The values in
+	this list can also be simple patterns to be matched against the header names (e.g. "foo*" or "*foo").
+	The String "HTTP_REQUEST_HEADERS" will match against any of the standard HTTP Request headers.
+							]]></xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="mapped-response-headers" type="xsd:string">
+						<xsd:annotation>
+							<xsd:documentation><![CDATA[							
+	Comma-separated list of names of MessageHeaders to be mapped into the HttpHeaders of the HTTP response.
+	This can only be provided if the 'header-mapper' reference is not being set directly. The values in
+	this list can also be simple patterns to be matched against the header names (e.g. "foo*" or "*foo").
+	The String "HTTP_RESPONSE_HEADERS" will match against any of the standard HTTP Response headers.
+							]]></xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
 					<xsd:attribute name="reply-key" type="xsd:string" />
 					<xsd:attribute name="reply-timeout" type="xsd:string" />
 				</xsd:extension>
@@ -204,6 +252,15 @@
 					</xsd:appinfo>
 				</xsd:annotation>
 			</xsd:attribute>
+			<xsd:attribute name="rest-template" type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<tool:annotation kind="ref">
+							<tool:expected-type type="org.springframework.web.client.RestTemplate" />
+						</tool:annotation>
+					</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:attribute>
 			<xsd:attribute name="charset" type="xsd:string" />
 			<xsd:attribute name="extract-payload" type="xsd:string" />
 			<xsd:attribute name="expected-response-type" type="xsd:string">
@@ -239,15 +296,32 @@
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	Comma-separated list of names of MessageHeaders to be mapped into the HttpHeaders of the HTTP request.
-	This can only be provided if the 'header-mapper' reference is not being set directly.
+	This can only be provided if the 'header-mapper' reference is not being set directly. The values in
+	this list can also be simple patterns to be matched against the header names (e.g. "foo*" or "*foo").
+	The String "HTTP_REQUEST_HEADERS" will match against any of the standard HTTP Request headers.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
 			<xsd:attribute name="request-factory" type="xsd:string">
 				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	Reference to a ClientHttpRequestFactory to be used by the underlying RestTemplate.
+					]]></xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
 							<tool:expected-type type="org.springframework.http.client.ClientHttpRequestFactory" />
+						</tool:annotation>
+					</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="error-handler" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	Reference to a ResponseErrorHandler to be used by the underlying RestTemplate.
+					]]></xsd:documentation>
+					<xsd:appinfo>
+						<tool:annotation kind="ref">
+							<tool:expected-type type="org.springframework.web.client.ResponseErrorHandler" />
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
@@ -315,11 +389,22 @@
 							</xsd:appinfo>
 						</xsd:annotation>
 					</xsd:attribute>
+					<xsd:attribute name="rest-template" type="xsd:string">
+						<xsd:annotation>
+							<xsd:appinfo>
+								<tool:annotation kind="ref">
+									<tool:expected-type type="org.springframework.web.client.RestTemplate" />
+								</tool:annotation>
+							</xsd:appinfo>
+						</xsd:annotation>
+					</xsd:attribute>
 					<xsd:attribute name="mapped-request-headers" type="xsd:string">
 						<xsd:annotation>
 							<xsd:documentation><![CDATA[
 	Comma-separated list of names of MessageHeaders to be mapped into the HttpHeaders of the HTTP request.
-	This can only be provided if the 'header-mapper' reference is not being set directly.
+	This can only be provided if the 'header-mapper' reference is not being set directly. The values in
+	this list can also be simple patterns to be matched against the header names (e.g. "foo*" or "*foo").
+	The String "HTTP_REQUEST_HEADERS" will match against any of the standard HTTP Request headers.
 							]]></xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
@@ -327,7 +412,9 @@
 						<xsd:annotation>
 							<xsd:documentation><![CDATA[
 	Comma-separated list of names of HttpHeaders to be mapped from the HTTP response into the MessageHeaders.
-	This can only be provided if the 'header-mapper' reference is not being set directly.
+	This can only be provided if the 'header-mapper' reference is not being set directly. The values in
+	this list can also be simple patterns to be matched against the header names (e.g. "foo*" or "*foo").
+	The String "HTTP_RESPONSE_HEADERS" will match against any of the standard HTTP Response headers.
 							]]></xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
@@ -347,9 +434,24 @@
 					<xsd:attribute name="charset" type="xsd:string" />
 					<xsd:attribute name="request-factory" type="xsd:string">
 						<xsd:annotation>
+							<xsd:documentation><![CDATA[
+	Reference to a ClientHttpRequestFactory to be used by the underlying RestTemplate.
+							]]></xsd:documentation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
 									<tool:expected-type type="org.springframework.http.client.ClientHttpRequestFactory" />
+								</tool:annotation>
+							</xsd:appinfo>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="error-handler" type="xsd:string">
+						<xsd:annotation>
+							<xsd:documentation><![CDATA[
+	Reference to a ResponseErrorHandler to be used by the underlying RestTemplate.
+							]]></xsd:documentation>
+							<xsd:appinfo>
+								<tool:annotation kind="ref">
+									<tool:expected-type type="org.springframework.web.client.ResponseErrorHandler" />
 								</tool:annotation>
 							</xsd:appinfo>
 						</xsd:annotation>
