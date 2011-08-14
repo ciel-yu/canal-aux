@@ -184,8 +184,7 @@
 					<xsd:attribute name="data-source" type="xsd:string" default="dataSource">
 						<xsd:annotation>
 							<xsd:documentation source="java:javax.sql.DataSource"><![CDATA[
-							The bean name of the DataSource that is to be used. This attribute 
-							is not required, and only needs to be specified explicitly
+ref"							is not required, and only needs to be specified explicitly
 							if the bean name of the desired DataSource is not 'dataSource'.
 							]]></xsd:documentation>
 							<xsd:appinfo>
@@ -447,12 +446,14 @@
 				</xsd:element>
 			</xsd:choice>
 			<xsd:group ref="transitions" minOccurs="0" maxOccurs="unbounded" />
+			<xsd:element name="listeners" type="stepListenersType" minOccurs="0" maxOccurs="1" />
 		</xsd:sequence>
 		<xsd:attributeGroup ref="parentAttribute" />
 	</xsd:complexType>
 
 	<xsd:complexType name="partitionType">
 		<xsd:all>
+			<xsd:element name="step" type="stepType" minOccurs="0" maxOccurs="1" />
 			<xsd:element name="handler" minOccurs="0" maxOccurs="1">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
@@ -804,6 +805,7 @@
 					<xsd:attributeGroup ref="mergeAttribute" />
 				</xsd:complexType>
 			</xsd:element>
+			<xsd:element name="listeners" type="stepListenersType" minOccurs="0" maxOccurs="1" />
 		</xsd:all>
 		<xsd:attribute name="commit-interval" type="xsd:string" use="optional">
 			<xsd:annotation>
@@ -893,7 +895,7 @@
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
 				Whether the reader is a transactional queue. If it is then items read should not be cached 
-				in the event of a rollback since they will be returned to the queue.
+				in the event of a rollback since they will be returned to the queue. Default is false.
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -902,7 +904,8 @@
 				<xsd:documentation><![CDATA[
 				Whether the processor is transaction aware. If it is then processed items should not be
 				cached in between transactions in case of a rollback.  N.B. if reader-transactional-queue
-				is true then so should this be.
+				is true then so should this be.  Default is true.  If false then the processor is only called 
+				once per item per chunk, even if there are rollbacks with retries and skips.
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
