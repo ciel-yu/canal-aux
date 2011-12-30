@@ -8,7 +8,7 @@
 		elementFormDefault="qualified"
 		attributeFormDefault="unqualified">
 
-	<xsd:import namespace="http://www.springframework.org/schema/tool" schemaLocation="http://www.springframework.org/schema/tool/spring-tool-3.0.xsd"/>
+	<xsd:import namespace="http://www.springframework.org/schema/tool" schemaLocation="http://www.springframework.org/schema/tool/spring-tool-3.1.xsd"/>
 
 	<xsd:annotation>
 		<xsd:documentation><![CDATA[
@@ -27,7 +27,7 @@
 			<xsd:appinfo>
 				<tool:annotation>
 					<tool:exports type="org.springframework.jms.listener.AbstractMessageListenerContainer"/>
-				</tool:annotation>	
+				</tool:annotation>
 			</xsd:appinfo>
 		</xsd:annotation>
 		<xsd:complexType>
@@ -245,7 +245,7 @@
 			</xsd:attribute>
 		</xsd:complexType>
 	</xsd:element>
-	
+
 	<xsd:element name="jca-listener-container">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
@@ -405,7 +405,7 @@
 	</xsd:element>
 
 	<xsd:complexType name="listenerType">
-		<xsd:attribute name="id" type="xsd:ID">
+		<xsd:attribute name="id" type="xsd:string">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
 	The unique identifier for a listener.
@@ -468,5 +468,5 @@
 			</xsd:annotation>
 		</xsd:attribute>
 	</xsd:complexType>
-	
+
 </xsd:schema>

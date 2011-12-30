@@ -8,8 +8,8 @@
 
 	<xsd:annotation>
 		<xsd:documentation><![CDATA[
-	Spring XML Beans Schema, version 3.0
-	Authors: Juergen Hoeller, Rob Harrop, Mark Fisher
+	Spring XML Beans Schema, version 3.1
+	Authors: Juergen Hoeller, Rob Harrop, Mark Fisher, Chris Beams
 
 	This defines a simple and consistent way of creating a namespace
 	of JavaBeans objects, managed by a Spring BeanFactory, read by
@@ -47,10 +47,11 @@
 	is the enclosing bean factory.
 			]]></xsd:documentation>
 		</xsd:annotation>
-		<xsd:attribute name="id" type="xsd:ID">
+		<xsd:attribute name="id" type="xsd:string">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
-	The unique identifier for a bean.
+	The unique identifier for a bean. A bean id may not be used more than once
+	within the same <beans> element.
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -60,8 +61,11 @@
 	<xsd:element name="beans">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
-	The top level (typically root) element. Allows the definition
-	of default values for all nested bean definitions.
+	Container for <bean> and other elements, typically the root element in the document.
+	Allows the definition of default values for all nested bean definitions. May itself
+	be nested for the purpose of defining a subset of beans with certain default values or
+	to be registered only when certain profile(s) are active. Any such nested <beans> element
+	must be declared as the last element in the document.
 			]]></xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
@@ -73,32 +77,56 @@
 					<xsd:element ref="bean"/>
 					<xsd:any namespace="##other" processContents="strict" minOccurs="0" maxOccurs="unbounded"/>
 				</xsd:choice>
+				<xsd:element ref="beans" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
-			<xsd:attribute name="default-lazy-init" default="false" type="xsd:boolean">
+			<xsd:attribute name="profile" use="optional" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	The set of profiles for which this <beans> element may be parsed. Multiple profiles can be
+	separated by any number of spaces, commas, or semi-colons (or indeed any mixture of the three).
+	If one or more of the specified profiles are active at time of parsing, the <beans> element
+	will be parsed, and all of its <bean> elements registered, &lt;import&gt; elements followed,
+	etc.  If none of the specified profiles are active at time of parsing, then the entire element
+	and its contents will be ignored.
+
+	Profiles are activated in one of two ways:
+		Programmatic:
+			ConfigurableEnvironment#setActiveProfiles(String...)
+			ConfigurableEnvironment#setDefaultProfiles(String...)
+
+		Properties (typically through -D system properties, environment variables, or servlet context init params):
+			spring.profiles.active=p1,p2
+			spring.profiles.default=p1,p2
+					]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="default-lazy-init" default="default" type="defaultable-boolean">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The default 'lazy-init' value; see the documentation for the
-	'lazy-init' attribute of the '<bean>' element.
+	'lazy-init' attribute of the 'bean' element.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="default-merge" default="false" type="xsd:boolean">
+			<xsd:attribute name="default-merge" default="default" type="defaultable-boolean">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The default 'merge' value; see the documentation for the
-	'merge' attribute of the various collection elements.
+	'merge' attribute of the various collection elements. The default
+	is 'false'.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="default-autowire" default="no">
+			<xsd:attribute name="default-autowire" default="default">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The default 'autowire' value; see the documentation for the
-	'autowire' attribute of the '<bean>' element.
+	'autowire' attribute of the 'bean' element. The default is 'default'.
 					]]></xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
 					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="default"/>
 						<xsd:enumeration value="no"/>
 						<xsd:enumeration value="byName"/>
 						<xsd:enumeration value="byType"/>
@@ -113,7 +141,7 @@
 	e.g. "*Service", "data*", "*Service*", "data*Service".
 	Also accepts a comma-separated list of patterns: e.g. "*Service,*Dao".
 	See the documentation for the 'autowire-candidate' attribute of the
-	'<bean/>' element for the semantic details of autowire candidate beans.
+	'bean' element for the semantic details of autowire candidate beans.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -121,7 +149,7 @@
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The default 'init-method' value; see the documentation for the
-	'init-method' attribute of the '<bean>' element.
+	'init-method' attribute of the 'bean' element.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -129,7 +157,7 @@
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The default 'destroy-method' value; see the documentation for the
-	'destroy-method' attribute of the '<bean>' element.
+	'destroy-method' attribute of the 'bean' element.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -737,11 +765,11 @@
 							]]></xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
-					<xsd:attribute name="local" type="xsd:IDREF">
+					<xsd:attribute name="local" type="xsd:string">
 						<xsd:annotation>
 							<xsd:documentation><![CDATA[
-	The name of the referenced bean. The value must be a bean ID and thus can 
-	be checked by the XML parser. This is therefore the preferred technique 
+	The name of the referenced bean. The value must be a bean ID and will be
+	checked by the Spring container. This is therefore the preferred technique
 	for referencing beans within the same bean factory XML file.
 							]]></xsd:documentation>
 						</xsd:annotation>
@@ -764,8 +792,8 @@
 	The id of another bean in this factory or an external factory
 	(parent or included factory).
 	While a regular 'value' element could instead be used for the
-	same effect, using idref in this case allows validation of local
-	bean ids by the XML parser, and name completion by supporting tools.
+	same effect, using idref indicates that the Spring container
+	should check that the value actually corresponds to a bean id.
 			]]></xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
@@ -778,11 +806,11 @@
 							]]></xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
-					<xsd:attribute name="local" type="xsd:IDREF">
+					<xsd:attribute name="local" type="xsd:string">
 						<xsd:annotation>
 							<xsd:documentation><![CDATA[
-	The name of the referenced bean. The value must be a bean ID and thus can 
-	be checked by the XML parser. This is therefore the preferred technique 
+	The name of the referenced bean. The value must be a bean ID and will be
+	checked by the Spring container. This is therefore the preferred technique
 	for referencing beans within the same bean factory XML file.
 							]]></xsd:documentation>
 						</xsd:annotation>
