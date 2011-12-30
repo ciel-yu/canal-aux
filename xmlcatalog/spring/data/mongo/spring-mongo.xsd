@@ -11,7 +11,6 @@
 						xsi:schemaLocation="http://www.springframework.org/schema/beans
             http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-
 	<xsd:import namespace="http://www.springframework.org/schema/beans"/>
 	<xsd:import namespace="http://www.springframework.org/schema/tool"/>
 	<xsd:import namespace="http://www.springframework.org/schema/context"
@@ -21,7 +20,7 @@
 
 	<xsd:element name="mongo" type="mongoType">
 		<xsd:annotation>
-			<xsd:documentation source="org.springframework.data.document.mongodb.MongoFactoryBean"><![CDATA[
+			<xsd:documentation source="org.springframework.data.mongodb.core.core.MongoFactoryBean"><![CDATA[
 Defines a Mongo instance used for accessing MongoDB'.
 			]]></xsd:documentation>
 			<xsd:appinfo>
@@ -39,17 +38,6 @@ Defines a MongoDbFactory for connecting to a specific database
 			]]></xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
-			<!-- 
-			<xsd:sequence minOccurs="0" maxOccurs="1">
-				<xsd:element name="mongo" type="mongoType">
-					<xsd:annotation>
-						<xsd:documentation><![CDATA[
-Defines a Mongo instance used for accessing MongoDB'.
-							]]></xsd:documentation>
-					</xsd:annotation>
-				</xsd:element>
-			</xsd:sequence>
-			-->
 			<xsd:attribute name="id" type="xsd:ID" use="optional">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
@@ -98,6 +86,22 @@ The password to use when connecting to a MongoDB server.
 							]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
+			<xsd:attribute name="uri" type="xsd:string" use="optional">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+The Mongo URI string.]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="write-concern">
+				<xsd:annotation>
+					<xsd:documentation>
+					The WriteConcern that will be the default value used when asking the MongoDbFactory for a DB object
+					</xsd:documentation>
+				</xsd:annotation>
+				<xsd:simpleType>
+					<xsd:union memberTypes="writeConcernEnumeration xsd:string"/>
+				</xsd:simpleType>
+			</xsd:attribute>
 		</xsd:complexType>
 	</xsd:element>
 
@@ -115,6 +119,14 @@ The password to use when connecting to a MongoDB server.
 			<xsd:annotation>
 				<xsd:documentation>
 					The reference to a MongoTemplate. Will default to 'mongoTemplate'.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="create-query-indexes" type="xsd:boolean" default="false">
+			<xsd:annotation>
+				<xsd:documentation>
+					Enables creation of indexes for queries that get derived from the method name
+					and thus reference domain class properties. Defaults to false.
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -136,9 +148,10 @@ The password to use when connecting to a MongoDB server.
 
 	<xsd:element name="mapping-converter">
 		<xsd:annotation>
-			<xsd:documentation><![CDATA[
-Defines a MongoConverter for getting rich mapping functionality.
-			]]></xsd:documentation>
+			<xsd:documentation><![CDATA[Defines a MongoConverter for getting rich mapping functionality.]]></xsd:documentation>
+			<xsd:appinfo>
+				<tool:exports type="org.springframework.data.mongodb.core.convert.MappingMongoConverter" />
+			</xsd:appinfo>
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
@@ -146,14 +159,14 @@ Defines a MongoConverter for getting rich mapping functionality.
 					<xsd:annotation>
 						<xsd:documentation><![CDATA[
         Top-level element that contains one or more custom converters to be used for mapping
-        domain objects to and from Mongo's DBObject
-              ]]>
+        domain objects to and from Mongo's DBObject]]>
 						</xsd:documentation>
 					</xsd:annotation>
 					<xsd:complexType>
 						<xsd:sequence>
 							<xsd:element name="converter" type="customConverterType" minOccurs="0" maxOccurs="unbounded"/>
 						</xsd:sequence>
+						<xsd:attribute name="base-package" type="xsd:string" />
 					</xsd:complexType>
 				</xsd:element>
 			</xsd:sequence>
@@ -168,6 +181,18 @@ The name of the MappingMongoConverter instance (by default "mappingConverter").]
 					<xsd:documentation><![CDATA[
 The base package in which to scan for entities annotated with @Document
 							]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="db-factory-ref" type="xsd:string" use="optional">
+				<xsd:annotation>
+					<xsd:documentation>
+						The reference to a DbFactory.
+					</xsd:documentation>
+					<xsd:appinfo>
+						<tool:annotation kind="ref">
+							<tool:assignable-to type="org.springframework.data.mongodb.MongoDbFactory" />
+						</tool:annotation>
+					</xsd:appinfo>
 				</xsd:annotation>
 			</xsd:attribute>
 			<xsd:attribute name="mongo-ref" type="mongoRef" use="optional">
@@ -186,7 +211,7 @@ The base package in which to scan for entities annotated with @Document
 			</xsd:attribute>
 			<xsd:attribute name="mongo-template-ref" type="mongoTemplateRef" use="optional">
 				<xsd:annotation>
-					<xsd:documentation source="org.springframework.data.document.mongodb.MongoTemplate">
+					<xsd:documentation source="org.springframework.data.mongodb.core.core.MongoTemplate">
 						The reference to a MongoTemplate. Will default to 'mongoTemplate'.
 					</xsd:documentation>
 				</xsd:annotation>
@@ -225,7 +250,7 @@ The name of the Mongo object that determines what server to monitor. (by default
 		<xsd:annotation>
 			<xsd:appinfo>
 				<tool:annotation kind="ref">
-					<tool:assignable-to type="org.springframework.data.document.mongodb.MongoTemplate"/>
+					<tool:assignable-to type="org.springframework.data.mongodb.core.core.MongoTemplate"/>
 				</tool:annotation>
 			</xsd:appinfo>
 		</xsd:annotation>
@@ -236,14 +261,41 @@ The name of the Mongo object that determines what server to monitor. (by default
 		<xsd:annotation>
 			<xsd:appinfo>
 				<tool:annotation kind="ref">
-					<tool:assignable-to type="org.springframework.data.document.mongodb.MongoFactoryBean"/>
+					<tool:assignable-to type="org.springframework.data.mongodb.core.core.MongoFactoryBean"/>
 				</tool:annotation>
 			</xsd:appinfo>
 		</xsd:annotation>
 		<xsd:union memberTypes="xsd:string"/>
 	</xsd:simpleType>
 
-
+	<xsd:simpleType name="writeConcernEnumeration">
+		<xsd:restriction base="xsd:token">
+					<xsd:enumeration value="NONE" />
+					<xsd:enumeration value="NORMAL" />
+					<xsd:enumeration value="SAFE" />
+					<xsd:enumeration value="FSYNC_SAFE" />
+					<xsd:enumeration value="REPLICAS_SAFE" />
+					<xsd:enumeration value="JOURNAL_SAFE" />
+					<xsd:enumeration value="MAJORITY" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--  MLP
+	<xsd:attributeGroup name="writeConcern">
+		<xsd:attribute name="write-concern">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="NONE" />
+					<xsd:enumeration value="NORMAL" />
+					<xsd:enumeration value="SAFE" />
+					<xsd:enumeration value="FSYNC_SAFE" />
+					<xsd:enumeration value="REPLICA_SAFE" />
+					<xsd:enumeration value="JOURNAL_SAFE" />
+					<xsd:enumeration value="MAJORITY" />
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:attributeGroup>
+	-->
 	<xsd:complexType name="mongoType">
 		<xsd:sequence minOccurs="0" maxOccurs="1">
 			<xsd:element name="options" type="optionsType">
@@ -259,6 +311,19 @@ The Mongo driver options
 				</xsd:annotation>
 			</xsd:element>
 		</xsd:sequence>
+			<xsd:attribute name="write-concern">
+				<xsd:annotation>
+					<xsd:documentation>
+					The WriteConcern that will be the default value used when asking the MongoDbFactory for a DB object
+					</xsd:documentation>
+				</xsd:annotation>
+				<xsd:simpleType>
+					<xsd:union memberTypes="writeConcernEnumeration xsd:string"/>
+				</xsd:simpleType>
+			</xsd:attribute>		
+		<!-- MLP 
+		<xsd:attributeGroup ref="writeConcern" />
+		-->
 		<xsd:attribute name="id" type="xsd:ID" use="optional">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
@@ -337,6 +402,13 @@ The keep alive flag, controls whether or not to have socket keep alive timeout. 
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
 This controls whether or not on a connect, the system retries automatically.  Default is false. 
+				]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="max-auto-connect-retry-time" type="xsd:long">
+			<xsd:annotation>
+				<xsd:documentation><![CDATA[
+The maximum amount of time in millisecons to spend retrying to open connection to the same server. Default is 0, which means to use the default 15s if autoConnectRetry is on. 
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>

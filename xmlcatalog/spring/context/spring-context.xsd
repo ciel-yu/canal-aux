@@ -6,10 +6,8 @@
 	targetNamespace="http://www.springframework.org/schema/context"
 	elementFormDefault="qualified" attributeFormDefault="unqualified">
 
-	<xsd:import namespace="http://www.springframework.org/schema/beans"
-		schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" />
-	<xsd:import namespace="http://www.springframework.org/schema/tool"
-		schemaLocation="http://www.springframework.org/schema/tool/spring-tool-3.0.xsd" />
+	<xsd:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.1.xsd" />
+	<xsd:import namespace="http://www.springframework.org/schema/tool" schemaLocation="http://www.springframework.org/schema/tool/spring-tool-3.1.xsd" />
 
 	<xsd:annotation>
 		<xsd:documentation><![CDATA[
@@ -91,23 +89,56 @@
 	<xsd:element name="property-placeholder">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
-	Activates replacement of ${...} placeholders, resolved against the specified properties file or
-	Properties object (if any). Falls back to resolving placeholders against JVM system properties.
-	Alternatively, define a parameterized PropertyPlaceholderConfigurer bean in the context.
+	Activates replacement of ${...} placeholders by registering a
+	PropertySourcesPlaceholderConfigurer within the application context. Properties will
+	be resolved against the specified properties file or Properties object -- so called
+	"local properties", if any, and against the Spring Environment's current set of
+	PropertySources.
+
+	Note that as of Spring 3.1 the system-properties-mode attribute has been removed in
+	favor of the more flexible PropertySources mechanism. However, Spring 3.1-based
+	applications may continue to use the 3.0 (and older) versions of the spring-context
+	schema in order to preserve system-properties-mode behavior. In this case, the
+	traditional PropertyPlaceholderConfigurer component will be registered instead of the
+	new PropertySourcesPlaceholderConfigurer.
+
+	See ConfigurableEnvironment Javadoc for more information on using.
 			]]></xsd:documentation>
 			<xsd:appinfo>
 				<tool:annotation>
 					<tool:exports
-						type="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+						type="org.springframework.context.support.PropertySourcesPlaceholderConfigurer" />
 				</tool:annotation>
 			</xsd:appinfo>
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
 				<xsd:extension base="propertyPlaceholder">
-					<xsd:attribute name="system-properties-mode" default="FALLBACK">
+					<xsd:attribute name="system-properties-mode" default="ENVIRONMENT">
+						<xsd:annotation>
+							<xsd:documentation><![CDATA[
+	Controls how to resolve placeholders against system properties. As of Spring 3.1, this
+	attribute value defaults to "ENVIRONMENT", indicating that resolution of placeholders
+	against system properties is handled via PropertySourcesPlaceholderConfigurer and its
+	delegation to the current Spring Environment object.
+
+	For maximum backward compatibility, this attribute is preserved going forward with the
+	3.1 version of the context schema, and any values other than the default "ENVIRONMENT"
+	will cause a traditional PropertyPlaceholderConfigurer to be registered instead of the
+	newer PropertySourcesPlaceholderConfigurer variant. In this case, the Spring Environment
+	and its property sources are not interrogated when resolving placeholders. Users are
+	encouraged to consider this attribute deprecated, and to take advantage of
+	Environment/PropertySource mechanisms. See ConfigurableEnvironment Javadoc for examples.
+
+	"ENVIRONMENT" indicates placeholders should be resolved against the current Environment and against any local properties;
+	"NEVER" indicates placeholders should be resolved only against local properties and never against system properties;
+	"FALLBACK" indicates placeholders should be resolved against any local properties and then against system properties;
+	"OVERRIDE" indicates placeholders should be resolved first against system properties and then against any local properties;
+							]]></xsd:documentation>
+						</xsd:annotation>
 						<xsd:simpleType>
 							<xsd:restriction base="xsd:string">
+								<xsd:enumeration value="ENVIRONMENT"/>
 								<xsd:enumeration value="NEVER"/>
 								<xsd:enumeration value="FALLBACK"/>
 								<xsd:enumeration value="OVERRIDE"/>
@@ -151,6 +182,10 @@
 	Note: This tag does not activate processing of Spring's @Transactional or EJB3's
 	@TransactionAttribute annotation. Consider the use of the <tx:annotation-driven>
 	tag for that purpose.
+
+	See Javadoc for org.springframework.context.annotation.AnnotationConfigApplicationContext
+	for information on code-based alternatives to bootstrapping annotation-driven support.
+	from XML.
 			]]></xsd:documentation>
 		</xsd:annotation>
 	</xsd:element>
@@ -158,8 +193,8 @@
 	<xsd:element name="component-scan">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
-	Scans the classpath for annotated components that will be auto-registered as 
-	Spring beans. By default, the Spring-provided @Component, @Repository, 
+	Scans the classpath for annotated components that will be auto-registered as
+	Spring beans. By default, the Spring-provided @Component, @Repository,
 	@Service, and @Controller stereotypes will be detected.
 
 	Note: This tag implies the effects of the 'annotation-config' tag, activating @Required,
@@ -174,6 +209,9 @@
 	being registered; Spring's PropertyPlaceholderConfigurer will apply to those bean
 	definitions just like to regular bean definitions, but it won't apply to the component
 	scan settings themselves.
+
+	See Javadoc for org.springframework.context.annotation.ComponentScan for information
+	on code-based alternatives to bootstrapping component-scanning.
 			]]></xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
@@ -207,6 +245,7 @@
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	Controls the class files eligible for component detection. Defaults to "**/*.class", the recommended value.
+	Consider use of the include-filter and exclude-filter elements for a more fine-grained approach.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -297,6 +336,9 @@
 	bean factory (typically classes annotated with the @Configurable annotation).
 	This will only happen if the AnnotationBeanConfigurerAspect is on the classpath
 	(i.e. spring-aspects.jar), effectively activating "spring-configured" by default.
+
+	See Javadoc for org.springframework.context.annotation.EnableLoadTimeWeaving
+	for information on code-based alternatives to bootstrapping load-time weaving support.
 			]]></xsd:documentation>
 			<xsd:appinfo>
 				<tool:annotation>

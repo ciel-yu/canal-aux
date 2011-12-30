@@ -56,7 +56,7 @@
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
 	Defines an XPath query that can be executed against the node annotated with this
-	type to determine the class for which the this method is valid 
+	type to determine the class for which the this method is valid
 		]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -64,14 +64,14 @@
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
 	Defines an XPath query that can be executed against the node annotated with this
-	type to determine a referenced bean (by id or alias) for which the given method is valid 
+	type to determine a referenced bean (by id or alias) for which the given method is valid
 		]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
 		<xsd:attribute name="expression" type="xsd:string">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
-	Defines an AspectJ method execution pointcut expressions that matches valid methods 
+	Defines an AspectJ method execution pointcut expressions that matches valid methods
 		]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -111,5 +111,5 @@
 			</xsd:annotation>
 		</xsd:attribute>
 	</xsd:complexType>
-	
+
 </xsd:schema>
