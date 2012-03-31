@@ -85,7 +85,7 @@ def main():
 			dups = list( entries )
 			if len( dups ) > 1:
 				print( "dups for md5:", binascii.hexlify( key ) )
-				list( ( print( x.path ) for x in entries ) )
+				list( ( print( x.path ) for x in dups ) )
 
 
 
