@@ -35,8 +35,11 @@ def main():
 
 				if ~basename( file ).lower().find( key.lower() ):
 
-					os.rename( file, os.path.join( catdict[key], basename( file ) ) )
-					break
+					new_file = os.path.join( catdict[key], basename( file ) )
+
+					if not os.path.exists( new_file ):
+						os.rename( file, new_file )
+						break
 
 
 
