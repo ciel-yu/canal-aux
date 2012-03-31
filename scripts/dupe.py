@@ -84,17 +84,7 @@ def main():
 		for key, entries in itertools.groupby( file_entries, lambda x: x.md5 ):
 			dups = list( entries )
 			if len( dups ) > 1:
-				print( "dups for md5:", binascii.hexlify( key ) )
-				list( ( print( x.path ) for x in dups ) )
-
-
-
-
-
-
-
-
-
+				opts.verbose and print( "dups for md5:", binascii.hexlify( key ) )
 
 if __name__ == '__main__':
 	main()
