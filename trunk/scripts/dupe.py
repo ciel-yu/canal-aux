@@ -77,7 +77,7 @@ def main():
 		if len( file_entries ) < 2:
 			continue
 
-		opts.verbose and print( "checking CRC for files of size:", key )
+		opts.verbose and print( "checking files of size:", key )
 
 		file_entries.sort( key=lambda x: x.md5 )
 
