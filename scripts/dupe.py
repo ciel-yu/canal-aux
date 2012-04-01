@@ -1,6 +1,7 @@
 # coding:utf-8
 
 from common.glob import iglob
+from functools import partial
 import argparse
 import binascii
 import functools
@@ -21,18 +22,18 @@ class FileEntry:
 		self.name = os.path.basename( path )
 		self.size = os.stat( path ).st_size
 
+	def __str__( self ):
+		return repr( self.path ) + ' ' + str( self.size )
+
 	@property
 	def crc_head( self ):
 		if hasattr( self, '_crc' ):
 			return self._crc
 		else:
-			file = open( self.path, "rb" )
-			try:
+			with open( self.path, "rb" ) as file:
 				if file.readable():
 					data = file.read( FileEntry.CRC_SIZE )
 					self._crc = zlib.crc32( data )
-			finally:
-				file.close()
 			return self._crc
 
 	@property
@@ -41,15 +42,12 @@ class FileEntry:
 			return self._md5
 		else:
 			m = hashlib.new( 'md5' )
-			file = open( self.path, "rb" )
-			try:
+			with open( self.path, "rb" ) as file:
 				while True:
 					data = file.read( FileEntry.BUFFER_SIZE )
 					if not data : break
 					m.update( data )
 				self._md5 = m.digest();
-			finally:
-				file.close()
 			return self._md5
 
 def main():
@@ -68,23 +66,37 @@ def main():
 
 	opts.verbose and print( "files:", len( files ) )
 
-	for key, entries in itertools.groupby( sorted( map( FileEntry, files ), key=lambda x: x.size ), lambda x: x.size ):
-		if key == 0:
-			continue
 
-		file_entries = list( entries )
+	def group_and_evict( chunks, keyfunc, badkeys=set() ):
 
-		if len( file_entries ) < 2:
-			continue
+		for entries in chunks:
+			for key, items in itertools.groupby( sorted( entries, key=keyfunc ), keyfunc ):
+				if key in badkeys:
+					continue
+				group = list( items )
+				if len( group ) > 1:
+					yield group
 
-		opts.verbose and print( "checking files of size:", key )
+	groups = [ map( FileEntry, files ) ]
 
-		file_entries.sort( key=lambda x: x.md5 )
+	grouper_chain = [ partial( group_and_evict, keyfunc=lambda x: x.size, badkeys=set( [0] ) ),
+					  partial( group_and_evict, keyfunc=lambda x: x.crc_head ),
+					  partial( group_and_evict, keyfunc=lambda x: x.md5 ) ]
 
-		for key, entries in itertools.groupby( file_entries, lambda x: x.md5 ):
-			dups = list( entries )
-			if len( dups ) > 1:
-				opts.verbose and print( "dups for md5:", binascii.hexlify( key ) )
+	for grouper in grouper_chain:
+		groups = grouper( groups )
+
+	print( groups )
+
+	for group in groups:
+		for item in group:
+			print( item )
+
+
+
+
+
+
 
 if __name__ == '__main__':
 	main()
