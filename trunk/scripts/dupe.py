@@ -50,6 +50,22 @@ class FileEntry:
 				self._md5 = m.digest();
 			return self._md5
 
+def collect_files( files, dest_dir ):
+	for file in files:
+		name = os.path.basename( file )
+
+		dest = os.path.join( dest_dir, name )
+
+		if os.path.exists( dest ):
+			for i in range( 100 ):
+				dest = os.path.join( dest_dir, "#{:02d}".format( i ), name )
+				if not os.path.exists( dest ):
+					break
+
+		if not os.path.exists( dest ):
+#			os.renames( file, dest )
+			print( file, dest )
+
 def main():
 	parser = argparse.ArgumentParser( description="no comment", formatter_class=argparse.ArgumentDefaultsHelpFormatter )
 
@@ -57,6 +73,7 @@ def main():
 #	parser.add_argument( 'root_dir' )
 	parser.add_argument( '-v', '--verbose', action='store_true' )
 #	parser.add_argument( '-d', '--dir', dest='root_dir', metavar='DIR', help='root dir to be scanned' )
+	parser.add_argument( '-d', dest='collecting_dir', metavar='DIR', help='collecting dir', required=True )
 
 	parser.set_defaults( **{
 		'verbose':False
@@ -96,9 +113,12 @@ def main():
 
 	for group in groups:
 		print( "for md5: {} size: {}".format( binascii.hexlify( group[0].md5 ), group[0].size ) )
-		for item in group:
-			print( item )
-		print()
+
+		files = sorted( map( lambda x:x.path, group ), key=lambda x:x.count( '\\' ), reverse=True )
+
+		files.pop( 0 ) #retain first
+
+		collect_files( files, opts.collecting_dir )
 
 
 if __name__ == '__main__':
