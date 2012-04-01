@@ -53,8 +53,8 @@ class FileEntry:
 def main():
 	parser = argparse.ArgumentParser( description="no comment", formatter_class=argparse.ArgumentDefaultsHelpFormatter )
 
-#	parser.add_argument( 'filespec', nargs="+" )
-	parser.add_argument( 'root_dir' )
+	parser.add_argument( 'filespec', nargs="+" )
+#	parser.add_argument( 'root_dir' )
 	parser.add_argument( '-v', '--verbose', action='store_true' )
 #	parser.add_argument( '-d', '--dir', dest='root_dir', metavar='DIR', help='root dir to be scanned' )
 
@@ -69,9 +69,9 @@ def main():
 			for file in files:
 				yield os.path.join( root, file )
 
-	#files = set( os.path.abspath( x ) for x in itertools.chain.from_iterable( iglob( x ) for x in  opts.filespec ) if os.path.isfile( x ) )
+	files = set( os.path.abspath( x ) for x in itertools.chain.from_iterable( iglob( x ) for x in  opts.filespec ) if os.path.isfile( x ) )
 
-	files = scan_dir( opts.root_dir )
+#	files = scan_dir( opts.root_dir )
 
 	opts.verbose and print( "files:", len( files ) )
 
@@ -98,6 +98,7 @@ def main():
 		print( "for md5: {} size: {}".format( binascii.hexlify( group[0].md5 ), group[0].size ) )
 		for item in group:
 			print( item )
+		print()
 
 
 if __name__ == '__main__':
