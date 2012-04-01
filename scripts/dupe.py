@@ -74,6 +74,8 @@ def main():
 	parser.add_argument( '-v', '--verbose', action='store_true' )
 #	parser.add_argument( '-d', '--dir', dest='root_dir', metavar='DIR', help='root dir to be scanned' )
 	parser.add_argument( '-d', dest='collecting_dir', metavar='DIR', help='collecting dir', required=True )
+	parser.add_argument( '-m', '--mode' )
+
 
 	parser.set_defaults( **{
 		'verbose':False
