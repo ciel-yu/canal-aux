@@ -41,9 +41,5 @@ def main():
 						os.rename( file, new_file )
 						break
 
-
-
-
-
 if __name__ == '__main__':
 	main()
