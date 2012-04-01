@@ -5,8 +5,8 @@ from functools import partial
 import argparse
 import binascii
 import functools
-import itertools
 import hashlib
+import itertools
 import os
 import zlib
 
@@ -85,8 +85,6 @@ def main():
 
 	for grouper in grouper_chain:
 		groups = grouper( groups )
-
-	print( groups )
 
 	for group in groups:
 		for item in group:
