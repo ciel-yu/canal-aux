@@ -53,8 +53,10 @@ class FileEntry:
 def main():
 	parser = argparse.ArgumentParser( description="no comment", formatter_class=argparse.ArgumentDefaultsHelpFormatter )
 
-	parser.add_argument( 'filespec', nargs="+" )
+#	parser.add_argument( 'filespec', nargs="+" )
+	parser.add_argument( 'root_dir' )
 	parser.add_argument( '-v', '--verbose', action='store_true' )
+#	parser.add_argument( '-d', '--dir', dest='root_dir', metavar='DIR', help='root dir to be scanned' )
 
 	parser.set_defaults( **{
 		'verbose':False
@@ -62,10 +64,16 @@ def main():
 
 	opts = parser.parse_args()
 
-	files = set( os.path.abspath( x ) for x in itertools.chain.from_iterable( iglob( x ) for x in  opts.filespec ) if os.path.isfile( x ) )
+	def scan_dir( dir ):
+		for root, dirs, files in os.walk( dir ):
+			for file in files:
+				yield os.path.join( root, file )
+
+	#files = set( os.path.abspath( x ) for x in itertools.chain.from_iterable( iglob( x ) for x in  opts.filespec ) if os.path.isfile( x ) )
+
+	files = scan_dir( opts.root_dir )
 
 	opts.verbose and print( "files:", len( files ) )
-
 
 	def group_and_evict( chunks, keyfunc, badkeys=set() ):
 
@@ -87,13 +95,9 @@ def main():
 		groups = grouper( groups )
 
 	for group in groups:
+		print( "for md5: {} size: {}".format( binascii.hexlify( group[0].md5 ), group[0].size ) )
 		for item in group:
 			print( item )
-
-
-
-
-
 
 
 if __name__ == '__main__':
