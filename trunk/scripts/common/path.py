@@ -32,8 +32,29 @@ def get_ext( filename ):
 
 
 def main():
-	print ( extract_tags( '(一般コミック) [浅草寺きのと×築地俊彦×駒都えーじ] まぶらほ COLORFUL COMIC 第02巻 (完)(2).zip' ) )
+	print( FileInfoEntry( '(一般コミック) [浅草寺きのと×築地俊彦×駒都えーじ] まぶらほ COLORFUL COMIC 第02巻 (完)(2).zip' ).tags )
 
+class FileInfoEntry:
+	tags_pattern = re.compile( r'\s*(?:\(([^)]*)\)|\[([^\]]*)\])\s*', re.UNICODE )
+
+	def __init__( self, path ):
+		self.path = path
+		self.parent, self.name = os.path.split( path )
+		self.parts, self.tags = FileInfoEntry.extract_tags( self.name )
+
+	@staticmethod
+	def extract_tags( filename ):
+		tags = []
+		def _( tags=[] ):
+			def _( m ):
+				_.tags += filter( None, m.groups() )
+				return '\n'
+			_.tags = tags
+			return _
+
+		parts = list( filter( lambda x: x and x != '.', FileInfoEntry.tags_pattern.sub( _( tags ), filename ).split( '\n' ) ) )
+		tags = list( x.strip() for x in tags )
+		return parts, tags
 
 if __name__ == '__main__':
 	main()
