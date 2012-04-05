@@ -18,10 +18,10 @@ _tbl.update( {0x301c:0x007e} )
 _tbl.update( {0xff0a:0xff0a, 0xff0f:0xff0f, 0xff1f:0xff1f, 0xff3c:0xff3c, 0xff5c:0xff5c, 0xff1c:0xff1c, 0xff1e:0xff1e, 0xff02:0xff02, 0xff1a:0xff1a} )
 
 curr_dir = '.'
-for file in os.listdir( curr_dir ):
-	new_file = file.translate( _tbl )
-	if file != new_file and not os.path.exists( new_file ):
+for filename in os.listdir( curr_dir ):
+	new_file = filename.translate( _tbl )
+	if filename != new_file and not os.path.exists( new_file ):
 		try:
-			os.renames( file, new_file )
+			os.renames( filename, new_file )
 		except:
 			pass
