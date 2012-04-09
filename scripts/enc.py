@@ -1,11 +1,10 @@
 # coding: utf-8
 
-import os, sys
-import codecs
-import warnings
-import logging
-from optparse import OptionParser
 from common import glob
+from optparse import OptionParser
+import logging
+import os
+import sys
 
 parser = OptionParser( version="%prog 1.0", usage='Usage: %prog [options] input_file' )
 
@@ -22,8 +21,6 @@ parser.add_option( '-v', '--verbose', action='store_true' )
 opts, args = parser.parse_args()
 
 def change_encoding( in_file, in_enc, out_enc ):
-
-	dir = os.path.dirname( in_file ) or '.'
 
 	try:
 		if opts.verbose:

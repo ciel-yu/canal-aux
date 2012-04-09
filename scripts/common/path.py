@@ -2,7 +2,6 @@
 
 import os
 import re
-import string
 
 def join( *paths ):
 	return os.path.normpath( os.sep.join( paths ) )
@@ -52,9 +51,8 @@ class FileInfoEntry:
 			_.tags = tags
 			return _
 
-		parts = list( filter( lambda x: x and x != '.', FileInfoEntry.tags_pattern.sub( _( tags ), filename ).split( '\n' ) ) )
-		tags = list( x.strip() for x in tags )
-		return parts, tags
+
+		return list( filter( lambda x:x and x != '.', FileInfoEntry.tags_pattern.sub( _( tags ), filename ).split( '\n' ) ) ), list( x.strip() for x in tags )
 
 if __name__ == '__main__':
 	main()
