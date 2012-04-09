@@ -1,54 +1,13 @@
 # coding:utf-8
 
+from common.dupekit import FileEntry
 from common.glob import iglob
 from functools import partial
 import argparse
 import binascii
-import functools
-import hashlib
 import itertools
 import os
-import zlib
 
-
-class FileEntry:
-
-	CRC_SIZE = 1 * 1024 * 1024;
-
-	BUFFER_SIZE = 4 * 1024 * 1024;
-
-	def __init__( self, path ):
-		self.path = path
-		self.name = os.path.basename( path )
-		self.size = os.stat( path ).st_size
-
-	def __str__( self ):
-		return repr( self.path ) + ' ' + str( self.size )
-
-	@property
-	def crc_head( self ):
-		if hasattr( self, '_crc' ):
-			return self._crc
-		else:
-			with open( self.path, "rb" ) as file:
-				if file.readable():
-					data = file.read( FileEntry.CRC_SIZE )
-					self._crc = zlib.crc32( data )
-			return self._crc
-
-	@property
-	def md5( self ):
-		if hasattr( self, '_md5' ):
-			return self._md5
-		else:
-			m = hashlib.new( 'md5' )
-			with open( self.path, "rb" ) as file:
-				while True:
-					data = file.read( FileEntry.BUFFER_SIZE )
-					if not data : break
-					m.update( data )
-				self._md5 = m.digest();
-			return self._md5
 
 def collect_files( files, dest_dir ):
 	for file in files:
