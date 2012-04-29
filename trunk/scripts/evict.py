@@ -10,7 +10,7 @@ import os
 
 
 def main():
-	parser = argparse.ArgumentParser( description="no comment", formatter_class=argparse.ArgumentDefaultsHelpFormatter )
+	parser = argparse.ArgumentParser( description='''Delete files by sizes and md5''', formatter_class=argparse.ArgumentDefaultsHelpFormatter )
 
 	parser.add_argument( 'refspec' )
 	parser.add_argument( 'filespec', nargs="+" )
