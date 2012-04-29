@@ -3,6 +3,7 @@
 from common.dupekit import FileEntry
 from common.glob import iglob
 from functools import partial
+from operator import attrgetter
 import argparse
 import binascii
 import itertools
@@ -37,9 +38,9 @@ def find_dups( files ):
 
 	groups = [ map( FileEntry, files ) ]
 
-	grouper_chain = [ partial( group_and_yield, keyfunc=lambda x: x.size, badkeys=set( [0] ) ),
-					  partial( group_and_yield, keyfunc=lambda x: x.crc_head ),
-					  partial( group_and_yield, keyfunc=lambda x: x.md5 )
+	grouper_chain = [ partial( group_and_yield, keyfunc=attrgetter( 'size' ), badkeys=set( [0] ) ),
+					  partial( group_and_yield, keyfunc=attrgetter( 'crc_head' ) ),
+					  partial( group_and_yield, keyfunc=attrgetter( 'md5' ) )
 					]
 
 	for grouper in grouper_chain:
@@ -76,7 +77,7 @@ def main():
 	opts.verbose and print( "files:", len( files ) )
 
 	for group in find_dups( files ):
-		print( "for md5: {} size: {}".format( binascii.hexlify( group[0].md5 ), group[0].size ) )
+		print( "for md5: {:s} size: {}".format( binascii.hexlify( group[0].md5 ).decode(), group[0].size ) )
 
 		files = sorted( map( lambda x:x.path, group ), key=lambda x:x.count( '\\' ), reverse=True )
 
