@@ -3,9 +3,9 @@
 
 import sys, os, re
 import win32com.client
+import win32console
 from itertools import *
 from optparse import OptionParser
-
 
 
 def main():
