@@ -1,4 +1,5 @@
 # coding:utf-8
+from collections import defaultdict
 from common.glob import iglob
 from functools import partial
 import argparse
@@ -18,7 +19,7 @@ class m_entry:
 	def __repr__( self ):
 		return "entry {} {} {}".format( self.id, self.prio, self.regex )
 
-maz_ids = list( m_entry( * x ) for x in [
+maz_ids = sorted( ( m_entry( * x ) for x in [
 		( 'shitsu_rakuten', 				10, 		[r'\bshitsu +rakuten\b', 									r'失楽天'] ),
 		( 'kairakuten_beast', 				10, 		[r'\bkairakuten +beast\b', 									r'快楽天 *ビースト', r'快楽天 *beast\b'] ),
 		( 'megastore_h', 					10, 		[r'\bmegastore[ -]+h\b', 									r'メガストア[ -]*h\b'] ),
@@ -77,7 +78,8 @@ maz_ids = list( m_entry( * x ) for x in [
 		( 'megamilk', 						0, 		[r'\bmegamilk\b', 											r'メガミルク'] ),
 
 		( 'ペンギンセレブ', 				0, 		[r'ペンギンセレブ'] )
-	]
+	] )
+	, key=operator.attrgetter( 'prio' )	, reverse=True
  )
 
 ps = dict( ( k, list( map( reiu, v ) ) ) for k, v in  [
@@ -86,14 +88,6 @@ ps = dict( ( k, list( map( reiu, v ) ) ) for k, v in  [
 	( 'd', [ r'(?:19|20)\d{2}-\d\d?-(?P<d>\d{1,2})'] ),
 	( 'v', [ r'(?:vol\.|#)\s*(?P<v>\d{1,3})\b', r'(?P<v>\d{1,3})巻' ] )
 ] )
-
-
-def yyyy( title ):
-	for entry in maz_ids:
-		for p in entry.regex:
-			if p.search( title ):
-				yield entry
-
 
 
 def main():
@@ -105,27 +99,48 @@ def main():
 
 
 	parser.set_defaults( **{
-		'verbose':False
+		'verbose':False,
+		'force_update':False
 	} )
 
 	opts = parser.parse_args()
 
+	pattern_tag = re.compile( r'\[@\S+ \d{4}-\d{2}#\d{3}\]', re.U )
+
 	for file in  filter( os.path.isfile, itertools.chain.from_iterable( map( iglob, set( opts.filespec ) ) ) ):
-		name = os.path.basename( file )
+		path, name = os.path.split( file )
+
+		if pattern_tag.search( name ) and not opts.force_update:
+			continue
+
 		info = dict()
 
 		for key in ps:
 			for p in ps[key]:
 				m = p.search( name )
 				if m:
-					info[key] = m.group( key )
+					info[key] = int( m.group( key ) or 0 )
 					break
+			else:
+				info[key] = 0
 
-		for entry in sorted( yyyy( file ), key=operator.attrgetter( 'prio' ), reverse=True ):
-			info['id'] = entry.id
-			break
+		for entry in maz_ids:
+			for p in entry.regex:
+				if p.search( name ):
+					info['id'] = entry.id
+					break
+			if 'id' in info:
+				break
+		else:
+			info['id'] = None
 
-		True and print( file, info )
+		if info['id'] and any( info[x] for x in "ymv" ) :
+			book_id = "@{} {:04d}-{:02d}#{:03d}".format( info['id'], info['y'], info['m'], info['v'] )
+			if opts.force_update:
+				name = pattern_tag.sub( '', name )
+			name = "[" + book_id + "]" + name
+
+			os.renames( file, os.path.join( path, name ) )
 
 
 if __name__ == '__main__':
