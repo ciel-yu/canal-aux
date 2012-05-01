@@ -8,6 +8,7 @@ import argparse
 import binascii
 import itertools
 import os
+import sys
 
 
 def collect_files( files, dest_dir ):
@@ -23,8 +24,8 @@ def collect_files( files, dest_dir ):
 					break
 
 		if not os.path.exists( dest ):
-#			os.renames( file, dest )
-			print( file, dest )
+			os.renames( file, dest )
+			print( "collect:", file, dest )
 
 def find_dups( files ):
 	def group_and_yield( chunks, keyfunc, badkeys=set() ):
@@ -57,22 +58,23 @@ def scan_dir( path ):
 def main():
 	parser = argparse.ArgumentParser( description="no comment", formatter_class=argparse.ArgumentDefaultsHelpFormatter )
 
-	parser.add_argument( 'filespec', nargs="+" )
+	parser.add_argument( 'filespec', nargs="*" )
 	parser.add_argument( '-v', '--verbose', action='store_true' )
-	parser.add_argument( '-d', dest='collecting_dir', metavar='DIR', help='collecting dir', required=True )
-	parser.add_argument( '-m', '--mode' )
+	parser.add_argument( '--to', dest='collecting_dir', metavar='DIR', help='collecting dir', required=True, type=lambda x: os.path.abspath( x ) )
+	parser.add_argument( '-d', dest='dirs', action='append' )
 
 
 	parser.set_defaults( **{
-		'verbose':False
+		'verbose':False,
+		'dirs':[]
 	} )
 
 	opts = parser.parse_args()
 
-
-#	files = set( os.path.abspath( x ) for x in itertools.chain.from_iterable( iglob( x ) for x in  opts.filespec ) if os.path.isfile( x ) )
-	files = set( filter( os.path.isfile, map( os.path.abspath, itertools.chain.from_iterable( map( iglob, opts.filespec ) ) ) ) )
-#	files = scan_dir( opts.root_dir )
+	files = set( filter( lambda x: os.path.isfile( x ) and not x.startswith( opts.collecting_dir ),
+						map( os.path.abspath, itertools.chain.from_iterable( itertools.chain( 
+									map( iglob, opts.filespec ),
+									map( scan_dir, itertools.chain.from_iterable( map( iglob, set( opts.dirs ) ) ) ) ) ) ) ) )
 
 	opts.verbose and print( "files:", len( files ) )
 
