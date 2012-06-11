@@ -1,11 +1,12 @@
 # -*- coding: UTF-8 -*-
 
 
-import sys, os, re
-import win32com.client
-import win32console
 from itertools import *
 from optparse import OptionParser
+import sys
+import os
+import re
+import win32com.client
 
 
 def main():
@@ -44,6 +45,7 @@ def main():
 	ocr.UseIncreasedSensitivity = True
 
 	ocr.UseFineSearch = True
+
 	if opts.verbose:
 		print( 'UseFineSearch' )
 
@@ -105,6 +107,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
-
-
-

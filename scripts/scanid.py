@@ -111,7 +111,7 @@ def main():
 
 	pattern_tag = re.compile( r'\[@\S+ \d{4}-\d{2}#\d{3}\]', re.U )
 
-	for file in  filter( os.path.isfile, itertools.chain.from_iterable( map( iglob, set( opts.filespec ) ) ) ):
+	for file in  itertools.chain.from_iterable( map( iglob, set( opts.filespec ) ) ):
 		path, name = os.path.split( file )
 
 		if pattern_tag.search( name ) and not opts.force_update:

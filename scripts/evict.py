@@ -4,6 +4,7 @@ from collections import defaultdict
 from common.dupekit import FileEntry
 from common.glob import iglob
 import argparse
+import binascii
 import itertools
 import os
 
@@ -41,7 +42,7 @@ def main():
 
 		if entry.size in reg and entry.md5 in reg[entry.size]:
 			if opts.verbose:
-				print( "hit:", entry.path, entry.size, entry.md5 )
+				print( "hit:", entry.path, entry.size, binascii.hexlify( entry.md5 ).decode() )
 
 			os.remove( entry.path )
 			count += 1

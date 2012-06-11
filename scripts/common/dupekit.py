@@ -57,3 +57,17 @@ class FileEntry:
 					m.update( data )
 				self._md5 = m.digest();
 			return self._md5
+
+	@property
+	def sha1( self ):
+		if hasattr( self, '_sha1' ):
+			return self._sha1
+		else:
+			m = hashlib.new( 'sha1' )
+			with open( self.path, "rb" ) as file:
+				while True:
+					data = file.read( FileEntry.BUFFER_SIZE )
+					if not data : break
+					m.update( data )
+				self._sha1 = m.digest();
+			return self._sha1
