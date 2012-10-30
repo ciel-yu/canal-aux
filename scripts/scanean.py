@@ -1,11 +1,10 @@
 # -*- coding: UTF-8 -*-
 
 
-from itertools import *
 from optparse import OptionParser
-import sys
 import os
 import re
+import sys
 import win32com.client
 
 
@@ -14,9 +13,11 @@ def main():
 
 	parser.set_defaults( **{
 		'verbose': False,
+		'version': False
 	} )
 
 	parser.add_option( '-v', '--verbose', action='store_true' )
+	parser.add_option( '-V', dest='version', action='store_true' )
 
 	opts, args = parser.parse_args()
 
@@ -29,9 +30,10 @@ def main():
 
 	registered = ocr.RegisterBarcodeDLL( "ciel", "EDACE8EB48EA4" )
 
-	if opts.verbose:
+	if opts.version:
 		print( 'Registered:', registered )
 		print( 'INBarcode version:', ocr.GetBarcodeVersionInfo() )
+		sys.exit();
 
 	r = re.compile( r'#(\d{13}|\d{9}[0-9xX])|^-', re.I | re.U )
 
@@ -69,13 +71,9 @@ def main():
 		# scan image
 		if not ean:
 			if len( files ) > 10:
-				t = []
-				for i in range( 5 ):
-					t.append( files[i] )
-					t.append( files[-i - 1] )
-				#t = files[-5:]
-				#t.reverse()
-				#files = files[:5]+t
+				t = [None] * 10
+				t[::2] = files[:5:]
+				t[1::2] = files[:-6:-1]
 				files = t
 
 			for file in files:
