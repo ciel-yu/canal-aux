@@ -2,10 +2,10 @@
 # coding:utf-8
 
 from argparse import ArgumentParser
-import argparse
-import os
-from timeit import itertools
 from glob import glob
+import argparse
+import itertools
+import os
 import tempfile
 
 
