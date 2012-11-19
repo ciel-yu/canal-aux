@@ -27,7 +27,7 @@
 					</xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+							<tool:expected-type type="org.springframework.integration.MessageChannel" />
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
@@ -73,7 +73,7 @@
 			</xsd:documentation>
 			<xsd:appinfo>
 				<tool:annotation>
-					<tool:exports type="org.springframework.integration.core.MessageChannel" />
+					<tool:exports type="org.springframework.integration.MessageChannel" />
 				</tool:annotation>
 			</xsd:appinfo>
 		</xsd:annotation>
@@ -304,7 +304,7 @@
 			</xsd:documentation>
 			<xsd:appinfo>
 				<tool:annotation>
-					<tool:exports type="org.springframework.integration.core.MessageChannel" />
+					<tool:exports type="org.springframework.integration.MessageChannel" />
 				</tool:annotation>
 			</xsd:appinfo>
 		</xsd:annotation>
@@ -541,7 +541,7 @@
 					</xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+							<tool:expected-type type="org.springframework.integration.MessageChannel" />
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
@@ -556,7 +556,7 @@
 					</xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+							<tool:expected-type type="org.springframework.integration.MessageChannel" />
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
@@ -655,7 +655,7 @@
 				</xsd:documentation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+						<tool:expected-type type="org.springframework.integration.MessageChannel" />
 					</tool:annotation>
 				</xsd:appinfo>
 			</xsd:annotation>
@@ -706,6 +706,78 @@
 			</xsd:sequence>
 			<xsd:attributeGroup ref="methodInvokingOrExpressionEvaluatingAttributes" />
 			<xsd:attributeGroup ref="channelAdapterAttributes" />
+			<xsd:attribute name="send-timeout" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+		Maximum amount of time in milliseconds to wait when sending a message to the channel if such channel may block.
+		For example, a Queue Channel can block until space is available if its maximum capacity has been reached.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="resource-inbound-channel-adapter">
+		<xsd:annotation>
+			<xsd:documentation>
+				Defines a Channel Adapter that receives Resource(s) and sends them to a
+				MessageChannel identified via 'channel' attribute.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:sequence>
+						<xsd:element name="poller" type="basePollerType" />
+				</xsd:sequence>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						Component identifier
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="channel" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						Channel where Message will be sent to
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="filter" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						Reference to the implementation of org.springframework.integration.util.CollectionFilter.
+					</xsd:documentation>
+					<xsd:appinfo>
+						<tool:annotation kind="ref">
+							<tool:expected-type type="org.springframework.integration.util.CollectionFilter" />
+						</tool:annotation>
+					</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="auto-startup" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						Lifecycle attribute signaling if this component should be started during Application Context startup.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="pattern" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						Location pattern expression (e.g., "/**/*.txt")
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			
+			<xsd:attribute name="pattern-resolver" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						Reference to a org.springframework.core.io.support.ResourcePatternResolver. 
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
 			<xsd:attribute name="send-timeout" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation>
@@ -842,7 +914,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 			<xsd:annotation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+						<tool:expected-type type="org.springframework.integration.MessageChannel" />
 					</tool:annotation>
 				</xsd:appinfo>
 				<xsd:documentation>
@@ -986,7 +1058,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 			<xsd:documentation>
 				Defines an endpoint that passes a Message to its request-channel
 				and then expects a reply Message. The reply Message then becomes
-				the root object for evaluation of expressions to enriche the
+				the root object for evaluation of expressions to enrich the
 				target payload.
 			</xsd:documentation>
 		</xsd:annotation>
@@ -1014,10 +1086,14 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 				</xsd:annotation>
 			</xsd:element>
 		</xsd:sequence>
-		<xsd:attribute name="request-channel" type="xsd:string" use="required">
+		<xsd:attribute name="request-channel" type="xsd:string" use="optional">
 			<xsd:annotation>
 				<xsd:documentation>
-					Channel to which a Message will be sent to get the data to use for enrichment.
+					Channel to which a Message will be sent to get the data to use
+					for enrichment. This attribute is optional. Not specifying a
+					'request-channel' is useful in situations, where only static
+					values shall be used for enrichment using the 'property'
+					sub-element.
 				</xsd:documentation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
@@ -1039,12 +1115,57 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 				</xsd:appinfo>
 			</xsd:annotation>
 		</xsd:attribute>
+        <xsd:attribute name="request-timeout" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[
+                    Set the timeout value for sending request messages in milliseconds. 
+                    If not explicitly configured, the default is one second.
+                    ]]>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="reply-timeout" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[
+                    Set the timeout value for receiving reply messages in milliseconds. 
+                    If not explicitly configured, the default is one second.
+                    ]]>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="requires-reply" use="optional" default="true">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[
+                If you specify a 'request-channel' you can optionally set the 
+                'requires-reply' attribute as well. If you set this attribute to 
+                'true', a reply must return a non-null value. 
+                
+                For example, you dispatch a message to the request-channel
+                (backed by a 'QueueChannel'). If the reply does not return within
+                the specified 'replyTimeout', then the reply message will end up 
+                being Null.
+                
+                By setting 'requires-reply' to 'true', a 'ReplyRequiredException'
+                will be raised for null reply messages. If 'requires-reply' is set 
+                to false, those messages are silently dropped. 
+                
+                This attribute defaults to 'true', if not specified.]]>
+                </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+                <xsd:union memberTypes="xsd:boolean xsd:string" />
+            </xsd:simpleType>            
+        </xsd:attribute>
 		<xsd:attribute name="should-clone-payload">
 			<xsd:annotation>
 				<xsd:documentation>
 					Boolean value indicating whether any payload that implements Cloneable should be cloned
 					prior to sending the Message to the request chanenl for acquiring the enriching data.
 					The cloned version would be used as the target payload for the ultimate reply.
+
+					If the payload does NOT implement 'Cloneable', then setting this
+					attribute to 'true' has NO effect.
+
 					Default is false.
 				</xsd:documentation>
 			</xsd:annotation>
@@ -1060,7 +1181,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
                     as value for the 'request-payload-expression' attribute, a
                     subset of the original payload, a header value or any other
                     resolvable SpEL expression can be used as the basis for the payload,
-                    that will be send to the request-channel.
+                    that will be sent to the request-channel.
 
                     For the Expression evaluation the full message is available
                     as the 'root object'.
@@ -1089,7 +1210,11 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 		<xsd:attribute name="name" type="xsd:string" use="required">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
-					The name of the property on the target payload.
+					The name of the property on the target payload. Please be aware
+					that this value is a SpEL expression, also. For example, if
+					your payload is represented by a 'java.util.Map', you can add new
+					Map entries using the 'name' attribute, e.g. name='foo' would add a new
+					Map entry with key 'foo'.
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -1161,7 +1286,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 		<xsd:attribute name="scheduler" type="xsd:string">
 			<xsd:annotation>
 				<xsd:documentation>
-					Provide a reference to the ScheduledExecutorService instance to which
+					Provide a reference to the TaskScheduler instance to which
 					this endpoint should
 					delegate when scheduling the sending of delayed Messages. If not
 					provided, the default
@@ -1171,7 +1296,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 					</xsd:documentation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="java.util.concurrent.ScheduledExecutorService" />
+						<tool:expected-type type="org.springframework.scheduling.TaskScheduler" />
 					</tool:annotation>
 				</xsd:appinfo>
 			</xsd:annotation>
@@ -1478,17 +1603,21 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 
 	<xsd:complexType name="header-enricher-type">
 		<xsd:choice minOccurs="1" maxOccurs="unbounded">
-			<xsd:element name="reply-channel" type="referenceHeaderType">
+			<xsd:element name="reply-channel" type="referenceOrValueHeaderType">
 				<xsd:annotation>
 					<xsd:documentation>
-					Shortcut to specify value for 'replyChannel' header
+					Shortcut to specify value for 'replyChannel' header.
+					Can be a 'ref' to the MessageChannel, a 'value' as name of the MessageChannel,
+				    or some valid SpEL 'expression' which returns the MessageChannel reference or name of the MessageChannel.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:element>
-			<xsd:element name="error-channel" type="referenceHeaderType">
+			<xsd:element name="error-channel" type="referenceOrValueHeaderType">
 				<xsd:annotation>
 					<xsd:documentation>
-					Shortcut to specify value for 'errorChannel' header
+					Shortcut to specify value for 'errorChannel' header.
+					Can be a 'ref' to the MessageChannel, a 'value' as name of the MessageChannel,
+				    or some valid SpEL 'expression' which returns the MessageChannel reference or name of the MessageChannel.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:element>
@@ -1509,14 +1638,16 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 			<xsd:element name="priority">
 				<xsd:annotation>
 					<xsd:documentation>
-						Shortcut to specify value for 'priority' header when using PriotityChannel
+						Shortcut to specify value for 'priority' header when using PriorityChannel
 					</xsd:documentation>
 				</xsd:annotation>
 				<xsd:complexType>
 					<xsd:attribute name="value">
-						<xsd:simpleType>
-							<xsd:union memberTypes="priorityEnumeration xsd:string" />
-						</xsd:simpleType>
+						<xsd:annotation>
+							<xsd:documentation>
+								Integer value identifying the value of the 'priority' header.
+							</xsd:documentation>
+						</xsd:annotation>
 					</xsd:attribute>
 					<xsd:attribute name="overwrite">
 						<xsd:annotation>
@@ -1525,7 +1656,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 								an existing header
 								value
 								for the same name.
-								</xsd:documentation>
+							</xsd:documentation>
 						</xsd:annotation>
 						<xsd:simpleType>
 							<xsd:union memberTypes="xsd:boolean xsd:string" />
@@ -1611,16 +1742,6 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 		</xsd:attribute>
 	</xsd:complexType>
 
-	<xsd:simpleType name="priorityEnumeration">
-		<xsd:restriction base="xsd:token">
-			<xsd:enumeration value="HIGHEST" />
-			<xsd:enumeration value="HIGH" />
-			<xsd:enumeration value="NORMAL" />
-			<xsd:enumeration value="LOW" />
-			<xsd:enumeration value="LOWEST" />
-		</xsd:restriction>
-	</xsd:simpleType>
-
 	<xsd:complexType name="userDefinedHeaderType">
 		<xsd:annotation>
 			<xsd:documentation>
@@ -1649,6 +1770,9 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 				The 'type' attribute allows for the specification of the expected
 				type when using a 'value'
 				or 'expression', but it is optional.
+				Also for a header value one of 'bean', 'script' or
+				'expression' sub-elements can be defined, but they are mutually exclusive
+				with the attributes defined above.
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexContent>
@@ -1667,7 +1791,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 				<xsd:attribute name="expression" type="xsd:string">
 					<xsd:annotation>
 						<xsd:documentation>
-							Expression to be evaulated at runtime to determine the header value.
+							Expression to be evaluated at runtime to determine the header value.
 							The EvaluationContext will
 							include variables for 'payload' and
 							'headers'.
@@ -2119,7 +2243,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 					<xsd:annotation>
 						<xsd:appinfo>
 							<tool:annotation kind="ref">
-								<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+								<tool:expected-type type="org.springframework.integration.MessageChannel" />
 							</tool:annotation>
 						</xsd:appinfo>
 						<xsd:documentation>
@@ -2386,7 +2510,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
         <xsd:complexContent>
             <xsd:extension base="commonHeaderValueRouterType">
                 <xsd:sequence>
-                    <xsd:element name="mapping" type="mappingValueChannelType" minOccurs="1" maxOccurs="unbounded">
+                    <xsd:element name="mapping" type="mappingValueChannelType" minOccurs="0" maxOccurs="unbounded">
                         <xsd:annotation>
                             <xsd:documentation>
                             <![CDATA[
@@ -2576,7 +2700,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
                 </xsd:documentation>
                 <xsd:appinfo>
                     <tool:annotation kind="ref">
-                        <tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+                        <tool:expected-type type="org.springframework.integration.MessageChannel" />
                     </tool:annotation>
                 </xsd:appinfo>
             </xsd:annotation>
@@ -2600,7 +2724,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
                 </xsd:documentation>
                 <xsd:appinfo>
                     <tool:annotation kind="ref">
-                        <tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+                        <tool:expected-type type="org.springframework.integration.MessageChannel" />
                     </tool:annotation>
                 </xsd:appinfo>
             </xsd:annotation>
@@ -2622,7 +2746,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 	            </xsd:documentation>
                 <xsd:appinfo>
                     <tool:annotation kind="ref">
-                        <tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+                        <tool:expected-type type="org.springframework.integration.MessageChannel" />
                     </tool:annotation>
                 </xsd:appinfo>
             </xsd:annotation>
@@ -2648,7 +2772,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
                 </xsd:documentation>
                 <xsd:appinfo>
                     <tool:annotation kind="ref">
-                        <tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+                        <tool:expected-type type="org.springframework.integration.MessageChannel" />
                     </tool:annotation>
                 </xsd:appinfo>
             </xsd:annotation>
@@ -2686,7 +2810,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
             <xsd:annotation>
                 <xsd:appinfo>
                     <tool:annotation kind="ref">
-                        <tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+                        <tool:expected-type type="org.springframework.integration.MessageChannel" />
                     </tool:annotation>
                 </xsd:appinfo>
                 <xsd:documentation>
@@ -2727,7 +2851,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
                 </xsd:documentation>
                 <xsd:appinfo>
                     <tool:annotation kind="ref">
-                        <tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+                        <tool:expected-type type="org.springframework.integration.MessageChannel" />
                     </tool:annotation>
                 </xsd:appinfo>
             </xsd:annotation>
@@ -2739,6 +2863,20 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 					when sending Messages to the target MessageChannels. By
 					default the send will block indefinitely.
 				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="channel-resolver" type="xsd:string">
+			<xsd:annotation>
+				<xsd:documentation><![CDATA[
+[DEPRECATED]Provides a reference to a ChannelResolver that resolves the return value
+to the name of a MessageChannel within the application context. If none
+is provided, the return value is expected to match a channel name exactly.
+						]]></xsd:documentation>
+				<xsd:appinfo>
+					<tool:annotation kind="ref">
+						<tool:expected-type type="org.springframework.integration.support.channel.ChannelResolver" />
+					</tool:annotation>
+				</xsd:appinfo>
 			</xsd:annotation>
 		</xsd:attribute>
 		<xsd:attribute name="ignore-send-failures" default="false">
@@ -2904,7 +3042,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 				</xsd:attribute>
 				<xsd:attribute name="release-strategy-expression" type="xsd:string">
 					<xsd:annotation>
-						<xsd:documentation>A SpEL expression to apply to the message group (e.g, payload.size() > 6)</xsd:documentation>
+						<xsd:documentation>A SpEL expression to evaluate against a root object that is the Collection of messages within the message group (e.g, size() > 6)</xsd:documentation>
 					</xsd:annotation>
 				</xsd:attribute>
 			</xsd:extension>
@@ -2914,11 +3052,6 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 	<xsd:complexType name="correlating-message-handler-type">
 		<xsd:complexContent>
 			<xsd:extension base="innerEndpointDefinitionAware">
-				<xsd:attribute name="keep-released-messages" type="xsd:string">
-					<xsd:annotation>
-						<xsd:documentation>Will store messages after their release. Mainly used for monitoring purposes. Default is 'true'</xsd:documentation>
-					</xsd:annotation>
-				</xsd:attribute>
 				<xsd:attribute name="correlation-strategy" type="xsd:string">
 					<xsd:annotation>
 						<xsd:appinfo>
@@ -2957,7 +3090,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 					<xsd:annotation>
 						<xsd:appinfo>
 							<tool:annotation kind="ref">
-								<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+								<tool:expected-type type="org.springframework.integration.MessageChannel" />
 							</tool:annotation>
 						</xsd:appinfo>
 						<xsd:documentation>
@@ -3099,7 +3232,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 			<xsd:annotation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+						<tool:expected-type type="org.springframework.integration.MessageChannel" />
 					</tool:annotation>
 				</xsd:appinfo>
 			</xsd:annotation>
@@ -3264,7 +3397,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 							<xsd:annotation>
 								<xsd:appinfo>
 									<tool:annotation kind="ref">
-										<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+										<tool:expected-type type="org.springframework.integration.MessageChannel" />
 									</tool:annotation>
 								</xsd:appinfo>
 							</xsd:annotation>
@@ -3280,7 +3413,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 					]]></xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+							<tool:expected-type type="org.springframework.integration.MessageChannel" />
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
@@ -3448,7 +3581,7 @@ The list of component name patterns you want to track (e.g.,  tracked-components
 			<xsd:annotation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+						<tool:expected-type type="org.springframework.integration.MessageChannel" />
 					</tool:annotation>
 				</xsd:appinfo>
 				<xsd:documentation>
@@ -3469,7 +3602,7 @@ The list of component name patterns you want to track (e.g.,  tracked-components
 			<xsd:annotation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+						<tool:expected-type type="org.springframework.integration.MessageChannel" />
 					</tool:annotation>
 				</xsd:appinfo>
 				<xsd:documentation>

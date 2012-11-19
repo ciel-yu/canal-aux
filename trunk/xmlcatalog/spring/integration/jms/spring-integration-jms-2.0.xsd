@@ -368,12 +368,20 @@
 						</xsd:annotation>
 					</xsd:attribute>
 					<xsd:attribute name="destination-name" type="xsd:string"/>
-					<xsd:attribute name="pub-sub-domain" type="xsd:string"/>
+					<xsd:attribute name="pub-sub-domain" type="xsd:string">
+						<xsd:annotation>
+							<xsd:documentation>
+	The boolean property used to configure the JmsTemplate with knowledge of what JMS domain is being used. By default the value of this property is 'false'', 
+	indicating that the point-to-point domain, Queues, will be used. This property used by JmsTemplate determines the behavior of dynamic destination resolution 
+	via implementations of the DestinationResolver interface.			
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
 					<xsd:attribute name="channel" type="xsd:string">
 						<xsd:annotation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
-									<tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+									<tool:expected-type type="org.springframework.integration.MessageChannel"/>
 								</tool:annotation>
 							</xsd:appinfo>
 						</xsd:annotation>
@@ -393,7 +401,7 @@
 						<xsd:annotation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
-									<tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+									<tool:expected-type type="org.springframework.integration.MessageChannel"/>
 								</tool:annotation>
 							</xsd:appinfo>
 							<xsd:documentation>
@@ -416,6 +424,7 @@
 					</xsd:attribute>
 					<xsd:attribute name="concurrent-consumers" type="xsd:string"/>
 					<xsd:attribute name="max-concurrent-consumers" type="xsd:string"/>
+					<xsd:attribute name="cache-level" type="xsd:string"/>
 					<xsd:attribute name="max-messages-per-task" type="xsd:string"/>
 					<xsd:attribute name="receive-timeout" type="xsd:string"/>
 					<xsd:attribute name="recovery-interval" type="xsd:string"/>
@@ -458,7 +467,7 @@
 						<xsd:annotation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
-									<tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+									<tool:expected-type type="org.springframework.integration.MessageChannel"/>
 								</tool:annotation>
 							</xsd:appinfo>
 						</xsd:annotation>
@@ -569,7 +578,7 @@
 						<xsd:annotation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
-									<tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+									<tool:expected-type type="org.springframework.integration.MessageChannel"/>
 								</tool:annotation>
 							</xsd:appinfo>
 						</xsd:annotation>
@@ -579,7 +588,7 @@
 						<xsd:annotation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
-									<tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+									<tool:expected-type type="org.springframework.integration.MessageChannel"/>
 								</tool:annotation>
 							</xsd:appinfo>
 						</xsd:annotation>
@@ -589,7 +598,7 @@
 						<xsd:annotation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
-									<tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+									<tool:expected-type type="org.springframework.integration.MessageChannel"/>
 								</tool:annotation>
 							</xsd:appinfo>
 							<xsd:documentation>
@@ -614,6 +623,7 @@
 					</xsd:attribute>
 					<xsd:attribute name="concurrent-consumers" type="xsd:string"/>
 					<xsd:attribute name="max-concurrent-consumers" type="xsd:string"/>
+					<xsd:attribute name="cache-level" type="xsd:string"/>
 					<xsd:attribute name="max-messages-per-task" type="xsd:string"/>
 					<xsd:attribute name="receive-timeout" type="xsd:string"/>
 					<xsd:attribute name="recovery-interval" type="xsd:string"/>
@@ -643,7 +653,7 @@
 				<xsd:annotation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+							<tool:expected-type type="org.springframework.integration.MessageChannel"/>
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
@@ -652,13 +662,25 @@
 				<xsd:annotation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+							<tool:expected-type type="org.springframework.integration.MessageChannel"/>
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="request-timeout" type="xsd:string"/>
-			<xsd:attribute name="reply-timeout" type="xsd:string"/>
+			<xsd:attribute name="receive-timeout" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+	Timeout for the JMS MessageConsumer to receive the JMS reply Message. Default is 5 seconds. 
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="reply-timeout" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+	Timeout for sending the mapped integration Message to this gateway's reply-channel. Default is indefinite.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
 			<xsd:attribute name="request-destination" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation>
@@ -751,7 +773,6 @@
 			</xsd:attribute>
 			<xsd:attribute name="extract-request-payload" type="xsd:string" default="true"/>
 			<xsd:attribute name="extract-reply-payload" type="xsd:string" default="true"/>
-			<xsd:attribute name="receive-timeout" type="xsd:string"/>
 			<xsd:attribute name="delivery-mode" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
@@ -817,7 +838,7 @@
 						<xsd:annotation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
-									<tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+									<tool:expected-type type="org.springframework.integration.MessageChannel"/>
 								</tool:annotation>
 							</xsd:appinfo>
 						</xsd:annotation>
@@ -1034,7 +1055,7 @@
 			<xsd:annotation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+						<tool:expected-type type="org.springframework.integration.MessageChannel"/>
 					</tool:annotation>
 				</xsd:appinfo>
 			</xsd:annotation>
@@ -1043,7 +1064,7 @@
 			<xsd:annotation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+						<tool:expected-type type="org.springframework.integration.MessageChannel"/>
 					</tool:annotation>
 				</xsd:appinfo>
 			</xsd:annotation>

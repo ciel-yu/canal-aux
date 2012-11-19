@@ -3,21 +3,57 @@
 	xmlns:beans="http://www.springframework.org/schema/beans" targetNamespace="http://www.springframework.org/schema/security/oauth2"
 	elementFormDefault="qualified" attributeFormDefault="unqualified">
 
-	<xs:import namespace="http://www.springframework.org/schema/beans" />
+	<xs:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.1.xsd" />
+
+	<xs:element name="rest-template">
+		<xs:annotation>
+			<xs:documentation>
+				Creates an OAuth2RestTemplate with all the pieces needed to connect to a remote resource from
+				a web
+				application. Injects request and session-scoped beans into the template, so can only be
+				used in the context of a web
+				request.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="beans:identifiedType">
+					<xs:sequence>
+						<xs:element ref="beans:description" minOccurs="0" />
+						<xs:choice minOccurs="0" maxOccurs="unbounded">
+							<xs:element ref="beans:property" />
+						</xs:choice>
+					</xs:sequence>
+					<xs:attribute name="resource">
+						<xs:annotation>
+							<xs:documentation>
+								The OAuth2ProtectedResourceDetails governing the configuration of this client. Mandatory.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="access-token-provider" type="xs:string">
+						<xs:annotation>
+							<xs:documentation>
+								The reference to the bean that manages access token acquisition. Optional (defaults to a chain
+								including common grant types from the spec).
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
 
 	<xs:element name="authorization-server">
 		<xs:annotation>
 			<xs:documentation>
 				Specifies that the oauth 2 authorization and token
-				endpoints should be
-				created in the application
+				endpoints should be created in the application
 				context. These are
 				implemented as regular Spring @Controller beans, so as long as the
-				default
-				Spring MVC set up in
+				default Spring MVC set up in
 				present in the application
-				the endpoints
-				should work (at /oauth/authorization and /oauth/token by
+				the endpoints should work (at /oauth/authorization and /oauth/token by
 				default).
 			</xs:documentation>
 		</xs:annotation>
@@ -43,44 +79,14 @@
 								</xs:documentation>
 							</xs:annotation>
 						</xs:attribute>
-						<xs:attribute name="services-ref" type="xs:string">
+						<xs:attribute name="authorization-code-services-ref" type="xs:string">
 							<xs:annotation>
 								<xs:documentation>
 									The reference to the bean that defines the
 									authorization code
-									services. Default value is an instance of
+									services. Default value is an
+									instance of
 									"org.springframework.security.oauth2.provider.authorization_code.InMemoryAuthorizationCodeServices".
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-						<xs:attribute name="user-approval-page" type="xs:string">
-							<xs:annotation>
-								<xs:documentation>
-									The URL of the page that handles the user
-									approval form.
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-						<xs:attribute name="approval-parameter-name" type="xs:string">
-							<xs:annotation>
-								<xs:documentation>
-									The name of the form parameter that is used to
-									indicate user
-									approval of the client authentication request.
-									Default value: "user_oauth_approval".
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-
-						<xs:attribute name="redirect-resolver-ref" type="xs:string">
-							<xs:annotation>
-								<xs:documentation>
-									The reference to the bean that defines the
-									redirect resolver, used
-									during the user authorization.
-									Default
-									value is an instance of
-									"org.springframework.security.oauth2.provider.authorization_code.DefaultRedirectResolver".
 								</xs:documentation>
 							</xs:annotation>
 						</xs:attribute>
@@ -89,33 +95,9 @@
 								<xs:documentation>
 									The reference to the bean that defines the
 									cache for client
-									tokens, used during the authorization code
+									tokens, used during the
+									authorization code
 									grant.
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-						<xs:attribute name="redirect-strategy-ref" type="xs:string">
-							<xs:annotation>
-								<xs:documentation>
-									The reference to the bean that defines the
-									redirect strategy, used
-									during the web_server profile.
-									Default
-									value is an instance of
-									"org.springframework.security.web.DefaultRedirectStrategy".
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-						<xs:attribute name="approval-handler-ref" type="xs:string">
-							<xs:annotation>
-								<xs:documentation>
-									The reference to the bean that defines the
-									handler for user
-									approval (instance of
-									"org.springframework.security.oauth2.provider.authorization_code.UserApprovalHandler"),
-									used during web_server profile.
-									Default value is an instance of
-									"org.springframework.security.oauth2.proauthorization_codecation.BasicUserApprovalFilter".
 								</xs:documentation>
 							</xs:annotation>
 						</xs:attribute>
@@ -230,15 +212,6 @@
 			</xs:attribute>
 
 			<!--the following attributes are less used -->
-			<xs:attribute name="default-grant-type" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>
-						The default grant type (in case none is specified
-						by the client).
-						Default value is "authorization_code".
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
 			<xs:attribute name="token-granter-ref" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>
@@ -253,7 +226,8 @@
 					<xs:documentation>
 						The reference to the bean that defines the
 						redirect strategy for
-						users when authenticating to other providers.
+						users when authenticating to other
+						providers.
 						Default value is an instance of
 						"org.springframework.security.oauth.provider.DefaultRedirectStrategy".
 					</xs:documentation>
@@ -266,20 +240,86 @@
 						The reference to the bean that defines the token
 						services. Default
 						value is an instance of
-						"org.springframework.security.oauth2.provider.token.InMemoryOAuth2ProviderTokenServices".
+						"org.springframework.security.oauth2.provider.token.DefaultTokenServices".
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 
-			<xs:attribute name="serialization-service-ref" type="xs:string">
+			<xs:attribute name="authorization-request-factory-ref" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>
+						The reference to the bean that defines the factory for
+						authorization requests from the input
+						parameters (e.g. request parameters).
+						Default
+						value is an
+						instance of
+						"org.springframework.security.oauth2.provider.token.DefaultAuthorizationRequestFactory".
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+
+			<xs:attribute name="parameters-validator-ref" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>
+						A reference to a bean that validates authorization and token request parameters.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+
+			<xs:attribute name="user-approval-handler-ref" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>
+						Reference to a bean that handles user approval decisions. Using this strategy servers can
+						selectively skip the approval process depending on decisions in the past or on the type of client.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+
+			<xs:attribute name="user-approval-page" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>
+						The URL of the page that handles the user
+						approval form (if needed, depending on the grant type).
+						The default is "forward:/oauth/confirm_access" which is not handled
+						by the authorization endpoint, so normally you
+						will have to supply a handler
+						for this path.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+
+			<xs:attribute name="error-page" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>
+						The URL of the page that handles errors (default forward:/oauth/error).
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+
+			<xs:attribute name="approval-parameter-name" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>
+						The name of the form parameter that is used to
+						indicate user
+						approval of the client
+						authentication
+						request.
+						Default value: "user_oauth_approval".
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+
+			<xs:attribute name="redirect-resolver-ref" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>
 						The reference to the bean that defines the
-						serialization service for
-						an OAuth 2 response
-						Default value is an
-						instance of
-						"org.springframework.security.oauth2.common.DefaultOAuth2SerializationService".
+						redirect resolver, used
+						during the user
+						authorization.
+						Default
+						value is an instance of
+						"org.springframework.security.oauth2.provider.authorization_code.DefaultRedirectResolver".
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -290,16 +330,12 @@
 	<xs:element name="resource-server">
 		<xs:annotation>
 			<xs:documentation>
-				Specifies that the oauth 2 protected resource
-				filters should be created in
-				the application context.
-				This element
-				has an id which is the bean id of the filter created. The filter
-				should
-				in turn be added to teh Spring
-				Security
-				filter chain at
-				position after="EXCEPTION_TRANSLATION_FILTER".
+				Specifies that there are oauth 2 protected resources in
+				the application context. This element
+				has an
+				id which is the bean id of the filter created. The filter
+				should be added to the Spring Security filter chain at
+				position before="PRE_AUTH_FILTER"
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
@@ -327,21 +363,17 @@
 								The reference to the bean that defines the token
 								services. Default
 								value is an instance of
-								"org.springframework.security.oauth2.provider.token.InMemoryOAuth2ProviderTokenServices".
+								"org.springframework.security.oauth2.provider.token.DefaultTokenServices".
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
 
-					<xs:attribute name="serialization-service-ref" type="xs:string">
+					<xs:attribute name="entry-point-ref" type="xs:string">
 						<xs:annotation>
 							<xs:documentation>
-								The reference to the bean that defines the
-								serialization service for
-								an OAuth 2 response
-								Default
-								value is an
-								instance of
-								"org.springframework.security.oauth2.common.DefaultOAuth2SerializationService".
+								The reference to the bean that defines the entry point for failed authentications. Defaults to
+								a vanilla
+								org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint.
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
@@ -395,8 +427,8 @@
 								<xs:attribute name="redirect-uri" type="xs:string">
 									<xs:annotation>
 										<xs:documentation>
-											The re-direct URI established during
-											registration (optional).
+											The re-direct URI(s) established during
+											registration (optional, comma separated).
 										</xs:documentation>
 									</xs:annotation>
 								</xs:attribute>
@@ -455,6 +487,22 @@
 										</xs:documentation>
 									</xs:annotation>
 								</xs:attribute>
+								<xs:attribute name="access-token-validity" type="xs:string">
+									<xs:annotation>
+										<xs:documentation>
+											The access token validity period in seconds (optional). If unspecified a global default will
+											be applied by the token services.
+										</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute name="refresh-token-validity" type="xs:string">
+									<xs:annotation>
+										<xs:documentation>
+											The refresh token validity period in seconds (optional). If unspecified a global default will
+											be applied by the token services.
+										</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
 							</xs:complexType>
 						</xs:element>
 					</xs:choice>
@@ -479,152 +527,40 @@
 		</xs:complexType>
 	</xs:element>
 
+	<xs:element name="web-expression-handler">
+		<xs:annotation>
+			<xs:documentation>
+				Element for declaring and configuring an expression
+				handler for oauth
+				security expressions in http
+				intercept urls. See
+				http://static.springsource.org/spring-security/site/docs/3.0.x/reference/el-access.html
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="beans:identifiedType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
 	<xs:element name="client">
 		<xs:annotation>
 			<xs:documentation>
-				Specifies that the oauth 2 client filter(s) should
-				be applied to the
+				Creates the oauth 2 client filter be be added to the
 				application security policy.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
 			<xs:complexContent>
 				<xs:extension base="beans:identifiedType">
-					<xs:choice minOccurs="0" maxOccurs="unbounded">
-						<xs:element name="url">
-							<xs:annotation>
-								<xs:documentation>
-									Specifies a url pattern that is to be "locked
-									down" according to the
-									availability of access
-									tokens
-									for the
-									specified resources. Note that this element is not
-									required
-									because it may not be desirable
-									to apply
-									OAuth 2 security
-									policies on a URL basis.
-								</xs:documentation>
-							</xs:annotation>
-							<xs:complexType>
-								<xs:attribute name="pattern" type="xs:string" use="required">
-									<xs:annotation>
-										<xs:documentation>
-											The pattern for the URL.
-										</xs:documentation>
-									</xs:annotation>
-								</xs:attribute>
-								<xs:attribute name="resources" type="xs:string" use="required">
-									<xs:annotation>
-										<xs:documentation>
-											The resources (comma separated list of
-											resource ids) for which
-											the client requires access in
-											order to
-											service the URL.
-										</xs:documentation>
-									</xs:annotation>
-								</xs:attribute>
-								<xs:attribute name="httpMethod" type="xs:string">
-									<xs:annotation>
-										<xs:documentation>
-											The HTTP method.
-										</xs:documentation>
-									</xs:annotation>
-								</xs:attribute>
-							</xs:complexType>
-						</xs:element>
-					</xs:choice>
-
-					<xs:attribute name="resource-details-service-ref" type="xs:string">
-						<xs:annotation>
-							<xs:documentation>
-								The reference to the bean that services the
-								known resource details.
-								Default value is an instance
-								of
-								"org.springframework.security.oauth2.client.InMemoryOAuth2ProtectedResourceDetailsService".
-							</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute name="token-provider-ref" type="xs:string">
-						<xs:annotation>
-							<xs:documentation>
-								The reference to the bean that manages the
-								providers that are used
-								to obtain OAuth2 access
-								tokens. Default
-								value is an instance of
-								"org.springframework.security.oauth2.client.provider.OAuth2AccessTokenProviderChain".
-							</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute name="token-cache-ref" type="xs:string">
-						<xs:annotation>
-							<xs:documentation>
-								The reference to the bean that manages
-								"remembers" OAuth2 tokens
-								for the current user. Default
-								value is
-								an
-								instance of
-								"org.springframework.security.oauth2.client.rememberme.HttpSessionOAuth2RememberMeServices".
-							</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
 					<xs:attribute name="redirect-strategy-ref" type="xs:string">
 						<xs:annotation>
 							<xs:documentation>
 								The reference to the bean that defines the
-								redirect strategy, used
-								when redirecting the user for
-								access
-								authorization.
-								Default value is an instance of
+								redirect strategy, used when redirecting the user for
+								access authorization. Default value is an instance of
 								"org.springframework.security.web.DefaultRedirectStrategy".
-							</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute name="redirect-on-error" type="xs:string">
-						<xs:annotation>
-							<xs:documentation>
-								Flag to indicate that the filter should
-								redirect the browser instead
-								of re-executing the current
-								filter
-								chain if a proteced resource
-								is encountered. Default is false.
-							</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute name="path-type">
-						<xs:annotation>
-							<xs:documentation>
-								Defines the type of pattern used to specify URL
-								paths (either JDK
-								1.4-compatible regular
-								expressions, or Apache
-								Ant expressions).
-								Defaults to "ant" if
-								unspecified.
-							</xs:documentation>
-						</xs:annotation>
-						<xs:simpleType>
-							<xs:restriction base="xs:token">
-								<xs:enumeration value="ant" />
-								<xs:enumeration value="regex" />
-							</xs:restriction>
-						</xs:simpleType>
-					</xs:attribute>
-					<xs:attribute name="lowercase-comparisons" type="xs:boolean">
-						<xs:annotation>
-							<xs:documentation>
-								Whether test URLs should be converted to lower
-								case prior to comparing
-								with defined path
-								patterns. If
-								unspecified, defaults to "true".
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
@@ -637,8 +573,7 @@
 		<xs:annotation>
 			<xs:documentation>
 				Definition of a resource that is protected via
-				OAuth2 to which the application
-				wants access.
+				OAuth2 to which the client application wants access.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
@@ -717,21 +652,15 @@
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
-					<xs:attribute name="authentication-scheme" default="header">
+					<xs:attribute name="authentication-scheme" default="header" type="xs:string">
 						<xs:annotation>
 							<xs:documentation>
 								The method for bearing the token when accessing
 								the resource.
-								Default value is "header".
+								Default value is "header". See
+								AuthenticationScheme enum for possible values.
 							</xs:documentation>
 						</xs:annotation>
-						<xs:simpleType>
-							<xs:restriction base="xs:string">
-								<xs:enumeration value="header" />
-								<xs:enumeration value="query" />
-								<xs:enumeration value="form" />
-							</xs:restriction>
-						</xs:simpleType>
 					</xs:attribute>
 					<xs:attribute name="token-name" type="xs:string" default="access_token">
 						<xs:annotation>
@@ -753,6 +682,15 @@
 								they will redirect users after
 								users
 								authorize an access token.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="use-current-uri" type="xs:string">
+						<xs:annotation>
+							<xs:documentation>
+								Boolean flag indicating that the current URI should be used as a redirect (if available) rather
+								than the
+								registered redirect URI. Default is true.
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>

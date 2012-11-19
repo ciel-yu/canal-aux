@@ -27,7 +27,7 @@
 					</xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+							<tool:expected-type type="org.springframework.integration.MessageChannel" />
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
@@ -73,7 +73,7 @@
 			</xsd:documentation>
 			<xsd:appinfo>
 				<tool:annotation>
-					<tool:exports type="org.springframework.integration.core.MessageChannel" />
+					<tool:exports type="org.springframework.integration.MessageChannel" />
 				</tool:annotation>
 			</xsd:appinfo>
 		</xsd:annotation>
@@ -304,7 +304,7 @@
 			</xsd:documentation>
 			<xsd:appinfo>
 				<tool:annotation>
-					<tool:exports type="org.springframework.integration.core.MessageChannel" />
+					<tool:exports type="org.springframework.integration.MessageChannel" />
 				</tool:annotation>
 			</xsd:appinfo>
 		</xsd:annotation>
@@ -541,7 +541,7 @@
 					</xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+							<tool:expected-type type="org.springframework.integration.MessageChannel" />
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
@@ -556,7 +556,7 @@
 					</xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+							<tool:expected-type type="org.springframework.integration.MessageChannel" />
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
@@ -643,7 +643,7 @@
 				</xsd:documentation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+						<tool:expected-type type="org.springframework.integration.MessageChannel" />
 					</tool:annotation>
 				</xsd:appinfo>
 			</xsd:annotation>
@@ -821,7 +821,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 			<xsd:annotation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+						<tool:expected-type type="org.springframework.integration.MessageChannel" />
 					</tool:annotation>
 				</xsd:appinfo>
 				<xsd:documentation>
@@ -1088,24 +1088,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 			<xsd:any processContents="strict" namespace="##other" minOccurs="0" maxOccurs="unbounded" />
 
 			<xsd:element name="service-activator" type="expressionOrInnerEndpointDefinitionAware" />
-			<xsd:element name="splitter">
-				<xsd:complexType>
-					<xsd:complexContent>
-						<xsd:extension base="expressionOrInnerEndpointDefinitionAware">
-							<xsd:attribute name="apply-sequence" type="xsd:boolean" use="optional">
-								<xsd:annotation>
-									<xsd:documentation>
-										Set this flag to false to prevent adding sequence related headers in this splitter. This
-										can be
-										convenient in cases where the set sequence numbers conflict with downstream custom
-										aggregations.
-									</xsd:documentation>
-								</xsd:annotation>
-							</xsd:attribute>
-						</xsd:extension>
-					</xsd:complexContent>
-				</xsd:complexType>
-			</xsd:element>
+			<xsd:element name="splitter" type="splitter-type" />
 			<xsd:element name="transformer" type="expressionOrInnerEndpointDefinitionAware" />
 			<xsd:element name="header-enricher" type="header-enricher-type" />
 			<xsd:element name="header-filter" type="header-filter-type" />
@@ -1430,14 +1413,16 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 			<xsd:element name="priority">
 				<xsd:annotation>
 					<xsd:documentation>
-						Shortcut to specify value for 'priority' header when using PriotityChannel
+						Shortcut to specify value for 'priority' header when using PriorityChannel
 					</xsd:documentation>
 				</xsd:annotation>
 				<xsd:complexType>
 					<xsd:attribute name="value">
-						<xsd:simpleType>
-							<xsd:union memberTypes="priorityEnumeration xsd:string" />
-						</xsd:simpleType>
+						<xsd:annotation>
+							<xsd:documentation>
+								Integer value identifying the value of the 'priority' header.
+							</xsd:documentation>
+						</xsd:annotation>
 					</xsd:attribute>
 					<xsd:attribute name="overwrite">
 						<xsd:annotation>
@@ -1531,16 +1516,6 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 			</xsd:annotation>
 		</xsd:attribute>
 	</xsd:complexType>
-
-	<xsd:simpleType name="priorityEnumeration">
-		<xsd:restriction base="xsd:token">
-			<xsd:enumeration value="HIGHEST" />
-			<xsd:enumeration value="HIGH" />
-			<xsd:enumeration value="NORMAL" />
-			<xsd:enumeration value="LOW" />
-			<xsd:enumeration value="LOWEST" />
-		</xsd:restriction>
-	</xsd:simpleType>
 
 	<xsd:complexType name="userDefinedHeaderType">
 		<xsd:annotation>
@@ -1666,6 +1641,17 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 					be removed from the
 					MessageHeaders
 					of the Message being handled.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="pattern-match" type="xsd:boolean" default="true">
+			<xsd:annotation>
+				<xsd:documentation>
+					Boolean flag that specifies whether values provided in 'header-names' should be treated as 
+					match patterns or literal values. For example header-names='foo*' would mean remove all 
+					headers that begin with 'foo' including the header named 'foo*'. However if you want to 
+					treat '*' as literal value setting this flag to FALSE will not perform pattern match and 
+					the only header that will be removed is the one that is an exact match.
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -1991,7 +1977,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 					<xsd:annotation>
 						<xsd:appinfo>
 							<tool:annotation kind="ref">
-								<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+								<tool:expected-type type="org.springframework.integration.MessageChannel" />
 							</tool:annotation>
 						</xsd:appinfo>
 						<xsd:documentation>
@@ -2072,7 +2058,7 @@ Name of the header whose value will be used to route messages
 								<xsd:annotation>
 									<xsd:appinfo>
 										<tool:annotation kind="ref">
-											<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+											<tool:expected-type type="org.springframework.integration.MessageChannel" />
 										</tool:annotation>
 									</xsd:appinfo>
 								</xsd:annotation>
@@ -2111,7 +2097,7 @@ Name of the header whose value will be used to route messages
 								<xsd:annotation>
 									<xsd:appinfo>
 										<tool:annotation kind="ref">
-											<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+											<tool:expected-type type="org.springframework.integration.MessageChannel" />
 										</tool:annotation>
 									</xsd:appinfo>
 								</xsd:annotation>
@@ -2151,7 +2137,7 @@ Name of the header whose value will be used to route messages
 								<xsd:annotation>
 									<xsd:appinfo>
 										<tool:annotation kind="ref">
-											<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+											<tool:expected-type type="org.springframework.integration.MessageChannel" />
 										</tool:annotation>
 									</xsd:appinfo>
 								</xsd:annotation>
@@ -2215,7 +2201,7 @@ Name of the header whose value will be used to route messages
 							]]></xsd:documentation>
 						<xsd:appinfo>
 							<tool:annotation kind="ref">
-								<tool:expected-type type="org.springframework.integration.core.ChannelResolver" />
+								<tool:expected-type type="org.springframework.integration.support.channel.ChannelResolver" />
 							</tool:annotation>
 						</xsd:appinfo>
 					</xsd:annotation>
@@ -2253,7 +2239,7 @@ Name of the header whose value will be used to route messages
 									</xsd:documentation>
 									<xsd:appinfo>
 										<tool:annotation kind="ref">
-											<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+											<tool:expected-type type="org.springframework.integration.MessageChannel" />
 										</tool:annotation>
 									</xsd:appinfo>
 								</xsd:annotation>
@@ -2280,7 +2266,7 @@ Name of the header whose value will be used to route messages
 					<xsd:annotation>
 						<xsd:appinfo>
 							<tool:annotation kind="ref">
-								<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+								<tool:expected-type type="org.springframework.integration.MessageChannel" />
 							</tool:annotation>
 							<xsd:documentation>
 								Reference to the default channel where Messages should be sent if channel
@@ -2345,33 +2331,47 @@ Name of the header whose value will be used to route messages
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="expressionOrInnerEndpointDefinitionAware">
+				<xsd:extension base="splitter-type">
 					<xsd:attributeGroup ref="inputOutputChannelGroup" />
-					<xsd:attribute name="requires-reply" type="xsd:string" use="optional">
-						<xsd:annotation>
-							<xsd:documentation>
-								Specify whether the splitter method must return a non-null value. This value will be
-								FALSE by
-								default, but if set to TRUE, a MessageHandlingException will be thrown when
-								the underlying service method (or
-								expression) returns a NULL value.
-							</xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
-					<xsd:attribute name="apply-sequence" type="xsd:boolean" use="optional">
-						<xsd:annotation>
-							<xsd:documentation>
-								Set this flag to false to prevent adding sequence related headers in this splitter. This
-								can be
-								convenient in cases where the set sequence numbers conflict with downstream custom
-								aggregations.
-							</xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
+
+	<xsd:complexType name="splitter-type">
+		<xsd:complexContent>
+			<xsd:extension base="expressionOrInnerEndpointDefinitionAware">
+				<xsd:attribute name="requires-reply" type="xsd:string" use="optional">
+					<xsd:annotation>
+						<xsd:documentation>
+							Specify whether the splitter method must return a non-null value. This value will be
+							FALSE by default, but if set to TRUE, a MessageHandlingException will be thrown when
+							the underlying service method (or expression) returns a NULL value.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="apply-sequence" type="xsd:string" use="optional">
+					<xsd:annotation>
+						<xsd:documentation>
+							Set this flag to false to prevent adding sequence related headers in this splitter.
+							This can be convenient in cases where the set sequence numbers conflict with downstream
+							custom aggregations.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="delimiters" type="xsd:string" use="optional">
+					<xsd:annotation>
+						<xsd:documentation>
+							Provide one or more delimiters (as a single String value, e.g. delimiters=",;:") for
+							tokenizing String-typed payload values. This attribute is only allowed if no 'ref' or
+							'expression' have been provided since that is when the DefaultMessageSplitter would
+							be used, and it's the implementation that contains the "delimiters" property.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
 
 	<xsd:element name="aggregator">
 		<xsd:annotation>
@@ -2434,7 +2434,7 @@ Name of the header whose value will be used to route messages
 				</xsd:attribute>
 				<xsd:attribute name="release-strategy-expression" type="xsd:string">
 					<xsd:annotation>
-						<xsd:documentation>A SpEL expression to apply to the message group (e.g, payload.size() > 6)</xsd:documentation>
+						<xsd:documentation>A SpEL expression to evaluate against a root object that is the Collection of messages within the message group (e.g, size() > 6)</xsd:documentation>
 					</xsd:annotation>
 				</xsd:attribute>
 				<xsd:attribute name="correlation-strategy" type="xsd:string">
@@ -2475,7 +2475,7 @@ Name of the header whose value will be used to route messages
 					<xsd:annotation>
 						<xsd:appinfo>
 							<tool:annotation kind="ref">
-								<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+								<tool:expected-type type="org.springframework.integration.MessageChannel" />
 							</tool:annotation>
 						</xsd:appinfo>
 						<xsd:documentation>
@@ -2503,8 +2503,11 @@ Name of the header whose value will be used to route messages
 				<xsd:attribute name="send-partial-result-on-expiry" type="xsd:string">
 					<xsd:annotation>
 						<xsd:documentation>
-						Tells if partially aggregated messages should be released when their storage time had expired (see
-						MessageGroupStore.expireMessageGroups(long))
+						Specifies whether messages that expired should be aggregated and sent to the 'output-channel' or 'replyChannel'. 
+						Messages are expired when their containing MessageGroup expires. One of the ways of expiring MessageGroups is by 
+						configuring a MessageGroupStoreReaper. However MessageGroups can alternatively be expired by simply calling 
+						MessageGroupStore.expireMessageGroup(groupId). That could be accomplished via a ControlBus operation
+						or by simply invoking that method if you have a reference to the MessageGroupStore instance.
 						</xsd:documentation>
 					</xsd:annotation>
 				</xsd:attribute>
@@ -2614,7 +2617,7 @@ Name of the header whose value will be used to route messages
 			<xsd:annotation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+						<tool:expected-type type="org.springframework.integration.MessageChannel" />
 					</tool:annotation>
 				</xsd:appinfo>
 			</xsd:annotation>
@@ -2779,7 +2782,7 @@ Name of the header whose value will be used to route messages
 							<xsd:annotation>
 								<xsd:appinfo>
 									<tool:annotation kind="ref">
-										<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+										<tool:expected-type type="org.springframework.integration.MessageChannel" />
 									</tool:annotation>
 								</xsd:appinfo>
 							</xsd:annotation>
@@ -2795,7 +2798,7 @@ Name of the header whose value will be used to route messages
 					]]></xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+							<tool:expected-type type="org.springframework.integration.MessageChannel" />
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
@@ -2842,9 +2845,7 @@ Name of the header whose value will be used to route messages
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:choice minOccurs="0" maxOccurs="1">
-					<xsd:element ref="beans:bean" />
-				</xsd:choice>
+			    <xsd:any namespace="##any" processContents="strict" minOccurs="0" maxOccurs="1" />				
 			</xsd:sequence>
 			<xsd:attribute name="pattern" type="xsd:string" use="optional">
 				<xsd:annotation>
@@ -2965,7 +2966,7 @@ The list of component name patterns you want to track (e.g.,  tracked-components
 			<xsd:annotation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+						<tool:expected-type type="org.springframework.integration.MessageChannel" />
 					</tool:annotation>
 				</xsd:appinfo>
 				<xsd:documentation>
@@ -2986,7 +2987,7 @@ The list of component name patterns you want to track (e.g.,  tracked-components
 			<xsd:annotation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="org.springframework.integration.core.MessageChannel" />
+						<tool:expected-type type="org.springframework.integration.MessageChannel" />
 					</tool:annotation>
 				</xsd:appinfo>
 				<xsd:documentation>

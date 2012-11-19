@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.springframework.org/schema/insight-idk"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.springframework.org/schema/insight-idk"
+    elementFormDefault="qualified" attributeFormDefault="unqualified"
+    version="1.0">
+
+   <xsd:element name="plugin">
+      <xsd:annotation>
+         <xsd:documentation><![CDATA[
+   Descriptor for this plugin.  Each plugin must have exactly one descriptor.
+         ]]></xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:attribute name="name" type="xsd:string" use="required">
+            <xsd:annotation>
+               <xsd:documentation><![CDATA[
+   A short, descriptive name for this plugin.  It should remain unchanged
+   across release versions.
+               ]]></xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+         <xsd:attribute name="version" type="xsd:string" use="required">
+            <xsd:annotation>
+               <xsd:documentation><![CDATA[
+   The version number of this plugin.
+               ]]></xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+         <xsd:attribute name="publisher" type="xsd:string" use="required">
+            <xsd:annotation>
+               <xsd:documentation><![CDATA[
+   Your name.
+               ]]></xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+         <xsd:attribute name="href" type="xsd:anyURI">
+            <xsd:annotation>
+               <xsd:documentation><![CDATA[
+   Optional link to more information about the plugin, typically documentation.
+               ]]></xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+      </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="operation-view">
+      <xsd:annotation>
+         <xsd:documentation><![CDATA[
+   Defines a view to render for an Operation.  At most one view per 
+   OperationType should be defined.  
+   
+   If no view is defined, reflection is used to introspect the Operation and 
+   provide a default view.  It is highly recommended that a view be defined for
+   every OperationType.
+         ]]></xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:attribute name="operation" type="xsd:string" use="required">
+            <xsd:annotation>
+               <xsd:documentation><![CDATA[
+   The OperationType to render with this view.
+               ]]></xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+         <xsd:attribute name="template" type="xsd:string" use="required">
+            <xsd:annotation>
+               <xsd:documentation><![CDATA[
+   Path to the template to render the Operation.  '/' is the root of the 
+   classpath.
+   
+   Only Freemarker templates (.ftl) are supported.
+               ]]></xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+      </xsd:complexType>
+   </xsd:element>
+   
+   <xsd:element name="operation-group">
+      <xsd:annotation>
+         <xsd:documentation><![CDATA[
+   Adds an OperationType to a group.  A group consists of one or more 
+   OperationTypes.  An OperationType may have zero to many groups.
+   
+   This element links exactly one OperationType to exactly one group.  It may
+   be redefined as many times as necessary to collectively define a group.
+   
+   OperationType groups are used to provide filtering of Trace Operations.  For
+   example, show all 'Database' operations.  The database group can contain 
+   both transaction operations and SQL operations.
+   
+   Multiple plug-ins can add OperationTypes for the same group.  For example, 
+   a Hibernate plug-in can add its operations to the 'Database' group.
+         ]]></xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:attribute name="operation" type="xsd:string" use="required">
+            <xsd:annotation>
+               <xsd:documentation><![CDATA[
+   The OperationType to add to this group.
+               ]]></xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+         <xsd:attribute name="group" type="xsd:string" use="required">
+            <xsd:annotation>
+               <xsd:documentation><![CDATA[
+   The group to add the OperationType to.  Groups will appear in the UI 
+   exactly as defined.  They should be concise and human readable.
+   
+   Case-sensitive
+               ]]></xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+      </xsd:complexType>
+   </xsd:element>
+
+</xsd:schema>
