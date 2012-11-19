@@ -50,6 +50,13 @@
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="filter-chain-ref" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Reference to the bean that is the filter chain that is to be instrumented with support for OAuth.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="require10a" type="xs:boolean">
         <xs:annotation>
           <xs:documentation>
@@ -67,7 +74,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="authentication-failed-url" type="xs:string">
+      <xs:attribute name="user-approval-url" type="xs:string">
         <xs:annotation>
           <xs:documentation>
             The URL to which the user will be redirected if for some reason authentication of a request token failed. Default
@@ -247,6 +254,19 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="expression-handler">
+    <xs:annotation>
+      <xs:documentation>
+        Element for declaring and configuring an expression handler for oauth security expressions. See http://static.springsource.org/spring-security/site/docs/3.0.x/reference/el-access.html
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="beans:identifiedType"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="verifier-services">
     <xs:annotation>
       <xs:documentation>
@@ -315,6 +335,13 @@
         <xs:annotation>
           <xs:documentation>
             The page where the user should be redirected on OAuth failure.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="filter-chain-ref" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Reference to the bean that is the filter chain that is to be instrumented with support for OAuth.
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>

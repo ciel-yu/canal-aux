@@ -22,19 +22,27 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:attribute name="id" type="xsd:string"/>
+			<xsd:attribute name="auto-startup" type="xsd:string" default="true">
+				<xsd:annotation>
+					<xsd:documentation>
+						Lifecycle attribute signaling if this component should be started during Application Context startup.
+						Default is 'true'.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
 			<xsd:attribute name="session-factory" type="xsd:string" use="required">
 				<xsd:annotation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.sftp.session.SftpSessionFactory"/>
+							<tool:expected-type type="org.springframework.integration.sftp.session.DefaultSftpSessionFactory"/>
 						</tool:annotation>
 					</xsd:appinfo>
 					<xsd:documentation><![CDATA[
-                Reference to a [org.springframework.integration.sftp.session.SftpSessionFactory] bean.
-            			]]></xsd:documentation>
+                Reference to a DefaultSftpSessionFactory bean.
+            		]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="cache-sessions" type="xsd:boolean" default="true">
+			<xsd:attribute name="cache-sessions" type="xsd:string" default="true">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 				Specify whether the Sessions should be cached. Default is true.
@@ -45,7 +53,7 @@
 				<xsd:annotation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+							<tool:expected-type type="org.springframework.integration.MessageChannel"/>
 						</tool:annotation>
 					</xsd:appinfo>
 					<xsd:documentation>
@@ -62,7 +70,7 @@
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="remote-file-separator" type="xsd:string">
+			<xsd:attribute name="remote-file-separator" type="xsd:string" default="/">
 						<xsd:annotation>
 							<xsd:documentation>
 							Allows you to provide remote file/directory separator character. DEFAULT: '/' 
@@ -149,11 +157,11 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 				<xsd:annotation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.sftp.session.SftpSessionFactory"/>
+							<tool:expected-type type="org.springframework.integration.sftp.session.DefaultSftpSessionFactory"/>
 						</tool:annotation>
 					</xsd:appinfo>
 					<xsd:documentation>
-					 Reference to a [org.springframework.integration.sftp.session.SftpSessionFactory] bean.
+					 Reference to a DefaultSftpSessionFactory bean.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -165,7 +173,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 					]]></xsd:documentation>
                 </xsd:annotation>
             </xsd:attribute>
-			<xsd:attribute name="cache-sessions" type="xsd:boolean" default="true">
+			<xsd:attribute name="cache-sessions" type="xsd:string" default="true">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 				Specify whether the Sessions should be cached. Default is true.
@@ -191,7 +199,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 				<xsd:annotation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
+							<tool:expected-type type="org.springframework.integration.MessageChannel"/>
 						</tool:annotation>
 					</xsd:appinfo>
 					<xsd:documentation>
@@ -230,7 +238,7 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 	            	</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="remote-file-separator" type="xsd:string">
+			<xsd:attribute name="remote-file-separator" type="xsd:string" default="/">
 				<xsd:annotation>
 					<xsd:documentation>
 					Allows you to provide remote file/directory separator character. DEFAULT: '/' 
@@ -251,14 +259,14 @@ endpoint itself is a Polling Consumer for a channel with a queue.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="auto-create-local-directory" type="xsd:boolean">
+			<xsd:attribute name="auto-create-local-directory" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation>
 					Tells this adapter if local directory must be auto-created if it doesn''t exist. Default is TRUE.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="delete-remote-files" type="xsd:boolean">
+			<xsd:attribute name="delete-remote-files" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation>
 						Specify whether to delete the remote source file after copying.
