@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 
-from tia.barcode import InbarcodeOcr
+from tio.barcode import InbarcodeOcr
 import argparse
 import os
 import re
