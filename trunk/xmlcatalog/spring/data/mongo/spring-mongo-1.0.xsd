@@ -7,16 +7,14 @@
 						xmlns:context="http://www.springframework.org/schema/context"
 						xmlns:repository="http://www.springframework.org/schema/data/repository"
 						targetNamespace="http://www.springframework.org/schema/data/mongo"
-						elementFormDefault="qualified" attributeFormDefault="unqualified"
-						xsi:schemaLocation="http://www.springframework.org/schema/beans
-            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+						elementFormDefault="qualified" attributeFormDefault="unqualified">
 
-	<xsd:import namespace="http://www.springframework.org/schema/beans"/>
-	<xsd:import namespace="http://www.springframework.org/schema/tool"/>
+	<xsd:import namespace="http://www.springframework.org/schema/beans" />
+	<xsd:import namespace="http://www.springframework.org/schema/tool" />
 	<xsd:import namespace="http://www.springframework.org/schema/context"
-							schemaLocation="http://www.springframework.org/schema/context/spring-context.xsd"/>
+				schemaLocation="http://www.springframework.org/schema/context/spring-context.xsd" />
 	<xsd:import namespace="http://www.springframework.org/schema/data/repository"
-							schemaLocation="http://www.springframework.org/schema/data/repository/spring-repository.xsd"/>
+				schemaLocation="http://www.springframework.org/schema/data/repository/spring-repository-1.0.xsd" />
 
 	<xsd:element name="mongo" type="mongoType">
 		<xsd:annotation>
@@ -46,8 +44,9 @@ The name of the mongo definition (by default "mongoDbFactory").]]></xsd:document
 			</xsd:attribute>
 			<xsd:attribute name="mongo-ref" type="mongoRef" use="optional">
 				<xsd:annotation>
-					<xsd:documentation>
-						The reference to a Mongo. Will default to 'mongo'.
+					<xsd:documentation><![CDATA[
+The reference to a Mongo instance. If not configured a default com.mongodb.Mongo instance will be created.
+					]]>
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>

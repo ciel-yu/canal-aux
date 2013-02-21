@@ -78,7 +78,7 @@
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The default 'lazy-init' value; see the documentation for the
-	'lazy-init' attribute of the '<bean>/' element. 
+	'lazy-init' attribute of the '<bean>' element.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -86,31 +86,15 @@
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The default 'merge' value; see the documentation for the
-	'merge' attribute of the various collection elements. 
+	'merge' attribute of the various collection elements.
 					]]></xsd:documentation>
 				</xsd:annotation>
-			</xsd:attribute>
-			<xsd:attribute name="default-dependency-check" default="none">
-				<xsd:annotation>
-					<xsd:documentation><![CDATA[
-	The default 'dependency-check' value; see the documentation for the
-	'dependency-check' attribute of the '<bean>/' element. 
-					]]></xsd:documentation>
-				</xsd:annotation>
-				<xsd:simpleType>
-					<xsd:restriction base="xsd:NMTOKEN">
-						<xsd:enumeration value="none"/>
-						<xsd:enumeration value="simple"/>
-						<xsd:enumeration value="objects"/>
-						<xsd:enumeration value="all"/>
-					</xsd:restriction>
-				</xsd:simpleType>
 			</xsd:attribute>
 			<xsd:attribute name="default-autowire" default="no">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The default 'autowire' value; see the documentation for the
-	'autowire' attribute of the '<bean>/' element. 
+	'autowire' attribute of the '<bean>' element.
 					]]></xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
@@ -123,11 +107,27 @@
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:attribute>
+			<xsd:attribute name="default-dependency-check" default="none">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	The default 'dependency-check' value; see the documentation for the
+	'dependency-check' attribute of the '<bean>' element.
+					]]></xsd:documentation>
+				</xsd:annotation>
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="none"/>
+						<xsd:enumeration value="simple"/>
+						<xsd:enumeration value="objects"/>
+						<xsd:enumeration value="all"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
 			<xsd:attribute name="default-init-method" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The default 'init-method' value; see the documentation for the
-	'init-method' attribute of the '<bean>/' element. 
+	'init-method' attribute of the '<bean>' element.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -135,7 +135,7 @@
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
 	The default 'destroy-method' value; see the documentation for the
-	'destroy-method' attribute of the '<bean>/' element. 
+	'destroy-method' attribute of the '<bean>' element.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -145,8 +145,7 @@
 	<xsd:element name="description">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
-	Contains informative text describing the purpose of the enclosing
-	element.
+	Contains informative text describing the purpose of the enclosing element.
 	Used primarily for user documentation of XML bean definition documents.
 			]]></xsd:documentation>
 		</xsd:annotation>
@@ -233,7 +232,8 @@
 		<xsd:attribute name="class" type="xsd:string">
 			<xsd:annotation>
 				<xsd:documentation source="java:java.lang.Class"><![CDATA[
-	The fully qualified name of the bean's class, except if it pure serves as parent for child bean definitions.
+	The fully qualified name of the bean's class, except if it serves only
+	as a parent definition for child bean definitions.
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -323,7 +323,7 @@
 	more explicit.
 
 	2. "byName"
-	Autowiring by property name. If a bean of class Cat exposes a dog
+	Autowiring by property name. If a bean of class Cat exposes a "dog"
 	property, Spring will try to set this to the value of the bean "dog"
 	in the current container. If there is no matching bean by name, nothing
 	special happens; use dependency-check="objects" to raise an error in
@@ -369,12 +369,12 @@
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
 	Controls whether or not to check whether all of this
-	beans dependencies, expressed in its properties, are satisfied.
+	bean's dependencies, expressed in its properties, are satisfied.
 	The default is to perform no dependency checking.
 
-	"simple" type dependency checking includes primitives and String
-	"object" includes collaborators (other beans in the factory)
-	"all" includes both types of dependency checking
+	"simple" type dependency checking includes primitives and String;
+	"objects" includes collaborators (other beans in the factory);
+	"all" includes both types of dependency checking.
 
 	Note: This attribute will not be inherited by child bean definitions.
 	Hence, it needs to be specified per concrete bean definition.
@@ -404,6 +404,16 @@
 
 	Note: This attribute will not be inherited by child bean definitions.
 	Hence, it needs to be specified per concrete bean definition.
+				]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="autowire-candidate" type="xsd:boolean">
+			<xsd:annotation>
+				<xsd:documentation><![CDATA[
+	Indicates whether or not this bean should be considered when looking
+	for matching candidates to satisfy another bean's autowiring requirements.
+	Note that this does not affect explicit references by name, which will get
+	resolved even if the specified bean is not marked as an autowire candidate.
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -471,14 +481,6 @@
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="autowire-candidate" type="xsd:boolean">
-			<xsd:annotation>
-				<xsd:documentation><![CDATA[
-	Indicates whether or not this bean should be considered when looking
-	for candidates to satisfy another bean's autowiring requirements.
-				]]></xsd:documentation>
-			</xsd:annotation>
-		</xsd:attribute>
 		<xsd:anyAttribute namespace="##other" processContents="lax"/>
 	</xsd:attributeGroup>
 
@@ -494,14 +496,14 @@
 		<xsd:attribute name="key" type="xsd:string" use="required">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
-	The key name of the metadata parameter being defined.
+	The key name of the metadata attribute being defined.
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
 		<xsd:attribute name="value" type="xsd:string" use="required">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
-	The value of the metadata parameter being defined (as a simple String).
+	The value of the metadata attribute being defined (as a simple String).
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -563,7 +565,7 @@
 			<xsd:attribute name="index" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
-	The exact index of thr argument in the constructor argument list.
+	The exact index of the argument in the constructor argument list.
 	Only needed to avoid ambiguities, e.g. in case of 2 arguments of
 	the exact same type.
 					]]></xsd:documentation>
@@ -588,8 +590,7 @@
 			<xsd:attribute name="value" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
-	A short-cut alternative to a nested "<value>...<value/>"
-	element.
+	A short-cut alternative to a nested "<value>...<value/>" element.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -727,16 +728,16 @@
 					<xsd:attribute name="local" type="xsd:IDREF">
 						<xsd:annotation>
 							<xsd:documentation><![CDATA[
-	The name of the referenced bean. The value must be a bean ID,
-	and thus can be checked by the XML parser, thus should be preferred
-	for references within the same bean factory XML file.
+	The name of the referenced bean. The value must be a bean ID and thus can
+	be checked by the XML parser. This is therefore the preferred technique
+	for referencing beans within the same bean factory XML file.
 							]]></xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
 					<xsd:attribute name="parent" type="xsd:string">
 						<xsd:annotation>
 							<xsd:documentation><![CDATA[
-	The name of the referenced bean *in a parent factory*.
+	The name of the referenced bean in a parent factory.
 						]]></xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
@@ -768,9 +769,9 @@
 					<xsd:attribute name="local" type="xsd:IDREF">
 						<xsd:annotation>
 							<xsd:documentation><![CDATA[
-	The name of the referenced bean. The value must be a bean ID,
-	and thus can be checked by the XML parser, thus should be preferred
-	for references within the same bean factory XML file.
+	The name of the referenced bean. The value must be a bean ID and thus can
+	be checked by the XML parser. This is therefore the preferred technique
+	for referencing beans within the same bean factory XML file.
 							]]></xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
@@ -841,23 +842,21 @@
 	<xsd:element name="list" type="listOrSetType">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
-	A list can contain multiple inner bean, ref, collection, or value
-	elements. Java lists are untyped, pending generics support in Java5,
-	although references will be strongly typed. A list can also map to
-	an array type. The necessary conversion is automatically performed
-	by the BeanFactory.
+	A list can contain multiple inner bean, ref, collection, or value elements.
+	A list can also map to an array type; the necessary conversion is performed
+	automatically.
 			]]></xsd:documentation>
 		</xsd:annotation>
 	</xsd:element>
+
 	<xsd:element name="set" type="listOrSetType">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
-	A set can contain multiple inner bean, ref, collection, or value
-	elements. Java sets are untyped, pending generics support in Java5,
-	although references will be strongly typed.
+	A set can contain multiple inner bean, ref, collection, or value elements.
 			]]></xsd:documentation>
 		</xsd:annotation>
 	</xsd:element>
+
 	<xsd:element name="map" type="mapType">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
@@ -865,6 +864,7 @@
 			]]></xsd:documentation>
 		</xsd:annotation>
 	</xsd:element>
+
 	<xsd:element name="entry" type="entryType">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
@@ -873,6 +873,7 @@
 			]]></xsd:documentation>
 		</xsd:annotation>
 	</xsd:element>
+
 	<xsd:element name="props" type="propsType">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
@@ -982,6 +983,15 @@
 		</xsd:complexContent>
 	</xsd:complexType>
 
+	<!-- 'list' and 'set' collection type -->
+	<xsd:complexType name="listOrSetType">
+		<xsd:complexContent>
+			<xsd:extension base="typedCollectionType">
+				<xsd:group ref="collectionElements"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
 	<!-- 'map' element type -->
 	<xsd:complexType name="mapType">
 		<xsd:complexContent>
@@ -995,7 +1005,7 @@
 					<xsd:annotation>
 						<xsd:documentation source="java:java.lang.Class"><![CDATA[
 	The default Java type for nested entry keys. Must be a fully qualified
-	class name. 	
+	class name.
 						]]></xsd:documentation>
 					</xsd:annotation>
 				</xsd:attribute>
@@ -1040,15 +1050,6 @@
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-	</xsd:complexType>
-
-	<!-- 'list' and 'set' collection type -->
-	<xsd:complexType name="listOrSetType">
-		<xsd:complexContent>
-			<xsd:extension base="typedCollectionType">
-				<xsd:group ref="collectionElements"/>
-			</xsd:extension>
-		</xsd:complexContent>
 	</xsd:complexType>
 
 	<!-- 'props' collection type -->

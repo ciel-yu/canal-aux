@@ -8,7 +8,7 @@
 		elementFormDefault="qualified"
 		attributeFormDefault="unqualified">
 
-	<xsd:import namespace="http://www.springframework.org/schema/tool"/>
+	<xsd:import namespace="http://www.springframework.org/schema/tool" schemaLocation="http://www.springframework.org/schema/tool/spring-tool-2.5.xsd"/>
 
 	<xsd:annotation>
 		<xsd:documentation><![CDATA[
@@ -372,13 +372,13 @@
 	</xsd:element>
 
 	<xsd:complexType name="listenerType">
-			<xsd:attribute name="id" type="xsd:ID">
-				<xsd:annotation>
-					<xsd:documentation><![CDATA[
+		<xsd:attribute name="id" type="xsd:ID">
+			<xsd:annotation>
+				<xsd:documentation><![CDATA[
 	The unique identifier for a listener.
-					]]></xsd:documentation>
-				</xsd:annotation>
-			</xsd:attribute>
+				]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
 		<xsd:attribute name="destination" type="xsd:string" use="required">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
