@@ -8,9 +8,9 @@
 		elementFormDefault="qualified"
 		attributeFormDefault="unqualified">
 
-	<xsd:import namespace="http://www.springframework.org/schema/beans"/>
-	<xsd:import namespace="http://www.springframework.org/schema/tool"/>
-
+	<xsd:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"/>
+	<xsd:import namespace="http://www.springframework.org/schema/tool" schemaLocation="http://www.springframework.org/schema/tool/spring-tool-2.0.xsd"/>
+			
 	<xsd:annotation>
 		<xsd:documentation><![CDATA[
 	Defines the configuration elements for the Spring Framework's AOP support.
@@ -91,11 +91,11 @@
 		<xsd:complexType>
 			<xsd:annotation>
 				<xsd:documentation source="java:org.springframework.aop.scope.ScopedProxyFactoryBean"><![CDATA[
-		Marks a bean definition as being a scoped proxy.
+	Marks a bean definition as being a scoped proxy.
 
-		A bean marked as such will be exposed via a proxy, with the 'real'
-		bean instance being retrieved from some other source (such as a
-		HttpSession) as and when required.
+	A bean marked as such will be exposed via a proxy, with the 'real'
+	bean instance being retrieved from some other source (such as a
+	HttpSession) as and when required.
 				]]></xsd:documentation>
 			</xsd:annotation>
 			<xsd:attribute name="proxy-target-class" type="xsd:boolean" default="true">
@@ -239,6 +239,7 @@
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
 	The type of pointcut expression (see the associated enumeration).
+	DEPRECATED: Only AspectJ expression pointcuts are supported.
 				]]></xsd:documentation>
 			</xsd:annotation>
 			<xsd:simpleType>
@@ -362,7 +363,7 @@
 				]]></xsd:documentation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">
-						<tool:expected-type type="org.springframework.aop.Advisor"/>
+						<tool:expected-type type="org.aopalliance.aop.Advice"/>
 					</tool:annotation>
 				</xsd:appinfo>
 			</xsd:annotation>
